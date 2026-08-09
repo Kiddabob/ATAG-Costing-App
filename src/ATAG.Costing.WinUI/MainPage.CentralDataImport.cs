@@ -212,7 +212,7 @@ public sealed partial class MainPage
                     ? blockingIssue.Message
                     : preview.IgnoredErrorCount > 0
                     ? $"{preview.IgnoredErrorCount:N0} division-by-zero/source-error cell(s) are shown as ignored blanks; valid records remain available."
-                    : "The preview loaded successfully. Continue to inspect transformations and automatic ATAG field matches.";
+                    : "The preview loaded successfully. Continue to inspect transformations and automatic costing-field matches.";
                 dialog.IsPrimaryButtonEnabled = preview.Columns.Count > 0 && blockingIssue is null;
             }
             catch (Exception exception)
@@ -506,7 +506,7 @@ public sealed partial class MainPage
         settingsPanel.Children.Add(columnEditorsPanel);
         settingsPanel.Children.Add(new TextBlock
         {
-            Text = "ATAG import matches",
+            Text = "Costing import matches",
             Margin = new Thickness(0, 8, 0, 0),
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
         });

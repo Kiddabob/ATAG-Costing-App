@@ -1991,3 +1991,115 @@ dual-insulation document payload and complete guided editor**. Carry the saved
 filter pipeline and per-family Masterbatch limits into both insulation layers;
 do not restore a second interpreted database or duplicate a waste/start-up
 allowance.
+
+## 2026-08-09 installer and update identity decisions
+
+The user has now confirmed:
+
+- installed Costing App clients must receive updates without requiring a
+  GitHub login;
+- each intended user signs into Windows/OneDrive with an `atagcables.com`
+  Microsoft work account;
+- the existing `Kiddabob/ATAG-Costing-App` repository may now become public,
+  provided the public source/build contains no retained database links, cached
+  central-data rows, business defaults, private credentials, or generated
+  customer/supplier/operator/material data;
+- no reusable GitHub credential may be embedded in the application.
+
+An `atagcables.com` OneDrive/Microsoft account is an identity, not a code-signing
+certificate. It may be used through Microsoft Entra to authorise Azure Artifact
+Signing or an organisation-controlled update service, but signing still requires
+an Azure subscription, organisation identity validation, a certificate profile,
+and assigned signer permissions. A self-signed certificate would additionally
+need to be deployed into every authorised PC's trusted certificate stores; a
+OneDrive sign-in alone does not establish that trust.
+
+The selected update direction is now a public GitHub repository/release feed so
+installed clients can read release metadata and download assets anonymously.
+Developer pushes still use each developer PC's own Git credential; that is
+separate from the installed app and must never be copied into a release.
+
+The recommended Windows packaging route is MSIX plus an `.appinstaller` feed,
+because Windows supports scheduled update checks and repair from HTTPS or a
+shared location. Signing remains a separate decision: an `atagcables.com`
+OneDrive sign-in is not itself a signing certificate. The installer/updater is
+still not implemented, and no release asset should be described as an updater
+until installed-app upgrade behaviour is tested.
+
+## 2026-08-09 isolated public-review build
+
+The user requested a quick build that exposes the app interface without any
+database link or retained ATAG data so they can decide whether a public
+binary-only distribution is acceptable.
+
+Implemented as a compile-time `AtagPublicReview=true` build, separate from the
+normal application:
+
+- `PublicReviewCentralDataStore` returns only
+  `InitialCentralDataState.Create()`: zero Copper, Compound, Masterbatch,
+  Contact, or Operator rows;
+- the review page constructs no Access or SQL database navigator and does not
+  construct the ECB exchange-rate service;
+- it uses a no-op in-memory preferences service, bypasses first-run storage and
+  database setup, never starts the 30-second refresh timer, and does not read
+  the installed app's retained LocalAppData;
+- central-data setup/edit/remove/refresh controls, project open/save/revision
+  controls, and storage settings are hidden or disabled;
+- every bound `TextBox`, `AutoSuggestBox`, `ComboBox`, `DatePicker`, and
+  `NumberBox` is detached from its operational value and presented blank in the
+  review shell after the selected page is rendered. Quote length, allowances,
+  commercial rates, supplier quotes, OD/tolerances, labour, print, reel,
+  quotation-number, packaging, delivery, and terms defaults do not appear in
+  the public binary review; installed user-entered state belongs only in that
+  user's LocalAppData;
+- a persistent banner states that this is an interface-only review build and
+  empty selectors are expected;
+- visible and package fallback naming is `Costing App`. A local-only,
+  current-user OneDrive registry check changes visible runtime naming to
+  `ATAG Costing App` only when a Business account email ends in
+  `@atagcables.com`; the address is not retained, logged, displayed, or sent;
+- its executable identity is `Costing.App.PublicReview.exe`, and its harmless
+  window placement uses a separate `Costing App\Public Review` LocalAppData
+  subfolder;
+- the A4 quotation button remains usable with no linked data. It produces a
+  neutral one-page A4 draft headed `Costing App`, substitutes
+  `Not specified`/zero values where required, and contains no ATAG company
+  name, address, phone number, quote prefix, or private data;
+- the normal application build and user data remain unchanged.
+
+Build and launch:
+
+```text
+dotnet publish src\ATAG.Costing.WinUI\ATAG.Costing.WinUI.csproj -c Release -p:Platform=x64 -p:AtagPublicReview=true -p:PublishTrimmed=false -p:PublishReadyToRun=false -r win-x64 --self-contained true --no-restore -o output\Costing-App-Public-Review
+Open Costing App Public Review.cmd
+```
+
+Verification completed on 9 August 2026:
+
+- public-review Debug build: zero warnings and zero errors;
+- normal Debug build: zero warnings and zero errors;
+- tests: 109 passed, 0 failed, with 2 workbook fixtures intentionally skipped;
+- release publish completed at `output\Costing-App-Public-Review`;
+- audit found no `.accdb`, `.mdb`, `.db`, `.sqlite`, `.atagcosting`, workbook,
+  CSV, PDB, central-data-state file, known ATAG database/workbook name, or `J:`
+  path in the published folder;
+- `Directory.Build.props` disables debug metadata for every referenced ATAG
+  project during `AtagPublicReview=true` builds. This removes the local build
+  path recorded in referenced DLL CodeView headers, rather than merely deleting
+  the separate PDB files;
+- the exact executable launched as `Costing.App.PublicReview.exe`; its startup
+  log recorded runtime name `Costing App`, a real activated HWND, and two
+  after-render input audits with zero populated number, text, selection, or
+  date values. The process
+  check found no Hudl or Python console process;
+- the quotation generator test produced a 595 x 842 point, one-page PDF. Its
+  rendered PNG was visually inspected with no clipping or overlap, and both
+  the PDF bytes and test assertions reject ATAG identity/address/phone text;
+- the Computer Use bridge still failed with `0x80070003`, so do not claim
+  automated visual acceptance. The app was left open for the user's manual
+  review.
+
+This is a review artifact, not the production installer or updater. The user
+has approved the public GitHub direction, but the repository visibility change,
+first installer, versioned release asset, anonymous update check, and
+upgrade-in-place test must each be recorded separately when actually complete.

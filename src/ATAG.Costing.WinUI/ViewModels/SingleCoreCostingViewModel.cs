@@ -124,6 +124,99 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         CentralDataArea.Operators,
     ];
 
+    private static class InitialWorkingValues
+    {
+#if ATAG_PUBLIC_REVIEW
+        public static double QuoteLength => double.NaN;
+        public static double UsageAllowancePercent => double.NaN;
+        public static double RiskPercent => double.NaN;
+        public static double MarkupPercent => double.NaN;
+        public static double TargetMarginPercent => double.NaN;
+        public static double ManualLineSpeed => double.NaN;
+        public static double ProductionSetupTime => double.NaN;
+        public static double ProductionOperatorCount => double.NaN;
+        public static double HourlyLabourRate => double.NaN;
+        public static double ConductorQuoteTotal => double.NaN;
+        public static double ConductorQuotedKilograms => double.NaN;
+        public static double ConductorYield => double.NaN;
+        public static double ConductorOutsideDiameter => double.NaN;
+        public static double CompoundQuoteTotal => double.NaN;
+        public static double CompoundQuotedKilograms => double.NaN;
+        public static double CompoundSpecificGravity => double.NaN;
+        public static double FinishedCoreOutsideDiameter => double.NaN;
+        public static double OutsideDiameterTolerance => double.NaN;
+        public static double MasterbatchQuoteTotal => double.NaN;
+        public static double MasterbatchQuotedKilograms => double.NaN;
+        public static double MasterbatchAdditionPercent => double.NaN;
+        public static double CorePrintHeight => double.NaN;
+        public static double CorePrintRepeatDistance => double.NaN;
+        public static double CorePrintDotPitch => double.NaN;
+        public static double QuoteReelCount => double.NaN;
+        public static double QuoteMetresPerReel => double.NaN;
+        public static int QuoteConductorDisplayMode => -1;
+        public static QuoteCurrencyOption? QuoteCurrency => null;
+        public const string QuoteNumber = "";
+        public const string CorePrintColour = "";
+        public const string QuotePackaging = "";
+        public const string QuoteEstimatedDelivery = "";
+        public const string QuoteTermsAndConditions = "";
+        public const string SupplierUnitPriceDisplay = "—";
+        public const string FinishedCoreOutsideDiameterRangeDisplay = "—";
+        public const string ConvertedQuoteDisplay = "—";
+        public const string QuoteReelPlanDisplay = "—";
+        public const string ExchangeRateStatus =
+            "Currency rates are unavailable in this interface-only edition.";
+#else
+        public const double QuoteLength = 5000;
+        public const double UsageAllowancePercent = 3;
+        public const double RiskPercent = 0;
+        public const double MarkupPercent = 45;
+        public const double TargetMarginPercent = 45;
+        public const double ManualLineSpeed = 13000;
+        public const double ProductionSetupTime = 0;
+        public const double ProductionOperatorCount = 1;
+        public const double HourlyLabourRate = 35;
+        public const double ConductorQuoteTotal = 10398.41;
+        public const double ConductorQuotedKilograms = 1000;
+        public const double ConductorYield = 0;
+        public const double ConductorOutsideDiameter = 0;
+        public const double CompoundQuoteTotal = 1.63;
+        public const double CompoundQuotedKilograms = 1;
+        public const double CompoundSpecificGravity = 0;
+        public const double FinishedCoreOutsideDiameter = 1.2;
+        public const double OutsideDiameterTolerance = 0.025;
+        public const double MasterbatchQuoteTotal = 14.83;
+        public const double MasterbatchQuotedKilograms = 1;
+        public const double MasterbatchAdditionPercent = 1;
+        public const double CorePrintHeight = 0.6;
+        public const double CorePrintRepeatDistance = 250;
+        public const double CorePrintDotPitch = 0.25;
+        public const double QuoteReelCount = 10;
+        public const double QuoteMetresPerReel = 500;
+        public const int QuoteConductorDisplayMode = 0;
+        public static QuoteCurrencyOption QuoteCurrency =>
+            PreferredQuoteCurrencies[0];
+        public static string QuoteNumber =>
+            $"{AppRuntimeMode.QuotationPrefix}-{DateTimeOffset.Now:yyyyMMdd-HHmm}";
+        public const string CorePrintColour = "#FFFFFF";
+        public const string QuotePackaging = "Reels";
+        public const string QuoteEstimatedDelivery = "To be confirmed";
+        public const string QuoteTermsAndConditions =
+            "This quotation is based on current material prices and is ex-works, " +
+            "exclusive of duties, carriage and VAT unless stated. Cable lengths and " +
+            "packaging remain subject to agreement. Price is valid for 14 days from " +
+            "the quotation date and copper may be adjusted at contract.";
+        public const string SupplierUnitPriceDisplay = "—";
+        public const string FinishedCoreOutsideDiameterRangeDisplay =
+            "1.175 mm to 1.225 mm";
+        public const string ConvertedQuoteDisplay = "£0.00 GBP";
+        public const string QuoteReelPlanDisplay =
+            "10 reels × 500 m = 5,000 m";
+        public const string ExchangeRateStatus =
+            "GBP is the costing currency. Refresh rates to quote in another currency.";
+#endif
+    }
+
     private static readonly HashSet<string> PersistedInputPropertyNames =
     [
         nameof(SelectedCopper),
@@ -384,77 +477,98 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         MasterbatchCompatibilityRows { get; } = [];
 
     [ObservableProperty]
-    public partial double QuoteLengthMetres { get; set; } = 5000;
+    public partial double QuoteLengthMetres { get; set; } =
+        InitialWorkingValues.QuoteLength;
 
     [ObservableProperty]
-    public partial double UsageAllowancePercent { get; set; } = 3;
+    public partial double UsageAllowancePercent { get; set; } =
+        InitialWorkingValues.UsageAllowancePercent;
 
     [ObservableProperty]
-    public partial double RiskPercent { get; set; }
+    public partial double RiskPercent { get; set; } =
+        InitialWorkingValues.RiskPercent;
 
     [ObservableProperty]
-    public partial double MarkupPercent { get; set; } = 45;
+    public partial double MarkupPercent { get; set; } =
+        InitialWorkingValues.MarkupPercent;
 
     [ObservableProperty]
-    public partial double TargetMarginPercent { get; set; } = 45;
+    public partial double TargetMarginPercent { get; set; } =
+        InitialWorkingValues.TargetMarginPercent;
 
     [ObservableProperty]
     public partial bool UseManualLineSpeed { get; set; }
 
     [ObservableProperty]
-    public partial double ManualLineSpeedMetresPerHour { get; set; } = 13000;
+    public partial double ManualLineSpeedMetresPerHour { get; set; } =
+        InitialWorkingValues.ManualLineSpeed;
 
     [ObservableProperty]
-    public partial double ProductionSetupTimeHours { get; set; }
+    public partial double ProductionSetupTimeHours { get; set; } =
+        InitialWorkingValues.ProductionSetupTime;
 
     [ObservableProperty]
-    public partial double ProductionOperatorCount { get; set; } = 1;
+    public partial double ProductionOperatorCount { get; set; } =
+        InitialWorkingValues.ProductionOperatorCount;
 
     [ObservableProperty]
-    public partial double HourlyLabourRate { get; set; } = 35;
+    public partial double HourlyLabourRate { get; set; } =
+        InitialWorkingValues.HourlyLabourRate;
 
     [ObservableProperty]
-    public partial double ConductorSupplierQuoteTotal { get; set; } = 10398.41;
+    public partial double ConductorSupplierQuoteTotal { get; set; } =
+        InitialWorkingValues.ConductorQuoteTotal;
 
     [ObservableProperty]
-    public partial double ConductorSupplierQuotedKilograms { get; set; } = 1000;
+    public partial double ConductorSupplierQuotedKilograms { get; set; } =
+        InitialWorkingValues.ConductorQuotedKilograms;
 
     [ObservableProperty]
-    public partial string ConductorPricePerKilogramDisplay { get; set; } = "£10.39841/kg";
+    public partial string ConductorPricePerKilogramDisplay { get; set; } =
+        InitialWorkingValues.SupplierUnitPriceDisplay;
 
     [ObservableProperty]
-    public partial double ConductorYieldMetresPerKilogram { get; set; }
+    public partial double ConductorYieldMetresPerKilogram { get; set; } =
+        InitialWorkingValues.ConductorYield;
 
     [ObservableProperty]
-    public partial double ConductorOutsideDiameterMillimetres { get; set; }
+    public partial double ConductorOutsideDiameterMillimetres { get; set; } =
+        InitialWorkingValues.ConductorOutsideDiameter;
 
     [ObservableProperty]
-    public partial double CompoundSupplierQuoteTotal { get; set; } = 1.63;
+    public partial double CompoundSupplierQuoteTotal { get; set; } =
+        InitialWorkingValues.CompoundQuoteTotal;
 
     [ObservableProperty]
-    public partial double CompoundSupplierQuotedKilograms { get; set; } = 1;
+    public partial double CompoundSupplierQuotedKilograms { get; set; } =
+        InitialWorkingValues.CompoundQuotedKilograms;
 
     [ObservableProperty]
-    public partial string CompoundPricePerKilogramDisplay { get; set; } = "£1.63000/kg";
+    public partial string CompoundPricePerKilogramDisplay { get; set; } =
+        InitialWorkingValues.SupplierUnitPriceDisplay;
 
     [ObservableProperty]
-    public partial double CompoundSpecificGravity { get; set; }
+    public partial double CompoundSpecificGravity { get; set; } =
+        InitialWorkingValues.CompoundSpecificGravity;
 
     [ObservableProperty]
-    public partial double NominalFinishedCoreOutsideDiameterMillimetres { get; set; } = 1.2;
+    public partial double NominalFinishedCoreOutsideDiameterMillimetres { get; set; } =
+        InitialWorkingValues.FinishedCoreOutsideDiameter;
 
     [ObservableProperty]
-    public partial double FinishedCoreOutsideDiameterToleranceMillimetres { get; set; } = 0.025;
+    public partial double FinishedCoreOutsideDiameterToleranceMillimetres { get; set; } =
+        InitialWorkingValues.OutsideDiameterTolerance;
 
     [ObservableProperty]
     public partial bool UseSeparateNegativeOutsideDiameterTolerance { get; set; }
 
     [ObservableProperty]
-    public partial double FinishedCoreNegativeOutsideDiameterToleranceMillimetres { get; set; } = 0.025;
+    public partial double FinishedCoreNegativeOutsideDiameterToleranceMillimetres { get; set; } =
+        InitialWorkingValues.OutsideDiameterTolerance;
 
     [ObservableProperty]
     public partial string FinishedCoreOutsideDiameterRangeDisplay { get; set; } =
-        "1.175 mm to 1.225 mm";
+        InitialWorkingValues.FinishedCoreOutsideDiameterRangeDisplay;
 
     [ObservableProperty]
     public partial double PreviewConductorDiameterPixels { get; set; } = 88;
@@ -512,19 +626,24 @@ public partial class SingleCoreCostingViewModel : ObservableObject
     public partial string CorePrintText { get; set; } = "";
 
     [ObservableProperty]
-    public partial string CorePrintColourHex { get; set; } = "#FFFFFF";
+    public partial string CorePrintColourHex { get; set; } =
+        InitialWorkingValues.CorePrintColour;
 
     [ObservableProperty]
-    public partial double CorePrintHeightMillimetres { get; set; } = 0.6;
+    public partial double CorePrintHeightMillimetres { get; set; } =
+        InitialWorkingValues.CorePrintHeight;
 
     [ObservableProperty]
-    public partial double CorePrintRepeatDistanceMillimetres { get; set; } = 250;
+    public partial double CorePrintRepeatDistanceMillimetres { get; set; } =
+        InitialWorkingValues.CorePrintRepeatDistance;
 
     [ObservableProperty]
-    public partial double CorePrintDotPitchHorizontalMillimetres { get; set; } = 0.25;
+    public partial double CorePrintDotPitchHorizontalMillimetres { get; set; } =
+        InitialWorkingValues.CorePrintDotPitch;
 
     [ObservableProperty]
-    public partial double CorePrintDotPitchVerticalMillimetres { get; set; } = 0.25;
+    public partial double CorePrintDotPitchVerticalMillimetres { get; set; } =
+        InitialWorkingValues.CorePrintDotPitch;
 
     [ObservableProperty]
     public partial string PreviewPrintTextDisplay { get; set; } = "CORE PRINT";
@@ -562,16 +681,20 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         "Print disabled";
 
     [ObservableProperty]
-    public partial double MasterbatchSupplierQuoteTotal { get; set; } = 14.83;
+    public partial double MasterbatchSupplierQuoteTotal { get; set; } =
+        InitialWorkingValues.MasterbatchQuoteTotal;
 
     [ObservableProperty]
-    public partial double MasterbatchSupplierQuotedKilograms { get; set; } = 1;
+    public partial double MasterbatchSupplierQuotedKilograms { get; set; } =
+        InitialWorkingValues.MasterbatchQuotedKilograms;
 
     [ObservableProperty]
-    public partial string MasterbatchPricePerKilogramDisplay { get; set; } = "£14.83000/kg";
+    public partial string MasterbatchPricePerKilogramDisplay { get; set; } =
+        InitialWorkingValues.SupplierUnitPriceDisplay;
 
     [ObservableProperty]
-    public partial double MasterbatchAdditionPercent { get; set; } = 1;
+    public partial double MasterbatchAdditionPercent { get; set; } =
+        InitialWorkingValues.MasterbatchAdditionPercent;
 
     [ObservableProperty]
     public partial string ConductorCostPerMetreDisplay { get; set; } = "—";
@@ -606,21 +729,22 @@ public partial class SingleCoreCostingViewModel : ObservableObject
 
     [ObservableProperty]
     public partial QuoteCurrencyOption? SelectedQuoteCurrency { get; set; } =
-        PreferredQuoteCurrencies[0];
+        InitialWorkingValues.QuoteCurrency;
 
     [ObservableProperty]
-    public partial string ConvertedQuoteDisplay { get; set; } = "£0.00 GBP";
+    public partial string ConvertedQuoteDisplay { get; set; } =
+        InitialWorkingValues.ConvertedQuoteDisplay;
 
     [ObservableProperty]
     public partial string ExchangeRateStatus { get; set; } =
-        "GBP is the costing currency. Refresh rates to quote in another currency.";
+        InitialWorkingValues.ExchangeRateStatus;
 
     [ObservableProperty]
     public partial bool IsRefreshingExchangeRates { get; set; }
 
     [ObservableProperty]
     public partial string QuoteNumber { get; set; } =
-        $"ATAG-{DateTimeOffset.Now:yyyyMMdd-HHmm}";
+        InitialWorkingValues.QuoteNumber;
 
     public IReadOnlyList<string> QuoteConductorDisplayOptions { get; } =
     [
@@ -631,17 +755,20 @@ public partial class SingleCoreCostingViewModel : ObservableObject
     ];
 
     [ObservableProperty]
-    public partial int QuoteConductorDisplayModeIndex { get; set; }
+    public partial int QuoteConductorDisplayModeIndex { get; set; } =
+        InitialWorkingValues.QuoteConductorDisplayMode;
 
     [ObservableProperty]
-    public partial double QuoteReelCount { get; set; } = 10;
+    public partial double QuoteReelCount { get; set; } =
+        InitialWorkingValues.QuoteReelCount;
 
     [ObservableProperty]
-    public partial double QuoteMetresPerReel { get; set; } = 500;
+    public partial double QuoteMetresPerReel { get; set; } =
+        InitialWorkingValues.QuoteMetresPerReel;
 
     [ObservableProperty]
     public partial string QuoteReelPlanDisplay { get; set; } =
-        "10 reels × 500 m = 5,000 m";
+        InitialWorkingValues.QuoteReelPlanDisplay;
 
     [ObservableProperty]
     public partial bool UseExactCustomerColourName { get; set; }
@@ -659,21 +786,19 @@ public partial class SingleCoreCostingViewModel : ObservableObject
     public partial string QuoteDescription { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string QuotePackaging { get; set; } = "Reels";
+    public partial string QuotePackaging { get; set; } =
+        InitialWorkingValues.QuotePackaging;
 
     [ObservableProperty]
     public partial string QuoteEstimatedDelivery { get; set; } =
-        "To be confirmed";
+        InitialWorkingValues.QuoteEstimatedDelivery;
 
     [ObservableProperty]
     public partial string QuoteSpecialNotes { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string QuoteTermsAndConditions { get; set; } =
-        "This quotation is based on current material prices and is ex-works, " +
-        "exclusive of duties, carriage and VAT unless stated. Cable lengths and " +
-        "packaging remain subject to agreement. Price is valid for 14 days from " +
-        "the quotation date and copper may be adjusted at contract.";
+        InitialWorkingValues.QuoteTermsAndConditions;
 
     [ObservableProperty]
     public partial string RecommendedLineSpeedDisplay { get; set; } = "—";
@@ -1135,6 +1260,7 @@ public partial class SingleCoreCostingViewModel : ObservableObject
 
     public A4QuotationDocument CreateA4QuotationDocument()
     {
+#if !ATAG_PUBLIC_REVIEW
         if (SelectedCopper is null ||
             SelectedCompound is null ||
             SelectedMasterbatch is null)
@@ -1142,11 +1268,14 @@ public partial class SingleCoreCostingViewModel : ObservableObject
             throw new InvalidOperationException(
                 "Choose all three material records before generating a quotation.");
         }
+#endif
 
         var currency = SelectedQuoteCurrency ?? PreferredQuoteCurrencies[0];
-        var goodsTotal = ConvertRecommendedPrice(_recommendedQuotePrice, currency.Code);
-        var reelCount = ToDecimal(QuoteReelCount);
-        var metresPerReel = ToDecimal(QuoteMetresPerReel);
+        var goodsTotal = AppRuntimeMode.IsPublicReview
+            ? 0m
+            : ConvertRecommendedPrice(_recommendedQuotePrice, currency.Code);
+        var reelCount = FiniteNonNegativeDecimal(QuoteReelCount);
+        var metresPerReel = FiniteNonNegativeDecimal(QuoteMetresPerReel);
         var quoteLength = reelCount * metresPerReel;
         var unitPrice = quoteLength > 0m
             ? goodsTotal / quoteLength
@@ -1154,7 +1283,8 @@ public partial class SingleCoreCostingViewModel : ObservableObject
 
         return new A4QuotationDocument(
             string.IsNullOrWhiteSpace(QuoteNumber)
-                ? $"ATAG-{DateTimeOffset.Now:yyyyMMdd-HHmm}"
+                ? $"{AppRuntimeMode.QuotationPrefix}-" +
+                  $"{DateTimeOffset.Now:yyyyMMdd-HHmm}"
                 : QuoteNumber.Trim(),
             DateOnly.FromDateTime(DateTime.Today),
             CustomerName,
@@ -1165,7 +1295,9 @@ public partial class SingleCoreCostingViewModel : ObservableObject
                     StringSplitOptions.TrimEntries),
             SelectedOperator?.DisplayName ?? ReviewApprovedBy,
             string.IsNullOrWhiteSpace(QuoteDescription)
-                ? EffectiveCoreNameDisplay
+                ? AppRuntimeMode.IsPublicReview
+                    ? "Item not specified"
+                    : EffectiveCoreNameDisplay
                 : QuoteDescription.Trim(),
             reelCount,
             metresPerReel,
@@ -1175,14 +1307,30 @@ public partial class SingleCoreCostingViewModel : ObservableObject
             unitPrice,
             goodsTotal,
             0m,
-            QuoteConductorDisplay,
-            QuoteInsulationDisplay,
-            QuoteColourDisplay,
-            QuotePackaging,
-            $"{metresPerReel:N0} m per reel ({reelCount:N0} reels)",
-            QuoteEstimatedDelivery,
+            string.IsNullOrWhiteSpace(QuoteConductorDisplay)
+                ? "Not specified"
+                : QuoteConductorDisplay,
+            string.IsNullOrWhiteSpace(QuoteInsulationDisplay)
+                ? "Not specified"
+                : QuoteInsulationDisplay,
+            string.IsNullOrWhiteSpace(QuoteColourDisplay)
+                ? "Not specified"
+                : QuoteColourDisplay,
+            string.IsNullOrWhiteSpace(QuotePackaging)
+                ? "Not specified"
+                : QuotePackaging,
+            reelCount > 0m && metresPerReel > 0m
+                ? $"{metresPerReel:N0} m per reel ({reelCount:N0} reels)"
+                : "Not specified",
+            string.IsNullOrWhiteSpace(QuoteEstimatedDelivery)
+                ? "Not specified"
+                : QuoteEstimatedDelivery,
             QuoteSpecialNotes,
-            QuoteTermsAndConditions);
+            QuoteTermsAndConditions)
+        {
+            IssuerName = AppRuntimeMode.QuotationIssuerName,
+            IssuerAddressLines = AppRuntimeMode.QuotationIssuerAddressLines,
+        };
     }
 
     public SingleCoreProjectDocument CreateProjectDocument()
@@ -2333,11 +2481,21 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         const double crossSectionOuterPixels = 176d;
         const double sideProfileOuterPixels = 82d;
         var conductorDiameter =
-            Math.Max(0d, ConductorOutsideDiameterMillimetres);
+            double.IsFinite(ConductorOutsideDiameterMillimetres)
+                ? Math.Max(0d, ConductorOutsideDiameterMillimetres)
+                : 0d;
+        var nominalFinishedDiameter =
+            double.IsFinite(NominalFinishedCoreOutsideDiameterMillimetres)
+                ? Math.Max(0d, NominalFinishedCoreOutsideDiameterMillimetres)
+                : 0d;
+        var positiveTolerance =
+            double.IsFinite(FinishedCoreOutsideDiameterToleranceMillimetres)
+                ? Math.Max(
+                    0d,
+                    FinishedCoreOutsideDiameterToleranceMillimetres)
+                : 0d;
         var finishedDiameter =
-            Math.Max(
-                conductorDiameter,
-                NominalFinishedCoreOutsideDiameterMillimetres);
+            Math.Max(conductorDiameter, nominalFinishedDiameter);
         var ratio = finishedDiameter <= 0d
             ? 0.5d
             : Math.Clamp(conductorDiameter / finishedDiameter, 0.02d, 1d);
@@ -2352,9 +2510,7 @@ public partial class SingleCoreCostingViewModel : ObservableObject
                 : Math.Clamp(
                     crossSectionOuterPixels *
                     ((finishedDiameter +
-                      Math.Max(
-                          0d,
-                          FinishedCoreOutsideDiameterToleranceMillimetres)) /
+                          positiveTolerance) /
                      finishedDiameter),
                     crossSectionOuterPixels,
                     208d);
@@ -2404,34 +2560,46 @@ public partial class SingleCoreCostingViewModel : ObservableObject
                   "compact hexagonal packing";
         }
 
-        var wallGuidance = SingleCoreWallGuidance.Compare(
-            (decimal)conductorDiameter,
-            (decimal)Math.Max(
-                0d,
-                NominalFinishedCoreOutsideDiameterMillimetres),
-            SelectedCopper?.NominalAreaSquareMillimetres ?? 0m,
-            $"{SelectedCompound?.MaterialType} {SelectedCompound?.Description}");
-        PreviewCalculatedRadialWallDisplay =
-            $"{wallGuidance.CalculatedRadialWallMillimetres:N3} mm";
-        PreviewReferenceWallDisplay =
-            $"{wallGuidance.ReferenceWallMillimetres:N3} mm " +
-            (wallGuidance.IsDirectNominalSizeMatch
-                ? wallGuidance.ReferenceKind ==
-                  WallReferenceKind.PublishedMinimum
-                    ? "published minimum"
-                    : "published nominal reference"
-                : $"nearest {wallGuidance.ReferenceNominalAreaSquareMillimetres:N3} mm² comparator");
-        PreviewWallAssessmentDisplay = wallGuidance.Assessment;
-        PreviewWallSourceDisplay =
-            $"{wallGuidance.MaterialFamily} · {wallGuidance.SourceLabel}";
-        PreviewWallSourceUrl = wallGuidance.SourceUrl;
-        PreviewWallStatusColourHex = !wallGuidance.IsGeometryValid
-            ? "#A4262C"
-            : !wallGuidance.IsDirectNominalSizeMatch
-                ? "#8A6D1D"
-                : wallGuidance.MeetsReferenceWall
-                    ? "#107C10"
-                    : "#A4262C";
+        if (!double.IsFinite(ConductorOutsideDiameterMillimetres) ||
+            !double.IsFinite(NominalFinishedCoreOutsideDiameterMillimetres))
+        {
+            PreviewCalculatedRadialWallDisplay = "—";
+            PreviewReferenceWallDisplay = "—";
+            PreviewWallAssessmentDisplay =
+                "Choose complete dimensions to compare the wall.";
+            PreviewWallSourceDisplay = "No comparator selected";
+            PreviewWallSourceUrl = string.Empty;
+            PreviewWallStatusColourHex = "#8A6D1D";
+        }
+        else
+        {
+            var wallGuidance = SingleCoreWallGuidance.Compare(
+                (decimal)conductorDiameter,
+                (decimal)nominalFinishedDiameter,
+                SelectedCopper?.NominalAreaSquareMillimetres ?? 0m,
+                $"{SelectedCompound?.MaterialType} {SelectedCompound?.Description}");
+            PreviewCalculatedRadialWallDisplay =
+                $"{wallGuidance.CalculatedRadialWallMillimetres:N3} mm";
+            PreviewReferenceWallDisplay =
+                $"{wallGuidance.ReferenceWallMillimetres:N3} mm " +
+                (wallGuidance.IsDirectNominalSizeMatch
+                    ? wallGuidance.ReferenceKind ==
+                      WallReferenceKind.PublishedMinimum
+                        ? "published minimum"
+                        : "published nominal reference"
+                    : $"nearest {wallGuidance.ReferenceNominalAreaSquareMillimetres:N3} mm² comparator");
+            PreviewWallAssessmentDisplay = wallGuidance.Assessment;
+            PreviewWallSourceDisplay =
+                $"{wallGuidance.MaterialFamily} · {wallGuidance.SourceLabel}";
+            PreviewWallSourceUrl = wallGuidance.SourceUrl;
+            PreviewWallStatusColourHex = !wallGuidance.IsGeometryValid
+                ? "#A4262C"
+                : !wallGuidance.IsDirectNominalSizeMatch
+                    ? "#8A6D1D"
+                    : wallGuidance.MeetsReferenceWall
+                        ? "#107C10"
+                        : "#A4262C";
+        }
 
         PreviewPrintTextDisplay =
             string.IsNullOrWhiteSpace(CorePrintText)
@@ -2439,11 +2607,15 @@ public partial class SingleCoreCostingViewModel : ObservableObject
                 : CorePrintText.Trim();
         PreviewPrintOpacity = HasCorePrint ? 1d : 0d;
         const double printCylinderHeightPixels = 56d;
+        var printHeightMillimetres =
+            double.IsFinite(CorePrintHeightMillimetres)
+                ? Math.Max(0d, CorePrintHeightMillimetres)
+                : 0d;
         PreviewPrintFontSizePixels =
             finishedDiameter <= 0d
                 ? 11d
                 : Math.Clamp(
-                    CorePrintHeightMillimetres /
+                    printHeightMillimetres /
                     finishedDiameter *
                     printCylinderHeightPixels,
                     3d,
@@ -2977,6 +3149,14 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         var negative = UseSeparateNegativeOutsideDiameterTolerance
             ? FinishedCoreNegativeOutsideDiameterToleranceMillimetres
             : FinishedCoreOutsideDiameterToleranceMillimetres;
+        if (!double.IsFinite(nominal) ||
+            !double.IsFinite(negative) ||
+            !double.IsFinite(FinishedCoreOutsideDiameterToleranceMillimetres))
+        {
+            FinishedCoreOutsideDiameterRangeDisplay = "—";
+            return;
+        }
+
         var minimum = Math.Max(0d, nominal - negative);
         var maximum =
             nominal + FinishedCoreOutsideDiameterToleranceMillimetres;
@@ -2997,8 +3177,9 @@ public partial class SingleCoreCostingViewModel : ObservableObject
             QuoteReelCount <= 0 ||
             QuoteMetresPerReel <= 0)
         {
-            QuoteReelPlanDisplay =
-                "Enter a positive reel count and metres per reel.";
+            QuoteReelPlanDisplay = AppRuntimeMode.IsPublicReview
+                ? "—"
+                : "Enter a positive reel count and metres per reel.";
             return;
         }
 
@@ -3023,8 +3204,9 @@ public partial class SingleCoreCostingViewModel : ObservableObject
             QuoteReelCount <= 0 ||
             QuoteMetresPerReel <= 0)
         {
-            QuoteReelPlanDisplay =
-                "Enter a positive reel count and metres per reel.";
+            QuoteReelPlanDisplay = AppRuntimeMode.IsPublicReview
+                ? "—"
+                : "Enter a positive reel count and metres per reel.";
             return;
         }
 
@@ -3864,6 +4046,11 @@ public partial class SingleCoreCostingViewModel : ObservableObject
 
     private static decimal ToDecimal(double value) =>
         Convert.ToDecimal(value, CultureInfo.InvariantCulture);
+
+    private static decimal FiniteNonNegativeDecimal(double value) =>
+        double.IsFinite(value) && value >= 0
+            ? ToDecimal(value)
+            : 0m;
 
     private static string PoundPerMetre(decimal value) =>
         string.Format(PoundCulture, "{0:C4}/m", value);

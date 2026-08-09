@@ -5,9 +5,15 @@ namespace ATAG.Costing.WinUI;
 
 internal static class Program
 {
+#if ATAG_PUBLIC_REVIEW
+    private static readonly string DiagnosticLogPath = Path.Combine(
+        Path.GetTempPath(),
+        "Costing-App-startup.log");
+#else
     private static readonly string DiagnosticLogPath = Path.Combine(
         Path.GetTempPath(),
         "ATAG-Costing-startup.log");
+#endif
 
     [STAThread]
     private static void Main(string[] args)

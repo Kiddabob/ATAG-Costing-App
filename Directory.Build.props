@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup Condition="'$(AtagPublicReview)' == 'true'">
+    <!--
+      Public artifacts must not retain CodeView/PDB paths from the development
+      computer. This applies to every referenced ATAG project, not only WinUI.
+    -->
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+</Project>

@@ -24,5 +24,9 @@ public sealed record A4QuotationDocument(
     string SpecialNotes,
     string TermsAndConditions)
 {
+    public string IssuerName { get; init; } = "Costing App";
+
+    public IReadOnlyList<string> IssuerAddressLines { get; init; } = [];
+
     public decimal TotalPrice => GoodsTotal + DeliveryCharge;
 }

@@ -18,12 +18,15 @@ public sealed class A4QuotationPdfGeneratorTests
         Assert.StartsWith("%PDF-1.4", pdfText);
         Assert.Contains("/MediaBox [0 0 595 842]", pdfText);
         Assert.Contains("/Count 1", pdfText);
-        Assert.Contains("ATAG Design Ltd", pdfText);
-        Assert.Contains("ATAG-V1-SAMPLE", pdfText);
+        Assert.Contains("Costing App", pdfText);
+        Assert.Contains("COST-V1-SAMPLE", pdfText);
+        Assert.DoesNotContain("ATAG", pdfText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("South Church", pdfText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("01325", pdfText, StringComparison.OrdinalIgnoreCase);
         Assert.EndsWith("%%EOF\n", pdfText);
 
         var samplePath = Environment.GetEnvironmentVariable(
-            "ATAG_QUOTE_SAMPLE_PATH");
+            "COSTING_QUOTE_SAMPLE_PATH");
         if (!string.IsNullOrWhiteSpace(samplePath))
         {
             Directory.CreateDirectory(
@@ -50,7 +53,7 @@ public sealed class A4QuotationPdfGeneratorTests
 
     private static A4QuotationDocument CreateSampleDocument() =>
         new(
-            "ATAG-V1-SAMPLE",
+            "COST-V1-SAMPLE",
             new DateOnly(2026, 7, 29),
             "Example Customer Ltd",
             ["Unit 1", "Example Industrial Estate", "Bishop Auckland", "DL14 6XB"],

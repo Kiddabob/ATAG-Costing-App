@@ -13,17 +13,34 @@ namespace ATAG.Costing.WinUI;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
+#if ATAG_PUBLIC_REVIEW
+    private static readonly string PlacementPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "Costing App",
+        "Public Review",
+        "window-placement.json");
+#else
     private static readonly string PlacementPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "ATAG Design Ltd",
         "ATAG Costing",
         "window-placement.json");
+#endif
 
     private RectInt32 _lastRestoredBounds;
 
     public MainWindow()
     {
         InitializeComponent();
+
+        Title = AppRuntimeMode.ProductName;
+        AppTitleBar.Title = AppRuntimeMode.ProductName;
+        Program.Log($"Runtime product name: {AppRuntimeMode.ProductName}.");
+        if (AppRuntimeMode.IsPublicReview)
+        {
+            AppTitleBar.Subtitle =
+                "Interface-only edition · no private data or database links";
+        }
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);

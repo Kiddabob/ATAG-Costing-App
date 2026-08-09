@@ -174,7 +174,7 @@
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="True"
             PaneDisplayMode="Left"
-            PaneTitle="ATAG Costing"
+            PaneTitle="Costing App"
             SelectionChanged="AppNavigation_SelectionChanged">
 
             <NavigationView.MenuItems>
@@ -228,6 +228,7 @@
 
             <NavigationView.PaneFooter>
                 <Button
+                    x:Name="CentralDataLinksButton"
                     Margin="8,8,8,4"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch">
@@ -293,6 +294,14 @@
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Text="{x:Bind ViewModel.PageDescription, Mode=OneWay}"
                         TextWrapping="Wrap" />
+                    <InfoBar
+                        x:Name="PublicReviewInfoBar"
+                        Margin="0,8,20,0"
+                        IsClosable="False"
+                        IsOpen="False"
+                        Message="Database discovery, links, retained tables, project files, private business data, and operational input defaults are disabled. Empty selectors and blank inputs are expected in this interface-only edition."
+                        Severity="Informational"
+                        Title="Public review · no organisation data included" />
                 </StackPanel>
             </NavigationView.Header>
 
@@ -609,7 +618,9 @@
                                 </Border>
                             </Grid>
 
-                            <Border Style="{StaticResource CardBorderStyle}">
+                            <Border
+                                x:Name="HomeStorageCard"
+                                Style="{StaticResource CardBorderStyle}">
                                 <Grid ColumnSpacing="20">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -1040,12 +1051,16 @@
                                     Orientation="Horizontal"
                                     Spacing="8">
                                     <Button
+                                        x:Name="OpenCostingButton"
                                         Click="OpenSingleCoreProject_Click"
                                         Content="Open costing" />
                                     <Button
+                                        x:Name="SaveCostingButton"
                                         Click="SaveSingleCoreProject_Click"
                                         Content="Save costing" />
-                                    <Button Content="Revision actions">
+                                    <Button
+                                        x:Name="RevisionActionsButton"
+                                        Content="Revision actions">
                                         <Button.Flyout>
                                             <MenuFlyout Placement="BottomEdgeAlignedRight">
                                                 <MenuFlyoutItem
@@ -1969,7 +1984,7 @@
                                             <TextBox
                                                 Header="Print detail / text"
                                                 IsEnabled="{Binding HasCorePrint}"
-                                                PlaceholderText="Example: ATAG CORE 01 300/500 V"
+                                                PlaceholderText="Example: CORE 01 300/500 V"
                                                 Text="{Binding CorePrintText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             <Grid ColumnSpacing="12">
                                                 <Grid.ColumnDefinitions>
@@ -4054,7 +4069,7 @@
                                         Text="Connection options" />
                                     <TextBlock
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="Create separate table links for Copper, Compounds, Masterbatch, Contacts, and Operators. The Navigator lists tables and views with a live row preview; the transform editor then validates automatic ATAG field matches before import. Passwords are not stored."
+                                        Text="Create separate table links for Copper, Compounds, Masterbatch, Contacts, and Operators. The Navigator lists tables and views with a live row preview; the transform editor then validates automatic costing-field matches before import. Passwords are not stored."
                                         TextWrapping="Wrap" />
                                     <StackPanel Orientation="Horizontal" Spacing="10">
                                         <Button
@@ -4079,7 +4094,9 @@
                                 <Rectangle
                                     Height="1"
                                     Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                                <Grid ColumnSpacing="12">
+                                <Grid
+                                    x:Name="CentralDataRefreshPanel"
+                                    ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
@@ -4211,10 +4228,13 @@
                             </Border>
 
                             <TextBlock
+                                x:Name="StorageAndFilesSettingsLabel"
                                 Style="{StaticResource SectionLabelStyle}"
                                 Text="STORAGE AND FILES" />
 
-                            <Border Style="{StaticResource CardBorderStyle}">
+                            <Border
+                                x:Name="StorageAndFilesSettingsCard"
+                                Style="{StaticResource CardBorderStyle}">
                                 <StackPanel Spacing="18">
                                     <Grid ColumnSpacing="20">
                                         <Grid.ColumnDefinitions>
@@ -4278,6 +4298,7 @@
                             </Border>
 
                             <InfoBar
+                                x:Name="StorageSafeFallbackInfoBar"
                                 IsClosable="False"
                                 IsOpen="True"
                                 Message="If the selected folder becomes unavailable, setup will appear even when the startup option is off."
@@ -4325,7 +4346,7 @@
                         <TextBlock
                             FontSize="28"
                             FontWeight="SemiBold"
-                            Text="Set up ATAG Costing"
+                            Text="Set up Costing App"
                             TextWrapping="Wrap" />
                         <TextBlock
                             FontSize="15"

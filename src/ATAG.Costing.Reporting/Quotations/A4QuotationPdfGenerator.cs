@@ -84,33 +84,22 @@ public sealed class A4QuotationPdfGenerator
         Text(page, "Quotation", 30m, 50m, 770m, bold: true, white: true);
         Text(
             page,
-            "ATAG Design Ltd",
+            string.IsNullOrWhiteSpace(document.IssuerName)
+                ? "Costing App"
+                : document.IssuerName,
             16m,
             390m,
             782m,
             bold: true,
             white: true);
-        Text(
-            page,
-            "Unit 18, Longfield Road",
-            7.5m,
-            398m,
-            769m,
-            white: true);
-        Text(
-            page,
-            "South Church Enterprise Park",
-            7.5m,
-            398m,
-            758m,
-            white: true);
-        Text(
-            page,
-            "Bishop Auckland, DL14 6XB | 01325 314128",
-            7.5m,
-            398m,
-            747m,
-            white: true);
+        var issuerAddressY = 769m;
+        foreach (var line in document.IssuerAddressLines
+                     .Where(line => !string.IsNullOrWhiteSpace(line))
+                     .Take(3))
+        {
+            Text(page, line, 7.5m, 398m, issuerAddressY, white: true);
+            issuerAddressY -= 11m;
+        }
 
         SetFill(page, 0m, 0m, 0m);
         Text(page, "Customer", 10m, 42m, 728m, bold: true);
@@ -287,7 +276,9 @@ public sealed class A4QuotationPdfGenerator
         SectionTitle(page, "Terms and conditions", 292m);
         DrawWrappedText(
             page,
-            document.TermsAndConditions,
+            string.IsNullOrWhiteSpace(document.TermsAndConditions)
+                ? "No terms supplied."
+                : document.TermsAndConditions,
             8.5m,
             42m,
             267m,
@@ -298,7 +289,8 @@ public sealed class A4QuotationPdfGenerator
         FillRectangle(page, 36m, 34m, 523m, 24m);
         Text(
             page,
-            $"ATAG Design Ltd | Quotation {document.QuoteNumber} | Page 1 of 1",
+            $"{(string.IsNullOrWhiteSpace(document.IssuerName) ? "Costing App" : document.IssuerName)} | " +
+            $"Quotation {document.QuoteNumber} | Page 1 of 1",
             8m,
             48m,
             43m,

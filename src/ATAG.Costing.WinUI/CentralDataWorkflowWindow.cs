@@ -29,7 +29,7 @@ internal sealed class CentralDataWorkflowWindow : Window
         CentralDataWorkflowWindowSize size = CentralDataWorkflowWindowSize.Workspace,
         bool showPrimaryButton = true)
     {
-        Title = $"ATAG Costing - {title}";
+        Title = $"{AppRuntimeMode.ProductName} - {title}";
         AppWindow.SetIcon("Assets/AppIcon.ico");
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {
@@ -62,7 +62,7 @@ internal sealed class CentralDataWorkflowWindow : Window
 
         var appTitleBar = new TitleBar
         {
-            Title = "ATAG Costing",
+            Title = AppRuntimeMode.ProductName,
             Subtitle = title,
             IconSource = new ImageIconSource
             {

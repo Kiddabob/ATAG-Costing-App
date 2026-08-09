@@ -63,22 +63,41 @@ public sealed partial class MainPage : Page
 
     public MainPage()
     {
-        ViewModel = new MainPageViewModel(new JsonAppPreferencesService());
-        var databaseNavigators = new ICentralDataDatabaseNavigator[]
+        ICentralDataDatabaseNavigator[] databaseNavigators;
+        if (AppRuntimeMode.IsPublicReview)
         {
-            new AccessCentralDataDatabaseNavigator(),
-            new SqlServerCentralDataDatabaseNavigator(),
-        };
+            ViewModel = new MainPageViewModel(
+                new PublicReviewAppPreferencesService());
+            databaseNavigators = [];
+            _centralDataService = new CentralDataService(
+                new PublicReviewCentralDataStore(),
+                Array.Empty<ICentralDataSourceReader>(),
+                databaseNavigators);
+            CostingViewModel = new SingleCoreCostingViewModel(
+                _centralDataService);
+        }
+        else
+        {
+            ViewModel = new MainPageViewModel(
+                new JsonAppPreferencesService());
+            databaseNavigators =
+            [
+                new AccessCentralDataDatabaseNavigator(),
+                new SqlServerCentralDataDatabaseNavigator(),
+            ];
+            _centralDataService = new CentralDataService(
+                new JsonCentralDataStore(),
+                Array.Empty<ICentralDataSourceReader>(),
+                databaseNavigators);
+            CostingViewModel = new SingleCoreCostingViewModel(
+                _centralDataService,
+                new EcbExchangeRateService());
+        }
+
         _databaseNavigators = databaseNavigators.ToDictionary(
             navigator => navigator.Kind);
-        _centralDataService = new CentralDataService(
-            new JsonCentralDataStore(),
-            Array.Empty<ICentralDataSourceReader>(),
-            databaseNavigators);
-        CostingViewModel = new SingleCoreCostingViewModel(
-            _centralDataService,
-            new EcbExchangeRateService());
         InitializeComponent();
+        AppNavigation.PaneTitle = AppRuntimeMode.ProductName;
         ContractReviewPanel.Children.Remove(WorkingCentralDataTablesCard);
         var connectionOptionsIndex =
             LiveDataPanel.Children.IndexOf(CentralDataConnectionOptionsCard);
@@ -90,6 +109,10 @@ public sealed partial class MainPage : Page
         CostingWorkspaceView.DataContext = CostingViewModel;
         ContractReviewView.DataContext = CostingViewModel;
         MaterialDataView.DataContext = CostingViewModel;
+        if (AppRuntimeMode.IsPublicReview)
+        {
+            ConfigurePublicReviewMode();
+        }
         CostingViewModel.PropertyChanged +=
             CostingViewModel_PropertyChanged;
         _centralDataRefreshTimer.Tick += CentralDataRefreshTimer_Tick;
@@ -101,15 +124,169 @@ public sealed partial class MainPage : Page
     {
         ApplyVisualStyle();
         UpdateFirstRunSetupState();
-        ViewModel.EvaluateStartupPrompt();
+        if (!AppRuntimeMode.IsPublicReview)
+        {
+            ViewModel.EvaluateStartupPrompt();
+        }
         UpdateStorageSetupVisibility();
         UpdateCentralDataConnectionVisuals();
-        _centralDataRefreshTimer.Start();
+        if (AppRuntimeMode.IsPublicReview)
+        {
+            ConfigurePublicReviewMode();
+        }
+        if (!AppRuntimeMode.IsPublicReview)
+        {
+            _centralDataRefreshTimer.Start();
+        }
         ShowSection("home");
         UpdatePreviewDockLayout(
             CostingEditorLayout.ActualWidth,
             CostingEditorLayout.ActualHeight);
-        await CostingViewModel.RefreshExchangeRatesAsync();
+        if (!AppRuntimeMode.IsPublicReview)
+        {
+            await CostingViewModel.RefreshExchangeRatesAsync();
+        }
+    }
+
+    private void ConfigurePublicReviewMode()
+    {
+        PublicReviewInfoBar.IsOpen = true;
+        HomeStorageCard.Visibility = Visibility.Collapsed;
+        OpenCostingButton.Visibility = Visibility.Collapsed;
+        SaveCostingButton.Visibility = Visibility.Collapsed;
+        RevisionActionsButton.Visibility = Visibility.Collapsed;
+        CentralDataConnectionOptionsCard.Visibility = Visibility.Collapsed;
+        CentralDataRefreshPanel.Visibility = Visibility.Collapsed;
+        StorageAndFilesSettingsLabel.Visibility = Visibility.Collapsed;
+        StorageAndFilesSettingsCard.Visibility = Visibility.Collapsed;
+        StorageSafeFallbackInfoBar.Visibility = Visibility.Collapsed;
+
+        CentralDataLinksButton.Flyout = null;
+        CentralDataLinksButton.IsEnabled = false;
+        CentralDataConnectionText.Text = "Public review · no data";
+        CentralDataConnectionDot.Fill = ResourceBrush(
+            "TextFillColorSecondaryBrush");
+
+        CentralDataConnectionInfoBar.Title =
+            "Public review · database links disabled";
+        CentralDataConnectionInfoBar.Message =
+            "This edition uses an empty, in-memory table set. It does not read retained organisation rows, saved database paths, or app preferences from this PC.";
+        CentralDataConnectionInfoBar.Severity = InfoBarSeverity.Informational;
+    }
+
+    private static void ClearPublicReviewInputDefaults(
+        DependencyObject element)
+    {
+        switch (element)
+        {
+            case NumberBox numberBox:
+                numberBox.ClearValue(NumberBox.MinimumProperty);
+                numberBox.ClearValue(NumberBox.MaximumProperty);
+                numberBox.ClearValue(NumberBox.ValueProperty);
+                numberBox.Value = double.NaN;
+                numberBox.PlaceholderText = numberBox.IsEnabled
+                    ? "Enter value"
+                    : "No linked data";
+                break;
+
+            case TextBox textBox:
+                textBox.ClearValue(TextBox.TextProperty);
+                textBox.Text = string.Empty;
+                break;
+
+            case AutoSuggestBox autoSuggestBox:
+                autoSuggestBox.ClearValue(AutoSuggestBox.TextProperty);
+                autoSuggestBox.Text = string.Empty;
+                break;
+
+            case ComboBox comboBox:
+                comboBox.ClearValue(Selector.SelectedItemProperty);
+                comboBox.ClearValue(Selector.SelectedValueProperty);
+                comboBox.ClearValue(Selector.SelectedIndexProperty);
+                comboBox.SelectedItem = null;
+                comboBox.SelectedIndex = -1;
+                break;
+
+            case DatePicker datePicker:
+                datePicker.ClearValue(DatePicker.SelectedDateProperty);
+                datePicker.SelectedDate = null;
+                break;
+        }
+
+        var childCount = VisualTreeHelper.GetChildrenCount(element);
+        for (var index = 0; index < childCount; index++)
+        {
+            ClearPublicReviewInputDefaults(
+                VisualTreeHelper.GetChild(element, index));
+        }
+    }
+
+    private static (int Numbers, int Text, int Selections, int Dates)
+        CountPublicReviewInputValues(DependencyObject element)
+    {
+        var numbers = element is NumberBox numberBox &&
+                      double.IsFinite(numberBox.Value)
+            ? 1
+            : 0;
+        var text = element switch
+        {
+            TextBox textBox when !string.IsNullOrWhiteSpace(textBox.Text) => 1,
+            AutoSuggestBox autoSuggestBox
+                when !string.IsNullOrWhiteSpace(autoSuggestBox.Text) => 1,
+            _ => 0,
+        };
+        var selections = element is ComboBox comboBox &&
+                         comboBox.SelectedIndex >= 0
+            ? 1
+            : 0;
+        var dates = element is DatePicker datePicker &&
+                    datePicker.SelectedDate.HasValue
+            ? 1
+            : 0;
+
+        var childCount = VisualTreeHelper.GetChildrenCount(element);
+        for (var index = 0; index < childCount; index++)
+        {
+            var child = CountPublicReviewInputValues(
+                VisualTreeHelper.GetChild(element, index));
+            numbers += child.Numbers;
+            text += child.Text;
+            selections += child.Selections;
+            dates += child.Dates;
+        }
+
+        return (numbers, text, selections, dates);
+    }
+
+    private void QueuePublicReviewInputSanitization()
+    {
+        if (!AppRuntimeMode.IsPublicReview)
+        {
+            return;
+        }
+
+        // A collapsed page can finish applying its XAML bindings only after it
+        // becomes visible. Two low-priority passes clear those realized controls
+        // without changing the normal app's working values or saved data.
+        DispatcherQueue.TryEnqueue(
+            Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+            () =>
+            {
+                ClearPublicReviewInputDefaults(this);
+                DispatcherQueue.TryEnqueue(
+                    Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+                    () =>
+                    {
+                        ClearPublicReviewInputDefaults(this);
+                        var remaining = CountPublicReviewInputValues(this);
+                        Program.Log(
+                            "Public-review visible input values after render: " +
+                            $"numbers={remaining.Numbers}, " +
+                            $"text={remaining.Text}, " +
+                            $"selections={remaining.Selections}, " +
+                            $"dates={remaining.Dates}.");
+                    });
+            });
     }
 
     private void CostingEditorLayout_SizeChanged(
@@ -472,7 +649,7 @@ public sealed partial class MainPage : Page
         catch (System.Text.Json.JsonException)
         {
             CostingViewModel.CalculationStatus =
-                "The selected file is not a readable ATAG costing.";
+                "The selected file is not a readable costing file.";
         }
         catch (Exception exception)
         {
@@ -758,7 +935,9 @@ public sealed partial class MainPage : Page
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
                 SuggestedFileName =
                     string.IsNullOrWhiteSpace(CostingViewModel.QuoteNumber)
-                        ? "ATAG quotation"
+                        ? AppRuntimeMode.IsOrganisationBranded
+                            ? "ATAG quotation"
+                            : "Quotation"
                         : CostingViewModel.QuoteNumber,
                 CommitButtonText = "Generate A4 quotation",
             };
@@ -1983,6 +2162,8 @@ public sealed partial class MainPage : Page
         {
             SyncNavigationSelection(section);
         }
+
+        QueuePublicReviewInputSanitization();
     }
 
     private void BringCostingSectionIntoView(string section)
@@ -2059,6 +2240,12 @@ public sealed partial class MainPage : Page
 
     private void UpdateStorageSetupVisibility()
     {
+        if (AppRuntimeMode.IsPublicReview)
+        {
+            StorageSetupOverlay.Visibility = Visibility.Collapsed;
+            return;
+        }
+
         StorageSetupOverlay.Visibility = ViewModel.IsStorageSetupVisible
             ? Visibility.Visible
             : Visibility.Collapsed;
@@ -2377,7 +2564,7 @@ public sealed partial class MainPage : Page
     private async Task<CentralDataTableLink?> ChooseExistingDataLinkAsync(
         string title = "Edit existing data link",
         string primaryButtonText = "Edit transform",
-        string instruction = "Choose the saved table whose column transforms and ATAG field matches you want to review. The previous retained table is only replaced after a successful import.",
+        string instruction = "Choose the saved table whose column transforms and costing-field matches you want to review. The previous retained table is only replaced after a successful import.",
         bool alwaysShowPicker = false)
     {
         var links = CostingViewModel.DatabaseTableLinks

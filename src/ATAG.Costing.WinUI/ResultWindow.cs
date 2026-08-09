@@ -25,7 +25,7 @@ public sealed class ResultWindow : Window
 
     public ResultWindow(SingleCoreCostingViewModel viewModel)
     {
-        Title = "ATAG Costing - Live Result";
+        Title = $"{AppRuntimeMode.ProductName} - Live Result";
         AppWindow.Resize(new SizeInt32(760, 430));
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {

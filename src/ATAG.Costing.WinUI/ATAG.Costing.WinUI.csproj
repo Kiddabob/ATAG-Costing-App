@@ -25,6 +25,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(AtagPublicReview)' == 'true'">
+    <DefineConstants>$(DefineConstants);ATAG_PUBLIC_REVIEW</DefineConstants>
+    <AssemblyName>Costing.App.PublicReview</AssemblyName>
+    <Product>Costing App</Product>
+    <Description>Interface-only public review build with database links and retained business data disabled.</Description>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
