@@ -2099,7 +2099,10 @@ Verification completed on 9 August 2026:
   automated visual acceptance. The app was left open for the user's manual
   review.
 
-This is a review artifact, not the production installer or updater. The user
-has approved the public GitHub direction, but the repository visibility change,
-first installer, versioned release asset, anonymous update check, and
-upgrade-in-place test must each be recorded separately when actually complete.
+This is a review artifact, not the production installer or updater. Audited
+commit `acf2b22` (`Prepare-neutral-public-review-build`) was published to
+`origin/main` on 9 August 2026, the existing repository was changed to public,
+and a separate anonymous GitHub API request verified public access. The first
+installer, versioned release asset, anonymous in-app update check, integrity
+validation, and upgrade-in-place/rollback test must each be recorded separately
+when actually complete.
