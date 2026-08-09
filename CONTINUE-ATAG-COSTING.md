@@ -1887,9 +1887,10 @@ Completed:
   build/artifact output;
 - initialised a new local `main` Git repository in the project folder and set
   `origin` to the user-supplied private repository
-  `https://github.com/Kiddabob/ATAG-Costing-App.git`. No commit or push was made.
-  A remote read was attempted but this PC has no GitHub credential available to
-  Schannel (`SEC_E_NO_CREDENTIALS`), so repository access remains unverified;
+  `https://github.com/Kiddabob/ATAG-Costing-App.git`. The existing machine-local
+  GitHub credential was used without copying it into the project. The remote was
+  verified empty and root commit `8d3ab9a` (`Import-existing-ATAG-Costing-App`)
+  was pushed to private `origin/main` on 9 August 2026;
 - confirmed the current app stack is .NET 10, WinUI 3, Windows App SDK 1.8,
   with an unpackaged/self-contained development build. No production installer,
   release feed, updater, or version-channel mechanism exists yet; the root
@@ -1912,8 +1913,8 @@ Verification on 9 August 2026:
   0 warnings and 0 errors;
 - final full build with the same command — passed, 0 warnings and 0 errors;
 - `dotnet test ATAG.Costing.sln -c Debug -p:Platform=x64 --no-build --no-restore`
-  — 107 passed, 2 intentionally skipped approval-gated workbook parity cases,
-  0 failed;
+  — 109 passed, 2 intentionally skipped approval-gated workbook parity cases,
+  0 failed after the mapping/filter follow-up;
 - `git check-ignore --no-index` confirmed `central-data-state.json`,
   `central-data-snapshot.json`, `.accdb`, and `.atagcosting` examples are all
   excluded;
