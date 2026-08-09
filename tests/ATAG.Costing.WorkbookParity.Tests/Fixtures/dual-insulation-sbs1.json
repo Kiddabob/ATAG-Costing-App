@@ -1,0 +1,183 @@
+{
+  "caseId": "dual-insulation-sbs1-2026-07-29",
+  "calculationRule": "dual-insulation-material-costing/v1",
+  "approvalStatus": "PendingBusinessApproval",
+  "approvalNote": "ATAG confirmed the corrected mass-based masterbatch, allowance-once, single-subtotal, length-scope and production-time ownership rules. The complete mapped case remains pending until its workbook identity, source map and corrected expected outputs are approved together.",
+  "workbook": {
+    "relativePath": "../(WIP Mitchell) Costing Sheet.xlsm",
+    "sha256": "823FCE28815A9420E87A9FA119790243C8A4E9961B26B976A26EBE79BE9FA0ED"
+  },
+  "confirmedRules": {
+    "coreStartupScope": "The 200 m start-up applies to the conductor and first insulation layer only.",
+    "secondLayerScope": "Only the 10,000 m finished quote length receives the second insulation layer.",
+    "usageAllowance": "The 3% general waste/start-up allowance applies exactly once to every material stream in both layers.",
+    "subtotalInclusion": "Each resulting material price is included exactly once in the material subtotal.",
+    "masterbatchBasis": "Both layers calculate masterbatch from allowance-adjusted compound mass, never from compound litres.",
+    "masterbatchProductionTime": "Masterbatch contributes material amount and cost only and has no separate production time.",
+    "extrusionTimeOwnership": "The first and second extrusion processes own independent size-to-speed profiles and labour inputs."
+  },
+  "inputs": {
+    "conductorReference": "7/0.253 TCW (H) (0.35mm²)",
+    "conductorQuoteTotal": "15200",
+    "conductorQuotedMassKilograms": "1000",
+    "conductorYieldMetresPerKilogram": "318.835195",
+    "conductorOutsideDiameterMillimetres": "0.74",
+    "firstCompoundReference": "SX 0612 S",
+    "firstCompoundQuoteTotal": "1116.5",
+    "firstCompoundQuotedMassKilograms": "350",
+    "firstCompoundSpecificGravity": "1.47",
+    "firstNominalOutsideDiameterMillimetres": "2.2",
+    "firstPositiveToleranceMillimetres": "0.025",
+    "firstMasterbatchReference": "Natural",
+    "firstMasterbatchQuoteTotal": "0",
+    "firstMasterbatchQuotedMassKilograms": "1",
+    "firstMasterbatchAdditionRateFraction": "0.01",
+    "secondCompoundReference": "FC1031CHT (PVT5TWLFX)",
+    "secondCompoundQuoteTotal": "2130",
+    "secondCompoundQuotedMassKilograms": "1000",
+    "secondCompoundSpecificGravity": "1.32",
+    "secondNominalOutsideDiameterMillimetres": "3.2",
+    "secondPositiveToleranceMillimetres": "0.1",
+    "secondMasterbatchReference": "Bright White",
+    "secondMasterbatchQuoteTotal": "6.24",
+    "secondMasterbatchQuotedMassKilograms": "1",
+    "secondMasterbatchAdditionRateFraction": "0.01",
+    "finishedQuoteLengthMetres": "10000",
+    "coreStartupLengthMetres": "200",
+    "usageAllowanceRateFraction": "0.03"
+  },
+  "correctedDomainExpected": {
+    "coreProductionLengthMetres": "10200",
+    "secondLayerProductionLengthMetres": "10000",
+    "conductorPriceForRun": "500.858131424293",
+    "firstCompoundPriceForRun": "170.367380921368",
+    "secondCompoundPriceForRun": "140.093274562959",
+    "secondMasterbatchMassForRunKilograms": "0.65771490405145",
+    "secondMasterbatchPriceForRun": "4.10414100128105",
+    "materialPriceForProductionRun": "815.422927909901",
+    "materialPricePerFinishedMetre": "0.0815422927909901"
+  },
+  "allowedAbsoluteTolerance": "0.000000000001",
+  "knownWorkbookDefects": [
+    {
+      "id": "first-masterbatch-second-allowance",
+      "sheet": "SBS1DualInsMBPrice1",
+      "cell": "B36",
+      "description": "The masterbatch price multiplies V26 by 1.03 even though V26 already comes from the first compound mass after its 3% allowance. The zero supplier price hides this defect in the cached result."
+    },
+    {
+      "id": "second-masterbatch-volume-labelled-as-mass",
+      "sheet": "SBS1DualInsMBPrice2",
+      "cell": "V30",
+      "description": "The formula takes one percent of the compound volume in litres and presents the same number as masterbatch kilograms. ATAG confirmed this is wrong; the domain uses the shared mass-based masterbatch rule."
+    },
+    {
+      "id": "second-masterbatch-second-allowance",
+      "sheet": "SBS1DualInsMBPrice2",
+      "cell": "B40",
+      "description": "The quote price multiplies the already allowance-adjusted masterbatch quantity by 1.03 again."
+    },
+    {
+      "id": "summary-masterbatch-added-twice",
+      "sheet": "SBS1DualInsSummary",
+      "cell": "X26",
+      "description": "X16 already contains X24, then X26 marks up X16 and adds X24 a second time."
+    }
+  ],
+  "sourceCells": [
+    {
+      "sheet": "SBS1DualInsCopperPrice",
+      "cell": "B18",
+      "role": "Core production length including the 200 m core start-up",
+      "unit": "m",
+      "formula": "=B14+B16",
+      "cachedValue": "10200"
+    },
+    {
+      "sheet": "SBS1DualInsCopperPrice",
+      "cell": "B22",
+      "role": "Conductor price for the core production run with one 3% allowance",
+      "unit": "GBP",
+      "cachedValue": "500.8581314242927"
+    },
+    {
+      "sheet": "SBS1DualInsCompPrice1",
+      "cell": "B28",
+      "role": "First compound mass over core production length with one 3% allowance",
+      "unit": "kg",
+      "formula": "=IFERROR((B26*B32)*1.03,\"\")",
+      "cachedValue": "53.40670248318756"
+    },
+    {
+      "sheet": "SBS1DualInsCompPrice1",
+      "cell": "B36",
+      "role": "First compound price over core production length with one 3% allowance",
+      "unit": "GBP",
+      "formula": "=IFERROR((B34*B32)*1.03,\"Compound £/Quote m\")",
+      "cachedValue": "170.36738092136832"
+    },
+    {
+      "sheet": "SBS1DualInsMBPrice1",
+      "cell": "V26",
+      "role": "First masterbatch mass derived from the already allowance-adjusted first compound mass",
+      "unit": "kg",
+      "formula": "=IFERROR(SBS1DualInsCompPrice1!B28*T14,\"0.00kg\")",
+      "cachedValue": "0.5340670248318756"
+    },
+    {
+      "sheet": "SBS1DualInsCompPrice2",
+      "cell": "B30",
+      "role": "Second compound mass over finished quote length with one 3% allowance",
+      "unit": "kg",
+      "formula": "=IFERROR((B28*B32)*1.03,\"\")",
+      "cachedValue": "65.77149040514507"
+    },
+    {
+      "sheet": "SBS1DualInsCompPrice2",
+      "cell": "B32",
+      "role": "Second-layer production length",
+      "unit": "m",
+      "formula": "=SBS1DualInsCopperPrice!B14",
+      "cachedValue": "10000"
+    },
+    {
+      "sheet": "SBS1DualInsCompPrice2",
+      "cell": "B38",
+      "role": "Second compound price over finished quote length with one 3% allowance",
+      "unit": "GBP",
+      "formula": "=IFERROR((B36*B32)*1.03,\"Compound £/Quote m\")",
+      "cachedValue": "140.09327456295898"
+    },
+    {
+      "sheet": "SBS1DualInsMBPrice2",
+      "cell": "T14",
+      "role": "Second masterbatch addition rate",
+      "unit": "fraction",
+      "cachedValue": "0.01"
+    },
+    {
+      "sheet": "SBS1DualInsMBPrice2",
+      "cell": "B40",
+      "role": "Workbook second masterbatch price containing a repeated 3% allowance",
+      "unit": "GBP",
+      "formula": "=IFERROR(V30*B16*1.03,\"MB £/Quote m\")",
+      "cachedValue": "3.202473660090518"
+    },
+    {
+      "sheet": "SBS1DualInsSummary",
+      "cell": "X16",
+      "role": "Workbook material subtotal already including combined masterbatch X24",
+      "unit": "GBP",
+      "formula": "=IFERROR(X3+X7+X24+X11,0)",
+      "cachedValue": "814.5212605687105"
+    },
+    {
+      "sheet": "SBS1DualInsSummary",
+      "cell": "X26",
+      "role": "Workbook marked-up total that incorrectly adds combined masterbatch X24 again",
+      "unit": "GBP",
+      "formula": "=IFERROR(X16*AH4+X24,\"Core/Qm\")",
+      "cachedValue": "1314.5817031757144"
+    }
+  ]
+}

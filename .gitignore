@@ -1,0 +1,36 @@
+.vs/
+**/bin/
+**/obj/
+AppPackages/
+BundleArtifacts/
+*.user
+*.suo
+*.pfx
+
+# Runtime-only settings, retained central data and saved costings
+**/central-data-state.json
+**/central-data-snapshot.json
+**/settings.json
+**/window-placement.json
+**/exchange-rates*.json
+*.atagcosting
+
+# Business databases, backups and machine-local secrets
+*.accdb
+*.mdb
+*.mdf
+*.ldf
+*.bak
+.env
+.env.*
+
+# Local build, diagnostic and agent working folders
+/.codex-temp/
+/work/
+/tmp/
+/output/
+**/artifacts/
+*.log
+__pycache__/
+*.py[cod]
+.pytest_cache/

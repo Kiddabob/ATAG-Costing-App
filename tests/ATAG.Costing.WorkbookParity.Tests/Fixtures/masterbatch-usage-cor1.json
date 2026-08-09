@@ -1,0 +1,107 @@
+{
+  "caseId": "masterbatch-usage-cor1-2026-07-28",
+  "calculationRule": "masterbatch-usage-per-metre/v1",
+  "approvalStatus": "PendingBusinessApproval",
+  "approvalNote": "Discovered from cached workbook values. Do not promote to an approved golden case until an ATAG reviewer confirms the source inputs and expected outputs.",
+  "workbook": {
+    "relativePath": "../(WIP Mitchell) Costing Sheet.xlsm",
+    "sha256": "6A9DBE53DF2A403BDB92A23FDC2C4AD55702B6ADF089ED02FA327F3E504851D3"
+  },
+  "inputs": {
+    "baseCompoundMassBeforeAllowanceForQuoteKilograms": "5.8520331314009225",
+    "usageAllowanceRateFraction": "0.03",
+    "additionRateFraction": "0.01",
+    "quoteLengthMetres": "5000",
+    "masterbatchPricePerKilogram": "14.83"
+  },
+  "expected": {
+    "masterbatchMassForQuoteKilograms": "0.060275941253429506",
+    "masterbatchKilogramsPerMetre": "0.0000120551882506859",
+    "masterbatchGramsPerMetre": "0.0120551882506859",
+    "masterbatchPricePerMetre": "0.0001787784417576719",
+    "display": {
+      "masterbatchMassForQuoteKilograms": "0.060276",
+      "masterbatchKilogramsPerMetre": "0.000012055",
+      "masterbatchGramsPerMetre": "0.012055",
+      "masterbatchPricePerMetre": "0.00"
+    }
+  },
+  "allowedAbsoluteTolerance": "0.000000000000001",
+  "sourceCells": [
+    {
+      "sheet": "COR1CompPrice",
+      "cell": "B26",
+      "role": "Base compound mass per metre before allowance",
+      "unit": "kg/m",
+      "cachedValue": "0.0011704066262801845"
+    },
+    {
+      "sheet": "COR1CompPrice",
+      "cell": "B30",
+      "role": "Quote length used to reconstruct pre-allowance mass",
+      "unit": "m",
+      "cachedValue": "5000"
+    },
+    {
+      "sheet": "COR1CompPrice",
+      "cell": "B28",
+      "role": "Compound mass for quote after 3% waste/start-up allowance",
+      "unit": "kg",
+      "formula": "=IFERROR((B26*B30)*1.03,\"\")",
+      "cachedValue": "6.027594125342951"
+    },
+    {
+      "sheet": "COR1MBPrice",
+      "cell": "B14",
+      "role": "Addition rate",
+      "unit": "fraction",
+      "cachedValue": "0.01"
+    },
+    {
+      "sheet": "COR1MBPrice",
+      "cell": "B30",
+      "role": "Quote length",
+      "unit": "m",
+      "cachedValue": "5000"
+    },
+    {
+      "sheet": "COR1MBPrice",
+      "cell": "B16",
+      "role": "Masterbatch supplier price",
+      "unit": "GBP/kg",
+      "cachedValue": "14.83"
+    },
+    {
+      "sheet": "COR1MBPrice",
+      "cell": "V26",
+      "role": "Masterbatch mass for quote",
+      "unit": "kg",
+      "formula": "=IFERROR(COR1CompPrice!B28*B14,\"\")",
+      "cachedValue": "0.060275941253429506"
+    },
+    {
+      "sheet": "COR1MBPrice",
+      "cell": "V28",
+      "role": "Masterbatch mass per metre",
+      "unit": "kg/m",
+      "formula": "=IFERROR(V26/B30,\"\")",
+      "cachedValue": "0.0000120551882506859"
+    },
+    {
+      "sheet": "COR1MBPrice",
+      "cell": "B28",
+      "role": "Masterbatch mass per metre",
+      "unit": "g/m",
+      "formula": "=IFERROR(V26/B30*1000,\"\")",
+      "cachedValue": "0.0120551882506859"
+    },
+    {
+      "sheet": "COR1MBPrice",
+      "cell": "B32",
+      "role": "Masterbatch price per metre",
+      "unit": "GBP/m",
+      "formula": "=IFERROR(V28*B16,\"\")",
+      "cachedValue": "0.0001787784417576719"
+    }
+  ]
+}
