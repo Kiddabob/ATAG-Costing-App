@@ -2182,3 +2182,38 @@ audited commit and all 0.1.0 release assets, anonymously verify the release, the
 install the local 0.0.9 baseline and accept the offered 0.1.0 update through the
 WinUI Settings surface. Do not ask an installed end user to authenticate; only
 the developer publication action requires this one-time confirmation.
+
+### GitHub publication and anonymous upgrade acceptance completed
+
+This supersedes the remaining-publication note immediately above.
+
+- audited source commit `8e9c2ea0d43e5e5defb240361b0c4440f16bd41d`
+  was fast-forwarded to public `main`; GitHub's returned tree and final commit
+  both matched the exact local Git objects before the ref was moved;
+- stable release `v0.1.0` is public at
+  `https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.1.0`;
+- the GitHub Release contains the one-file `Costing-App-Setup.exe`, full
+  Velopack package, portable ZIP, both feed formats, legacy `RELEASES`, and
+  `SHA256SUMS.txt`;
+- an unauthenticated GitHub API/download check confirmed the stable latest
+  release, all seven asset names and sizes, the checksum-manifest bytes, and
+  the published installer checksum. Installed users require no GitHub login;
+- the ignored 0.0.9 acceptance installer was installed and the exact installed
+  app automatically found 0.1.0 from the public feed. Settings displayed the
+  full release notes, 91.5 MB download size, and SHA-256 verification notice;
+- accepting the app's own `Download and restart` flow downloaded, verified,
+  applied, and restarted 0.1.0. The restarted Settings surface reported
+  `Version 0.1.0 · installed`, and Velopack logged `Package version 0.1.0
+  applied successfully`;
+- the four pre-upgrade private runtime files remained present outside the app
+  directory (`central-data-state.json`, `exchange-rates.json`, `settings.json`,
+  and `window-placement.json`). The restarted UI still reported all five LIVE
+  material links, demonstrating that the private retained state survived;
+- the Computer Use plugin remains blocked by Windows access in this environment,
+  so the acceptance used Windows UI Automation against the exact installed
+  Costing App process and the Velopack log. No unrelated application was opened.
+
+The installer/updater milestone is now accepted. The installer remains unsigned,
+so Unknown publisher/SmartScreen is still expected until an organisation signing
+certificate is provisioned. Resume the recommended **V1.3b versioned
+dual-insulation document payload and complete guided editor** next.
