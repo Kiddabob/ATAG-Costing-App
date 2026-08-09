@@ -1,4 +1,14 @@
 <Project>
+  <PropertyGroup>
+    <!--
+      This is the single version source for the app binary, Velopack package,
+      installer and GitHub release workflow. Keep it as a three-part SemVer.
+    -->
+    <CostingAppVersion>0.1.0</CostingAppVersion>
+    <Version>$(CostingAppVersion)</Version>
+    <InformationalVersion>$(CostingAppVersion)</InformationalVersion>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(AtagPublicReview)' == 'true'">
     <!--
       Public artifacts must not retain CodeView/PDB paths from the development

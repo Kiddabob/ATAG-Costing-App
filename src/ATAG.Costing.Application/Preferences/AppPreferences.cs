@@ -9,12 +9,16 @@ public sealed record AppPreferences(
     bool ShowStorageSetupOnStartup,
     string ThemeMode = "System",
     string BackdropMode = "Mica",
-    bool HasCompletedFirstRunSetup = false)
+    bool HasCompletedFirstRunSetup = false,
+    bool AutomaticallyCheckForUpdates = true,
+    string UpdateChannel = "Stable")
 {
     public static AppPreferences Default { get; } = new(
         SaveFolderPath: null,
         ShowStorageSetupOnStartup: true,
         ThemeMode: "System",
         BackdropMode: "Mica",
-        HasCompletedFirstRunSetup: false);
+        HasCompletedFirstRunSetup: false,
+        AutomaticallyCheckForUpdates: true,
+        UpdateChannel: "Stable");
 }

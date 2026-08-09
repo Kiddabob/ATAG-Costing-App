@@ -4134,6 +4134,122 @@
                             Spacing="20">
                             <TextBlock
                                 Style="{StaticResource SectionLabelStyle}"
+                                Text="APP UPDATES" />
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel Spacing="18">
+                                    <Grid ColumnSpacing="20">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="5">
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Text="Installed version" />
+                                            <TextBlock
+                                                x:Name="UpdateCurrentVersionText"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="Checking installation..." />
+                                        </StackPanel>
+                                        <Button
+                                            x:Name="CheckForUpdatesButton"
+                                            Grid.Column="1"
+                                            Click="CheckForUpdates_Click"
+                                            Content="Check for updates" />
+                                    </Grid>
+
+                                    <Rectangle
+                                        Height="1"
+                                        Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                                    <Grid ColumnSpacing="20">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="220" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="5">
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Text="Release channel" />
+                                            <TextBlock
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="Stable receives normal releases. Beta can also offer preview releases. Neither requires a GitHub account."
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <ComboBox
+                                            x:Name="UpdateChannelComboBox"
+                                            Grid.Column="1"
+                                            Header="Channel"
+                                            HorizontalAlignment="Stretch"
+                                            SelectedIndex="{x:Bind ViewModel.SelectedUpdateChannelIndex, Mode=TwoWay}">
+                                            <ComboBoxItem Content="Stable" />
+                                            <ComboBoxItem Content="Beta" />
+                                        </ComboBox>
+                                    </Grid>
+
+                                    <Grid ColumnSpacing="20">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="5">
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Text="Check automatically" />
+                                            <TextBlock
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="Checks quietly after the main window has opened. A failed check never blocks the app."
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <ToggleSwitch
+                                            Grid.Column="1"
+                                            Header="Automatic checks"
+                                            IsOn="{x:Bind ViewModel.AutomaticallyCheckForUpdates, Mode=TwoWay}" />
+                                    </Grid>
+
+                                    <InfoBar
+                                        x:Name="AppUpdateInfoBar"
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Message="Updates are available after this app has been installed with Costing App Setup."
+                                        Severity="Informational"
+                                        Title="Installer-managed updates" />
+
+                                    <ProgressBar
+                                        x:Name="AppUpdateProgressBar"
+                                        Height="4"
+                                        Maximum="100"
+                                        Minimum="0"
+                                        Visibility="Collapsed" />
+
+                                    <StackPanel
+                                        x:Name="AvailableUpdatePanel"
+                                        Spacing="12"
+                                        Visibility="Collapsed">
+                                        <TextBlock
+                                            FontWeight="SemiBold"
+                                            Text="Changes since your installed version" />
+                                        <TextBlock
+                                            x:Name="AppUpdateReleaseNotesText"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            TextWrapping="Wrap" />
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button
+                                                x:Name="DownloadAndInstallUpdateButton"
+                                                Click="DownloadAndInstallUpdate_Click"
+                                                Content="Download and restart"
+                                                Style="{StaticResource AccentButtonStyle}" />
+                                            <Button
+                                                Click="DeferUpdate_Click"
+                                                Content="Later" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock
+                                Style="{StaticResource SectionLabelStyle}"
                                 Text="APPEARANCE" />
 
                             <Border Style="{StaticResource CardBorderStyle}">

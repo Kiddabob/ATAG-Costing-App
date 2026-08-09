@@ -1,5 +1,6 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Velopack;
 
 namespace ATAG.Costing.WinUI;
 
@@ -18,6 +19,10 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        // Velopack install/update hooks must run before WinUI or any app service
+        // is initialised. In a development build this returns immediately.
+        VelopackApp.Build().Run();
+
         Log("Process entry point reached.");
 
         try

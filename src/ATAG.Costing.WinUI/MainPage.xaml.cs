@@ -1,5 +1,6 @@
 using ATAG.Costing.Application.CentralData;
 using ATAG.Costing.Application.Projects;
+using ATAG.Costing.Application.Updates;
 using ATAG.Costing.Application.Visualisation;
 using ATAG.Costing.Domain.Conductors;
 using ATAG.Costing.Infrastructure.CentralData;
@@ -48,6 +49,8 @@ public sealed partial class MainPage : Page
     private readonly ISingleCoreProjectDocumentStore _portableDocumentStore =
         new JsonSingleCoreProjectDocumentStore();
     private readonly A4QuotationPdfGenerator _quotationPdfGenerator = new();
+    private readonly IAppUpdateService _appUpdateService =
+        new VelopackAppUpdateService();
     private readonly CentralDataService _centralDataService;
     private readonly IReadOnlyDictionary<CentralDataSourceKind, ICentralDataDatabaseNavigator> _databaseNavigators;
     private ResultWindow? _resultWindow;
@@ -57,6 +60,8 @@ public sealed partial class MainPage : Page
     private double _previewResizeStartX;
     private double _previewResizeStartWidth = 600d;
     private double _lastPreviewRightDockWidth = 600d;
+    private AppUpdateRelease? _availableAppUpdate;
+    private bool _isAppUpdateOperationActive;
 
     public MainPageViewModel ViewModel { get; }
     public SingleCoreCostingViewModel CostingViewModel { get; }
@@ -97,6 +102,7 @@ public sealed partial class MainPage : Page
         _databaseNavigators = databaseNavigators.ToDictionary(
             navigator => navigator.Kind);
         InitializeComponent();
+        InitializeAppUpdateDisplay();
         AppNavigation.PaneTitle = AppRuntimeMode.ProductName;
         ContractReviewPanel.Children.Remove(WorkingCentralDataTablesCard);
         var connectionOptionsIndex =
@@ -146,6 +152,180 @@ public sealed partial class MainPage : Page
         {
             await CostingViewModel.RefreshExchangeRatesAsync();
         }
+        if (!AppRuntimeMode.IsPublicReview &&
+            ViewModel.AutomaticallyCheckForUpdates &&
+            _appUpdateService.IsInstalled)
+        {
+            await CheckForAppUpdatesAsync(isAutomatic: true);
+        }
+    }
+
+    private void InitializeAppUpdateDisplay()
+    {
+        UpdateCurrentVersionText.Text = _appUpdateService.IsInstalled
+            ? $"Version {_appUpdateService.CurrentVersion} · installed"
+            : $"Version {_appUpdateService.CurrentVersion} · development build";
+        CheckForUpdatesButton.IsEnabled = _appUpdateService.IsInstalled;
+        UpdateChannelComboBox.IsEnabled = _appUpdateService.IsInstalled;
+        AppUpdateInfoBar.Title = _appUpdateService.IsInstalled
+            ? "Ready to check"
+            : "Installer-managed updates";
+        AppUpdateInfoBar.Message = _appUpdateService.IsInstalled
+            ? "Updates are downloaded anonymously from the public Costing App GitHub releases."
+            : "Updates are available after this app has been installed with Costing App Setup.";
+    }
+
+    private async void CheckForUpdates_Click(object sender, RoutedEventArgs e) =>
+        await CheckForAppUpdatesAsync(isAutomatic: false);
+
+    private async Task CheckForAppUpdatesAsync(bool isAutomatic)
+    {
+        if (_isAppUpdateOperationActive || !_appUpdateService.IsInstalled)
+        {
+            return;
+        }
+
+        _isAppUpdateOperationActive = true;
+        CheckForUpdatesButton.IsEnabled = false;
+        UpdateChannelComboBox.IsEnabled = false;
+        AppUpdateInfoBar.IsOpen = true;
+        AppUpdateInfoBar.Title = "Checking for updates";
+        AppUpdateInfoBar.Message = "Contacting the public release feed...";
+        AppUpdateInfoBar.Severity = InfoBarSeverity.Informational;
+        AvailableUpdatePanel.Visibility = Visibility.Collapsed;
+        AppUpdateProgressBar.IsIndeterminate = true;
+        AppUpdateProgressBar.Visibility = Visibility.Visible;
+
+        try
+        {
+            var channel = ViewModel.SelectedUpdateChannelIndex == 1
+                ? AppUpdateChannel.Beta
+                : AppUpdateChannel.Stable;
+            _availableAppUpdate = await _appUpdateService
+                .CheckForUpdatesAsync(channel);
+            if (_availableAppUpdate is null)
+            {
+                AppUpdateInfoBar.Title = "Costing App is up to date";
+                AppUpdateInfoBar.Message =
+                    $"Version {_appUpdateService.CurrentVersion} is the newest {channel.ToString().ToLowerInvariant()} release.";
+                AppUpdateInfoBar.Severity = InfoBarSeverity.Success;
+                return;
+            }
+
+            var size = FormatFileSize(_availableAppUpdate.DownloadSizeBytes);
+            AppUpdateInfoBar.Title =
+                $"Version {_availableAppUpdate.Version} is available";
+            AppUpdateInfoBar.Message =
+                $"Download size: {size}. The package SHA-256 is checked before installation.";
+            AppUpdateInfoBar.Severity = InfoBarSeverity.Success;
+            AppUpdateReleaseNotesText.Text =
+                string.IsNullOrWhiteSpace(_availableAppUpdate.ReleaseNotes)
+                    ? "No release notes were supplied for this version."
+                    : _availableAppUpdate.ReleaseNotes.Trim();
+            AvailableUpdatePanel.Visibility = Visibility.Visible;
+        }
+        catch (Exception exception)
+        {
+            Program.Log($"Update check failed: {exception}");
+            AppUpdateInfoBar.Title = isAutomatic
+                ? "Automatic update check unavailable"
+                : "Could not check for updates";
+            AppUpdateInfoBar.Message =
+                "The app remains available. Check the internet connection and try again later.";
+            AppUpdateInfoBar.Severity = InfoBarSeverity.Warning;
+        }
+        finally
+        {
+            AppUpdateProgressBar.IsIndeterminate = false;
+            AppUpdateProgressBar.Visibility = Visibility.Collapsed;
+            CheckForUpdatesButton.IsEnabled = true;
+            UpdateChannelComboBox.IsEnabled = true;
+            _isAppUpdateOperationActive = false;
+        }
+    }
+
+    private async void DownloadAndInstallUpdate_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_isAppUpdateOperationActive || _availableAppUpdate is null)
+        {
+            return;
+        }
+
+        var confirmation = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = $"Install version {_availableAppUpdate.Version}?",
+            Content =
+                "Save any working costing first. The update will be verified, installed, and Costing App will restart. Your LocalAppData settings, database links, cached tables, and costing files are outside the replaceable app folder.",
+            PrimaryButtonText = "Download and restart",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        if (await confirmation.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        _isAppUpdateOperationActive = true;
+        CheckForUpdatesButton.IsEnabled = false;
+        DownloadAndInstallUpdateButton.IsEnabled = false;
+        UpdateChannelComboBox.IsEnabled = false;
+        AppUpdateProgressBar.IsIndeterminate = false;
+        AppUpdateProgressBar.Value = 0;
+        AppUpdateProgressBar.Visibility = Visibility.Visible;
+        AppUpdateInfoBar.Title =
+            $"Downloading version {_availableAppUpdate.Version}";
+        AppUpdateInfoBar.Message = "0% downloaded";
+        AppUpdateInfoBar.Severity = InfoBarSeverity.Informational;
+
+        try
+        {
+            var progress = new Progress<int>(value =>
+            {
+                AppUpdateProgressBar.Value = value;
+                AppUpdateInfoBar.Message = $"{value}% downloaded";
+            });
+            await _appUpdateService.DownloadUpdateAsync(progress);
+            AppUpdateInfoBar.Title = "Update verified";
+            AppUpdateInfoBar.Message = "Restarting Costing App to install it...";
+            AppUpdateInfoBar.Severity = InfoBarSeverity.Success;
+            _appUpdateService.ApplyUpdateAndRestart();
+        }
+        catch (Exception exception)
+        {
+            Program.Log($"Update download/apply failed: {exception}");
+            AppUpdateInfoBar.Title = "Update was not installed";
+            AppUpdateInfoBar.Message =
+                "The current version is unchanged. Check the connection and try again.";
+            AppUpdateInfoBar.Severity = InfoBarSeverity.Error;
+            AppUpdateProgressBar.Visibility = Visibility.Collapsed;
+            CheckForUpdatesButton.IsEnabled = true;
+            DownloadAndInstallUpdateButton.IsEnabled = true;
+            UpdateChannelComboBox.IsEnabled = true;
+            _isAppUpdateOperationActive = false;
+        }
+    }
+
+    private void DeferUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        AvailableUpdatePanel.Visibility = Visibility.Collapsed;
+        AppUpdateInfoBar.Title = "Update deferred";
+        AppUpdateInfoBar.Message =
+            "The current version will keep working. Check again when you are ready.";
+        AppUpdateInfoBar.Severity = InfoBarSeverity.Informational;
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        if (bytes <= 0)
+        {
+            return "size not reported";
+        }
+
+        var megabytes = bytes / (1024d * 1024d);
+        return $"{megabytes:0.0} MB";
     }
 
     private void ConfigurePublicReviewMode()

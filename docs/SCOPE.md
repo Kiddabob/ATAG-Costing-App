@@ -409,8 +409,17 @@ V1 progress as of 29 July 2026:
 
 - Backup/restore and data retention.
 - Import diagnostics and migration reports.
-- Installer/signing decision for internal deployment.
-- Acceptance testing, performance, accessibility, and release packaging.
+- A versioned Velopack per-user installer, desktop/Start shortcuts, uninstall
+  entry, anonymous public-GitHub Stable/Beta update feed, release notes,
+  progress, explicit restart, SHA-256 package verification, and repeatable
+  release workflow are implemented for x64 Windows.
+- The clean-package audit excludes databases, workbooks, retained central data,
+  settings, saved costings, developer symbols, and machine-local environment
+  files. Runtime state remains outside the replaceable application directory.
+- Organisation code signing remains pending; the current installer can show an
+  Unknown publisher or SmartScreen warning.
+- Continue acceptance testing, performance, accessibility, backup/restore, and
+  release hardening.
 
 ## Explicitly outside the single-core V1
 
@@ -419,7 +428,7 @@ V1 progress as of 29 July 2026:
 - Multi-user database synchronisation.
 - User accounts, permissions, or electronic approvals.
 - Final approved quote/contract-review templates and print preview.
-- A production installer.
+- Organisation-trusted code signing and enterprise deployment policy.
 
 These items remain planned work and must not be implied by the current navigation
 placeholders.

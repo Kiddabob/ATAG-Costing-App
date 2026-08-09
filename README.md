@@ -183,10 +183,10 @@ readable and can be added to the selected-folder index. See
 Open `ATAG.Costing.sln` in Visual Studio 2026 and choose the x64 platform. The
 WinUI project is `src/ATAG.Costing.WinUI`.
 
-The development build is deliberately configured as unpackaged and
-self-contained. This is necessary because the workspace is on an exFAT volume,
-from which Windows cannot register an MSIX package. A signed MSIX or conventional
-installer can be produced later from an NTFS staging directory.
+The development build remains unpackaged and self-contained so it can run from
+the portable workspace. Normal users install the same WinUI application through
+the versioned per-user installer described below; the installer does not depend
+on the workspace drive letter.
 
 ## Build and run
 
@@ -204,6 +204,28 @@ Do not use the generic Computer Use `launch_app` bridge for this project: on thi
 PC it has started the separately indexed Hudl Device Console as well as the
 requested ATAG process even though the maintained ATAG source and launchers
 contain no Hudl reference.
+
+## Install and update
+
+`Costing-App-Setup.exe` is the single user-facing installer. It installs for the
+current Windows user, creates Start menu and desktop shortcuts, and adds the
+normal Windows uninstall entry without requiring administrator rights. A clean
+installer contains application files only: it does not carry database links,
+retained central-data rows, settings, saved costings, workbooks, or customer
+documents.
+
+The installed app checks the public GitHub Releases feed anonymously after its
+main window is visible. Settings provides Stable/Beta selection, a cumulative
+list of every release since the installed version, download progress, and an
+explicit **Download and restart** action. Per-user
+settings, linked-table definitions, retained offline tables, and user-selected
+business storage are outside the replaceable application folder and remain in
+place across an update.
+
+The first installer is not code-signed, so Windows may identify it as an unknown
+publisher until an organisation signing certificate is added. Build and release
+instructions, the clean-package boundary, and verification requirements are in
+`docs/INSTALL-AND-UPDATE.md`.
 
 ## Solution projects
 

@@ -2106,3 +2106,79 @@ and a separate anonymous GitHub API request verified public access. The first
 installer, versioned release asset, anonymous in-app update check, integrity
 validation, and upgrade-in-place/rollback test must each be recorded separately
 when actually complete.
+
+## 2026-08-09 one-file installer and cumulative in-app updater
+
+The release-management implementation now uses Velopack 1.2.0 around the
+existing unpackaged/self-contained WinUI application. This supersedes the
+earlier tentative MSIX recommendation: it preserves the current file/database
+workflows, installs per user without administrator rights, and produces the
+single user-facing `Costing-App-Setup.exe` requested by the user. The unsigned
+installer can still show Unknown publisher/SmartScreen until ATAG provisions a
+trusted organisation signing certificate.
+
+Implemented:
+
+- authoritative `CostingAppVersion` in `Directory.Build.props`, currently
+  `0.1.0`, drives binaries, Velopack packages, and GitHub tags;
+- Velopack startup hooks run before COM and WinUI initialisation;
+- Settings shows installed version, Stable/Beta choice, automatic-check toggle,
+  status, package size/checksum, progress, explicit save/restart confirmation,
+  and a safe Later action;
+- update checks start only after the main window is visible, use the public
+  `Kiddabob/ATAG-Costing-App` GitHub Releases feed without a token, and never
+  prevent normal app launch after a network/feed failure;
+- update notes are cumulative: the app anonymously reads the public release
+  history, filters versions strictly newer than the installed one and no newer
+  than the target, respects Stable/Beta, and shows every intervening version.
+  If that supplementary history lookup fails, the target package's own notes
+  remain available and the update itself can continue;
+- the release builder extracts only the current version's CHANGELOG section for
+  each package/release. This prevents future cumulative histories from repeating
+  the complete changelog inside every individual GitHub release;
+- `tools/Build-Release.ps1` tests, self-contained-publishes, audits, packages,
+  and checksums the x64 release; `.github/workflows/release.yml` repeats the same
+  path and publishes all installer/update-feed assets;
+- the safety audit blocks Access/SQL backup/workbook/saved-costing files,
+  retained central-data/settings/window state, environment files, symbols, and
+  other user data. Runtime settings, links, cached tables, and business-file
+  storage stay outside Velopack's replaceable `current` folder.
+
+Verification completed before publication:
+
+- Debug and Release tests pass 114 cases, with the same 2 approval-gated
+  workbook parity cases intentionally skipped and no failures;
+- the final 0.1.0 package build passed its release safety audit;
+- `Costing-App-Setup.exe` is 100,495,346 bytes with SHA-256
+  `767a08a9c29a9044f0b74a92d6bbfcd91683dd5947a559e8b0c95db9e5bd66b9`;
+- an earlier package of the same implementation installed successfully beneath
+  `%LOCALAPPDATA%\Costing.App`, created Costing App desktop/Start shortcuts and
+  an uninstall entry, and the project-owned installed stub launched
+  `current\ATAG.Costing.WinUI.exe` version 0.1.0;
+- the installed process remained healthy and reached the anonymous GitHub feed;
+  before a release existed it correctly reported no available release. No Hudl
+  process or launcher was invoked;
+- the Computer Use bridge still returns `0x80070003`; no screen-control visual
+  acceptance is claimed.
+
+Publication and a real older-to-newer installed-app upgrade are the remaining
+acceptance actions for this milestone. Do not describe updater installation as
+fully accepted until those results are appended here. After that, resume the
+recommended **V1.3b versioned dual-insulation document payload and complete
+guided editor**.
+
+Final local-installer acceptance subsequently passed against the exact audited
+0.1.0 artifact: silent install returned exit code 0, `sq.version` reported
+0.1.0, all four existing runtime files beneath the normal ATAG Costing
+LocalAppData folder retained identical SHA-256 values through installation, the
+installed process remained running, and the process check again found zero Hudl
+processes. A local 0.0.9 package containing the same update client is retained
+under ignored `artifacts\update-test-old` solely for the real upgrade test.
+
+GitHub publication did not complete in this turn because the required one-time
+developer device confirmation was not entered before its code expired. No token
+was issued or stored. On continuation, create a fresh device code, publish the
+audited commit and all 0.1.0 release assets, anonymously verify the release, then
+install the local 0.0.9 baseline and accept the offered 0.1.0 update through the
+WinUI Settings surface. Do not ask an installed end user to authenticate; only
+the developer publication action requires this one-time confirmation.

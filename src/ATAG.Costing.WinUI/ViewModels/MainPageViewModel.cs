@@ -44,6 +44,12 @@ public partial class MainPageViewModel : ObservableObject
     public partial int SelectedBackdropIndex { get; set; }
 
     [ObservableProperty]
+    public partial bool AutomaticallyCheckForUpdates { get; set; } = true;
+
+    [ObservableProperty]
+    public partial int SelectedUpdateChannelIndex { get; set; }
+
+    [ObservableProperty]
     public partial bool IsStorageSetupVisible { get; set; }
 
     [ObservableProperty]
@@ -73,6 +79,8 @@ public partial class MainPageViewModel : ObservableObject
             _ => 0
         };
         SelectedBackdropIndex = preferences.BackdropMode == "Acrylic" ? 1 : 0;
+        AutomaticallyCheckForUpdates = preferences.AutomaticallyCheckForUpdates;
+        SelectedUpdateChannelIndex = preferences.UpdateChannel == "Beta" ? 1 : 0;
         RefreshStorageAvailability();
         _isLoading = false;
     }
@@ -163,6 +171,22 @@ public partial class MainPageViewModel : ObservableObject
         }
     }
 
+    partial void OnAutomaticallyCheckForUpdatesChanged(bool value)
+    {
+        if (!_isLoading)
+        {
+            SavePreferences();
+        }
+    }
+
+    partial void OnSelectedUpdateChannelIndexChanged(int value)
+    {
+        if (!_isLoading)
+        {
+            SavePreferences();
+        }
+    }
+
     private void RefreshStorageAvailability()
     {
         HasStorageFolder = StorageLocationPolicy.IsAvailable(StorageFolderPath);
@@ -199,6 +223,10 @@ public partial class MainPageViewModel : ObservableObject
             BackdropMode: SelectedBackdropIndex == 1
                 ? "Acrylic"
                 : "Mica",
-            HasCompletedFirstRunSetup));
+            HasCompletedFirstRunSetup,
+            AutomaticallyCheckForUpdates,
+            UpdateChannel: SelectedUpdateChannelIndex == 1
+                ? "Beta"
+                : "Stable"));
     }
 }
