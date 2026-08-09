@@ -2217,3 +2217,19 @@ The installer/updater milestone is now accepted. The installer remains unsigned,
 so Unknown publisher/SmartScreen is still expected until an organisation signing
 certificate is provisioned. Resume the recommended **V1.3b versioned
 dual-insulation document payload and complete guided editor** next.
+
+### Public README corrected after release
+
+`README.md` was replaced with an installer-first public guide. It now links the
+latest GitHub Release and direct one-file installer, explains first-run data
+linking and anonymous updates, summarises the actual 0.1.0 scope, and keeps the
+clean package/private LocalAppData boundary visible.
+
+The old “Visual Studio 2026” wording was wrong. `ATAG.Costing.sln` declares
+Visual Studio solution format/version 17 and the guide now says Visual Studio
+2022. It also distinguishes opening the `.sln` from launching the app, and makes
+the command-line launch target the WinUI `.csproj`. The exact documented x64
+restore, Debug build, and test commands passed: 114 tests passed, the same 2
+approval-gated workbook cases were skipped, and there were no failures. NuGet's
+optional vulnerability-feed lookup emitted four `NU1900` warnings because that
+feed was unavailable, but restore/build/test all completed successfully.
