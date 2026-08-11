@@ -2800,3 +2800,44 @@ on the Codex application folder. Do not infer a WinUI screenshot acceptance
 from that failure. The user is the final appearance check through the installed
 v0.3.0-to-v0.3.1 update and can confirm that the cumulative 0.3.1 and 0.3.0
 cards use the new changelog style. The installer remains unsigned.
+
+## 2026-08-11 public v0.3.2 launch-chooser sizing update accepted
+
+The user confirmed on installed v0.3.1 that the optional ATAG/blank launch
+chooser clipped its second choice, disabled the maximise button, and could only
+be maximised by double-clicking the title bar. The cause was explicit
+`IsResizable = false` and `IsMaximizable = false` presenter configuration, a
+fixed 510 px initial height, and a non-scrolling content stack.
+
+Version 0.3.2 enables normal resize and maximise behaviour, opens at a
+display-aware size up to 760 x 680 px, clamps that size to the current pointer
+display's work area, and wraps the choice content in an independent vertical
+`ScrollViewer`. Both choices should therefore be visible at the normal opening
+size and remain reachable when the window is deliberately reduced or used on a
+compact display. No costing, saved-document schema, database-link, production-
+speed, or reporting rule changed.
+
+The normal and blank-interface x64 Debug builds passed. The initial restore
+reported only temporary NU1900 vulnerability-feed warnings; compilation had
+zero source errors. The authoritative Release gate passed 137 tests, with 2
+approval-gated workbook fixtures intentionally skipped and 0 failures, then
+completed its public-data audit and Velopack packaging.
+
+Commit/tag target `9453121aa6c4d92f4d089480425b157c1a8b7123` was pushed and
+GitHub Actions run `31522144111` completed successfully. Stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.3.2`.
+It is latest, neither draft nor prerelease, and contains all seven assets. The
+public installer is 100,851,998 bytes with SHA-256
+`712a5eedb6027cf7a50bf1ddb5879d8e4992d75422bb794dd435d4486f0182cf`.
+The public update package is 96,258,846 bytes with SHA-256
+`83d4a874677ddd8f501984fcf0141189288522b7d442f9344589141d795a2e43`.
+Anonymous downloads matched the public checksum manifest and GitHub digests;
+the public Velopack feed names exact version 0.3.2, size, and hash. The
+downloaded nupkg contains 561 entries and zero blocked private-data entries.
+
+This is deliberately the first of two releases held above installed v0.3.1 so
+the redesigned cumulative changelog can be tested with more than one pending
+version. Keep v0.3.1 installed, publish one further small v0.3.3 update, and
+then use the v0.3.1 updater to inspect separate v0.3.3 and v0.3.2 cards before
+installing. The user will also perform the installed visual acceptance of the
+chooser through that later update. The installer remains unsigned.
