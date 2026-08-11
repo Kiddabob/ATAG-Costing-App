@@ -222,7 +222,7 @@
                     Visibility="Collapsed">
                     <Image
                         x:Name="OrganisationBrandingPaneLogo"
-                        Margin="8"
+                        Margin="2"
                         AutomationProperties.Name="ATAG Design logo"
                         Stretch="Uniform" />
                 </Grid>
@@ -383,7 +383,7 @@
                                         Visibility="Collapsed">
                                         <Image
                                             x:Name="OrganisationBrandingHomeLogo"
-                                            Margin="4"
+                                            Margin="2"
                                             AutomationProperties.Name="ATAG Design logo"
                                             Stretch="Uniform" />
                                     </Grid>
@@ -5325,7 +5325,7 @@
                                         Visibility="Collapsed">
                                         <Image
                                             x:Name="OrganisationBrandingSettingsLogo"
-                                            Margin="6"
+                                            Margin="2"
                                             AutomationProperties.Name="ATAG Design logo"
                                             Stretch="Uniform" />
                                     </Grid>

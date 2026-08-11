@@ -1,5 +1,14 @@
 # Costing App release notes
 
+## 0.3.1 - 2026-08-11
+
+- Tightens the ATAG Design long logos in the navigation pane, Home banner, and
+  Settings so the approved artwork sits naturally in the available space.
+- Removes only fully transparent outer padding from the light and dark logo
+  assets; every visible artwork pixel and colour remains unchanged.
+- Makes no costing, saved-document schema, database-link, production-speed, or
+  reporting change.
+
 ## 0.3.0 - 2026-08-11
 
 - Adds a private Production Speed Library where each user can define production
