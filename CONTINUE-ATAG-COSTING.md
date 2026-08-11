@@ -2889,3 +2889,56 @@ hex entry. The choice should survive a normal relaunch and must not alter the
 Windows accent. The user is the final visual judge. Once accepted, resume the
 Production Speed Library/line-speed refinement already recorded above rather
 than reopening release infrastructure. The installer remains unsigned.
+
+
+## 41. Public v0.3.4 appearance correction - 11 August 2026
+
+The installed v0.3.3 screenshots accepted the redesigned cumulative changelog
+(two separate 0.3.3 and 0.3.2 cards) and the resizable/maximisable launch
+chooser, then exposed four appearance defects: the complete Settings column was
+anchored too close to the navigation edge on wide windows, the primary launch
+choice mixed black and white text on one accent surface, System theme did not
+refresh when an accent changed, and a custom RGB value such as `#D50000` was
+shown in the selector without becoming the exact primary control fill.
+
+v0.3.4 centres the complete Settings workspace in the available content area
+and raises its maximum width from 860 to 980 pixels. The primary launch choice
+now lets both text lines inherit AccentButtonStyle's single contrast-aware
+foreground. Appearance uses stable app-owned accent brush instances: changing
+a preset or custom colour mutates those brushes directly, so System, Light, and
+Dark respond immediately without a forced theme round-trip. The default fill
+uses the exact entered RGB colour; only pointer/disabled states use alpha. The
+active name and exact hex are displayed together, and WCAG luminance selects
+black or white on-accent text without altering the requested colour. Existing
+per-profile preferences are retained. No costing, saved-document schema,
+database-link, production-speed, or reporting logic changed.
+
+The x64 Debug solution build succeeded with zero errors. The authoritative
+release gate passed 137 tests, with 2 approval-gated workbook fixtures
+intentionally skipped and 0 failures. The package asset, executable-icon,
+checksum, and privacy gates passed. A separate interface-only publish
+constructed and activated the full WinUI main page, remained alive after six
+seconds, logged no unhandled exception, and rendered zero visible default input
+values.
+
+Commit/tag `c03e3884a1a1efd4ee543ab7c49f01b43bb9560d` was published by
+successful GitHub Actions run `31526850921`. Latest stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.3.4`.
+The public installer is 100,856,851 bytes, SHA-256
+`36aa8bdeb41fef7cf0ecdd77f0c618cad2b9f01d2e4374bad60a4d9832825208`.
+The public update package is 96,263,699 bytes, SHA-256
+`ee64d88a07ba3a2b7d12d471ce68c1962af5a1b7a59901a5e02919e91f686c3f`.
+Anonymous downloads match the public checksum manifest and GitHub asset
+digests. The downloaded nupkg has 561 entries and zero blocked private-data
+entries; the public feed reports exact version 0.3.4, package size, notes, and
+hash.
+
+Immediate installed acceptance: update v0.3.3 to v0.3.4, confirm Settings is
+centred on a large window, select a preset while Theme is System and verify the
+app changes immediately, apply `#D50000` and verify the active label includes
+that exact value and the primary controls are exact red, then relaunch and
+confirm persistence. Reopen the optional launch chooser and confirm both lines
+on the ATAG choice use one readable foreground. The user remains the final
+visual judge. Once accepted, resume the recorded Production Speed Library and
+line-speed refinement rather than reopening updater foundations. The installer
+remains unsigned.
