@@ -27,8 +27,8 @@ internal sealed class LaunchModeChoiceWindow : Window
             AppRuntimeMode.AppIconRelativePath));
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {
-            presenter.IsResizable = false;
-            presenter.IsMaximizable = false;
+            presenter.IsResizable = true;
+            presenter.IsMaximizable = true;
             presenter.IsMinimizable = true;
         }
 
@@ -86,8 +86,16 @@ internal sealed class LaunchModeChoiceWindow : Window
             "Open the isolated interface-only mode with no database links, cached rows, saved settings, or business defaults.",
             AppSessionMode.BlankReview,
             isPrimary: false));
-        Grid.SetRow(content, 1);
-        root.Children.Add(content);
+        var contentScroller = new ScrollViewer
+        {
+            Content = content,
+            HorizontalScrollMode = ScrollMode.Disabled,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollMode = ScrollMode.Auto,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+        };
+        Grid.SetRow(contentScroller, 1);
+        root.Children.Add(contentScroller);
 
         Content = root;
         SizeAndCentreOnPointerDisplay();
@@ -156,8 +164,10 @@ internal sealed class LaunchModeChoiceWindow : Window
                 AppWindow.Id,
                 DisplayAreaFallback.Primary);
         var workArea = displayArea.WorkArea;
-        var width = Math.Min(720, workArea.Width);
-        var height = Math.Min(510, workArea.Height);
+        var width = Math.Min(760, Math.Max(420, workArea.Width - 80));
+        var height = Math.Min(680, Math.Max(520, workArea.Height - 80));
+        width = Math.Min(width, workArea.Width);
+        height = Math.Min(height, workArea.Height);
         AppWindow.MoveAndResize(new RectInt32(
             workArea.X + ((workArea.Width - width) / 2),
             workArea.Y + ((workArea.Height - height) / 2),

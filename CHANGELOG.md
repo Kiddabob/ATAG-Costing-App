@@ -1,5 +1,16 @@
 # Costing App release notes
 
+## 0.3.2 - 2026-08-11
+
+- Makes the optional ATAG/blank launch chooser genuinely resizable and
+  maximisable, including a working title-bar maximise button.
+- Increases the chooser's initial size so both launch choices are visible on a
+  normal display instead of clipping the blank test option below the window.
+- Adds an independent vertical scrollbar so both choices remain reachable when
+  the chooser is made smaller or opened on a compact display.
+- Makes no costing, saved-document schema, database-link, production-speed, or
+  reporting change.
+
 ## 0.3.1 - 2026-08-11
 
 - Tightens the ATAG Design long logos in the navigation pane, Home banner, and
