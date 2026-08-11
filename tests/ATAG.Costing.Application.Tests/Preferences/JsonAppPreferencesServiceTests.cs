@@ -29,6 +29,8 @@ public sealed class JsonAppPreferencesServiceTests
 
             Assert.True(loaded.AutomaticallyCheckForUpdates);
             Assert.Equal("Stable", loaded.UpdateChannel);
+            Assert.Equal("Coral", loaded.AccentColour);
+            Assert.Equal("#F78370", loaded.CustomAccentHex);
         }
         finally
         {
@@ -47,12 +49,16 @@ public sealed class JsonAppPreferencesServiceTests
             {
                 AutomaticallyCheckForUpdates = false,
                 UpdateChannel = "Beta",
+                AccentColour = "Purple",
+                CustomAccentHex = "#654321",
             });
 
             var loaded = service.Load();
 
             Assert.False(loaded.AutomaticallyCheckForUpdates);
             Assert.Equal("Beta", loaded.UpdateChannel);
+            Assert.Equal("Purple", loaded.AccentColour);
+            Assert.Equal("#654321", loaded.CustomAccentHex);
         }
         finally
         {

@@ -42,7 +42,9 @@ internal sealed class PublicReviewAppPreferencesService : IAppPreferencesService
         ShowStorageSetupOnStartup: false,
         ThemeMode: "System",
         BackdropMode: "Mica",
-        HasCompletedFirstRunSetup: true);
+        HasCompletedFirstRunSetup: true,
+        AccentColour: "Coral",
+        CustomAccentHex: "#F78370");
 
     public AppPreferences Load() => Preferences;
 

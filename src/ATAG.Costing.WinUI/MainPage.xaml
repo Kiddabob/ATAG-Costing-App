@@ -5200,32 +5200,300 @@
                                 Text="APPEARANCE" />
 
                             <Border Style="{StaticResource CardBorderStyle}">
-                                <StackPanel Spacing="18">
-                                    <Grid ColumnSpacing="20">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="220" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Spacing="5">
+                                <StackPanel Spacing="24">
+                                    <StackPanel Spacing="5">
+                                        <TextBlock
+                                            FontSize="20"
+                                            FontWeight="SemiBold"
+                                            Text="Appearance" />
+                                        <TextBlock
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="Choose how Costing App looks. These choices affect this app only and are saved for this Windows user."
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+
+                                    <StackPanel Spacing="12">
+                                        <TextBlock
+                                            FontWeight="SemiBold"
+                                            Text="Theme" />
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button
+                                                Grid.Column="0"
+                                                Padding="0"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                AutomationProperties.Name="Use the Windows theme"
+                                                Click="ThemeCard_Click"
+                                                Tag="0">
+                                                <Border
+                                                    x:Name="SystemThemeCard"
+                                                    Padding="12"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10">
+                                                    <StackPanel Spacing="9">
+                                                        <Grid Height="92">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Border Background="#F3F3F3" CornerRadius="7,0,0,7" />
+                                                            <Border Grid.Column="1" Background="#242424" CornerRadius="0,7,7,0" />
+                                                            <Border
+                                                                Grid.ColumnSpan="2"
+                                                                Margin="18,22,18,12"
+                                                                Background="#FAFAFA"
+                                                                BorderBrush="#B8B8B8"
+                                                                BorderThickness="1"
+                                                                CornerRadius="6">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <StackPanel Margin="8" Spacing="5">
+                                                                        <Rectangle Height="5" Fill="#B0B0B0" RadiusX="2" RadiusY="2" />
+                                                                        <Rectangle Width="34" Height="5" HorizontalAlignment="Left" Fill="#D0D0D0" RadiusX="2" RadiusY="2" />
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Column="1" Margin="8" Spacing="5">
+                                                                        <Rectangle Height="5" Fill="#606060" RadiusX="2" RadiusY="2" />
+                                                                        <Rectangle Width="34" Height="5" HorizontalAlignment="Left" Fill="#858585" RadiusX="2" RadiusY="2" />
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </Border>
+                                                        </Grid>
+                                                        <TextBlock
+                                                            HorizontalAlignment="Center"
+                                                            FontWeight="SemiBold"
+                                                            Text="System" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </Button>
+
+                                            <Button
+                                                Grid.Column="1"
+                                                Padding="0"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                AutomationProperties.Name="Use the light theme"
+                                                Click="ThemeCard_Click"
+                                                Tag="1">
+                                                <Border
+                                                    x:Name="LightThemeCard"
+                                                    Padding="12"
+                                                    Background="#F3F3F3"
+                                                    BorderBrush="#C8C8C8"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10">
+                                                    <StackPanel Spacing="9">
+                                                        <Border
+                                                            Height="92"
+                                                            Padding="18,18,18,12"
+                                                            Background="#FFFFFF"
+                                                            BorderBrush="#D3D3D3"
+                                                            BorderThickness="1"
+                                                            CornerRadius="7">
+                                                            <StackPanel Spacing="8">
+                                                                <Rectangle Width="76" Height="6" HorizontalAlignment="Center" Fill="#C5C5C5" RadiusX="3" RadiusY="3" />
+                                                                <Border Padding="8" Background="#F5F5F5" CornerRadius="5">
+                                                                    <StackPanel Spacing="5">
+                                                                        <Rectangle Height="5" Fill="#C9C9C9" RadiusX="2" RadiusY="2" />
+                                                                        <Rectangle Width="44" Height="5" HorizontalAlignment="Left" Fill="#DDDDDD" RadiusX="2" RadiusY="2" />
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <TextBlock
+                                                            HorizontalAlignment="Center"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="#1F1F1F"
+                                                            Text="Light" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </Button>
+
+                                            <Button
+                                                Grid.Column="2"
+                                                Padding="0"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                AutomationProperties.Name="Use the dark theme"
+                                                Click="ThemeCard_Click"
+                                                Tag="2">
+                                                <Border
+                                                    x:Name="DarkThemeCard"
+                                                    Padding="12"
+                                                    Background="#303030"
+                                                    BorderBrush="#666666"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10">
+                                                    <StackPanel Spacing="9">
+                                                        <Border
+                                                            Height="92"
+                                                            Padding="18,18,18,12"
+                                                            Background="#202020"
+                                                            BorderBrush="#666666"
+                                                            BorderThickness="1"
+                                                            CornerRadius="7">
+                                                            <StackPanel Spacing="8">
+                                                                <Rectangle Width="76" Height="6" HorizontalAlignment="Center" Fill="#747474" RadiusX="3" RadiusY="3" />
+                                                                <Border Padding="8" Background="#3A3A3A" CornerRadius="5">
+                                                                    <StackPanel Spacing="5">
+                                                                        <Rectangle Height="5" Fill="#777777" RadiusX="2" RadiusY="2" />
+                                                                        <Rectangle Width="44" Height="5" HorizontalAlignment="Left" Fill="#5D5D5D" RadiusX="2" RadiusY="2" />
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <TextBlock
+                                                            HorizontalAlignment="Center"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="White"
+                                                            Text="Dark" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </Button>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <Rectangle
+                                        Height="1"
+                                        Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                                    <StackPanel Spacing="12">
+                                        <Grid ColumnSpacing="16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Spacing="4">
+                                                <TextBlock
+                                                    FontWeight="SemiBold"
+                                                    Text="Accent colour" />
+                                                <TextBlock
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="Used for buttons, selections, progress and focus inside Costing App."
+                                                    TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                                <Ellipse
+                                                    x:Name="AppearanceAccentPreview"
+                                                    Width="20"
+                                                    Height="20"
+                                                    VerticalAlignment="Center"
+                                                    Fill="#F78370" />
+                                                <TextBlock
+                                                    x:Name="AppearanceAccentName"
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    Text="Coral" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <ScrollViewer
+                                            HorizontalScrollBarVisibility="Auto"
+                                            HorizontalScrollMode="Enabled"
+                                            VerticalScrollBarVisibility="Disabled"
+                                            VerticalScrollMode="Disabled">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Button Click="AccentSwatch_Click" Tag="0" ToolTipService.ToolTip="Coral">
+                                                    <StackPanel Spacing="5">
+                                                        <Border x:Name="CoralAccentCard" Padding="3" BorderBrush="Transparent" BorderThickness="2" CornerRadius="18">
+                                                            <Ellipse Width="28" Height="28" Fill="#F78370" />
+                                                        </Border>
+                                                        <TextBlock FontSize="11" Text="Coral" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Click="AccentSwatch_Click" Tag="1" ToolTipService.ToolTip="Blue">
+                                                    <StackPanel Spacing="5">
+                                                        <Border x:Name="BlueAccentCard" Padding="3" BorderBrush="Transparent" BorderThickness="2" CornerRadius="18">
+                                                            <Ellipse Width="28" Height="28" Fill="#1679B8" />
+                                                        </Border>
+                                                        <TextBlock FontSize="11" Text="Blue" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Click="AccentSwatch_Click" Tag="2" ToolTipService.ToolTip="Cyan">
+                                                    <StackPanel Spacing="5">
+                                                        <Border x:Name="CyanAccentCard" Padding="3" BorderBrush="Transparent" BorderThickness="2" CornerRadius="18">
+                                                            <Ellipse Width="28" Height="28" Fill="#43B8D4" />
+                                                        </Border>
+                                                        <TextBlock FontSize="11" Text="Cyan" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Click="AccentSwatch_Click" Tag="3" ToolTipService.ToolTip="Green">
+                                                    <StackPanel Spacing="5">
+                                                        <Border x:Name="GreenAccentCard" Padding="3" BorderBrush="Transparent" BorderThickness="2" CornerRadius="18">
+                                                            <Ellipse Width="28" Height="28" Fill="#2E9D62" />
+                                                        </Border>
+                                                        <TextBlock FontSize="11" Text="Green" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Click="AccentSwatch_Click" Tag="4" ToolTipService.ToolTip="Purple">
+                                                    <StackPanel Spacing="5">
+                                                        <Border x:Name="PurpleAccentCard" Padding="3" BorderBrush="Transparent" BorderThickness="2" CornerRadius="18">
+                                                            <Ellipse Width="28" Height="28" Fill="#8B6FD6" />
+                                                        </Border>
+                                                        <TextBlock FontSize="11" Text="Purple" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Click="AccentSwatch_Click" Tag="5" ToolTipService.ToolTip="Gold">
+                                                    <StackPanel Spacing="5">
+                                                        <Border x:Name="GoldAccentCard" Padding="3" BorderBrush="Transparent" BorderThickness="2" CornerRadius="18">
+                                                            <Ellipse Width="28" Height="28" Fill="#C88A04" />
+                                                        </Border>
+                                                        <TextBlock FontSize="11" Text="Gold" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Click="AccentSwatch_Click" Tag="6" ToolTipService.ToolTip="Custom colour">
+                                                    <StackPanel Spacing="5">
+                                                        <Border x:Name="CustomAccentCard" Padding="3" BorderBrush="Transparent" BorderThickness="2" CornerRadius="18">
+                                                            <Ellipse
+                                                                x:Name="CustomAccentSwatch"
+                                                                Width="28"
+                                                                Height="28"
+                                                                Fill="#F78370" />
+                                                        </Border>
+                                                        <TextBlock FontSize="11" Text="Custom" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </ScrollViewer>
+
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox
+                                                x:Name="CustomAccentHexTextBox"
+                                                Header="Custom RGB hex colour"
+                                                MaxLength="7"
+                                                PlaceholderText="#F78370"
+                                                Text="{x:Bind ViewModel.CustomAccentHex, Mode=OneWay}" />
+                                            <Button
+                                                Grid.Column="1"
+                                                Margin="0,24,0,0"
+                                                VerticalAlignment="Top"
+                                                Click="ApplyCustomAccent_Click"
+                                                Content="Use custom colour" />
                                             <TextBlock
-                                                FontWeight="SemiBold"
-                                                Text="App colour mode" />
-                                            <TextBlock
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="Follow Windows by default, or override the app only."
-                                                TextWrapping="Wrap" />
-                                        </StackPanel>
-                                        <ComboBox
-                                            Grid.Column="1"
-                                            HorizontalAlignment="Stretch"
-                                            Header="Choose a mode"
-                                            SelectedIndex="{x:Bind ViewModel.SelectedThemeIndex, Mode=TwoWay}"
-                                            SelectionChanged="ThemeMode_SelectionChanged">
-                                            <ComboBoxItem Content="Use system setting" />
-                                            <ComboBoxItem Content="Light" />
-                                            <ComboBoxItem Content="Dark" />
-                                        </ComboBox>
-                                    </Grid>
+                                                x:Name="CustomAccentValidationMessage"
+                                                Grid.Column="2"
+                                                Margin="4,28,0,0"
+                                                VerticalAlignment="Top"
+                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                Text="Enter a six-digit RGB colour such as #1679B8."
+                                                TextWrapping="Wrap"
+                                                Visibility="Collapsed" />
+                                        </Grid>
+                                    </StackPanel>
 
                                     <Rectangle
                                         Height="1"
@@ -5242,7 +5510,7 @@
                                                 Text="Window material" />
                                             <TextBlock
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="Mica is calmer; acrylic is more translucent."
+                                                Text="Mica is calmer; acrylic is more translucent. Windows may use a solid fallback when transparency is disabled."
                                                 TextWrapping="Wrap" />
                                         </StackPanel>
                                         <ComboBox
@@ -5260,23 +5528,21 @@
                                         Height="1"
                                         Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-                                    <StackPanel Spacing="10">
-                                        <TextBlock
-                                            FontWeight="SemiBold"
-                                            Text="Windows visual settings" />
-                                        <TextBlock
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Change the Windows accent, system theme, text size, or contrast settings used across compatible apps."
-                                            TextWrapping="Wrap" />
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button
-                                                Click="OpenWindowsSetting_Click"
-                                                Content="Colours"
-                                                Tag="ms-settings:colors" />
-                                            <Button
-                                                Click="OpenWindowsSetting_Click"
-                                                Content="Themes"
-                                                Tag="ms-settings:themes" />
+                                    <Grid ColumnSpacing="20">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="5">
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Text="Windows accessibility" />
+                                            <TextBlock
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="Text size and contrast remain Windows-wide accessibility choices and take priority over app colours."
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                                             <Button
                                                 Click="OpenWindowsSetting_Click"
                                                 Content="Text size"
@@ -5286,7 +5552,7 @@
                                                 Content="Contrast themes"
                                                 Tag="ms-settings:easeofaccess-highcontrast" />
                                         </StackPanel>
-                                    </StackPanel>
+                                    </Grid>
                                 </StackPanel>
                             </Border>
 

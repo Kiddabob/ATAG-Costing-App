@@ -5,6 +5,27 @@ namespace ATAG.Costing.WinUI.ViewModels;
 
 public partial class MainPageViewModel : ObservableObject
 {
+    private static readonly string[] AccentNames =
+    [
+        "Coral",
+        "Blue",
+        "Cyan",
+        "Green",
+        "Purple",
+        "Gold",
+        "Custom",
+    ];
+
+    private static readonly string[] AccentHexValues =
+    [
+        "#F78370",
+        "#1679B8",
+        "#43B8D4",
+        "#2E9D62",
+        "#8B6FD6",
+        "#C88A04",
+    ];
+
     private readonly IAppPreferencesService _preferencesService;
     private bool _isLoading;
 
@@ -44,6 +65,12 @@ public partial class MainPageViewModel : ObservableObject
     public partial int SelectedBackdropIndex { get; set; }
 
     [ObservableProperty]
+    public partial int SelectedAccentIndex { get; set; }
+
+    [ObservableProperty]
+    public partial string CustomAccentHex { get; set; } = "#F78370";
+
+    [ObservableProperty]
     public partial bool AutomaticallyCheckForUpdates { get; set; } = true;
 
     [ObservableProperty]
@@ -79,6 +106,10 @@ public partial class MainPageViewModel : ObservableObject
             _ => 0
         };
         SelectedBackdropIndex = preferences.BackdropMode == "Acrylic" ? 1 : 0;
+        SelectedAccentIndex = Array.IndexOf(AccentNames, preferences.AccentColour) is var accentIndex && accentIndex >= 0
+            ? accentIndex
+            : 0;
+        CustomAccentHex = NormalizeHex(preferences.CustomAccentHex) ?? "#F78370";
         AutomaticallyCheckForUpdates = preferences.AutomaticallyCheckForUpdates;
         SelectedUpdateChannelIndex = preferences.UpdateChannel == "Beta" ? 1 : 0;
         RefreshStorageAvailability();
@@ -171,6 +202,53 @@ public partial class MainPageViewModel : ObservableObject
         }
     }
 
+    partial void OnSelectedAccentIndexChanged(int value)
+    {
+        OnPropertyChanged(nameof(ResolvedAccentHex));
+        OnPropertyChanged(nameof(SelectedAccentName));
+        if (!_isLoading)
+        {
+            SavePreferences();
+        }
+    }
+
+    partial void OnCustomAccentHexChanged(string value)
+    {
+        OnPropertyChanged(nameof(ResolvedAccentHex));
+        if (!_isLoading)
+        {
+            SavePreferences();
+        }
+    }
+
+    public string ResolvedAccentHex =>
+        SelectedAccentIndex >= 0 && SelectedAccentIndex < AccentHexValues.Length
+            ? AccentHexValues[SelectedAccentIndex]
+            : NormalizeHex(CustomAccentHex) ?? "#F78370";
+
+    public string SelectedAccentName =>
+        SelectedAccentIndex >= 0 && SelectedAccentIndex < AccentNames.Length
+            ? AccentNames[SelectedAccentIndex]
+            : "Coral";
+
+    public bool TryUseCustomAccent(string value)
+    {
+        var normalized = NormalizeHex(value);
+        if (normalized is null)
+        {
+            return false;
+        }
+
+        _isLoading = true;
+        CustomAccentHex = normalized;
+        SelectedAccentIndex = AccentNames.Length - 1;
+        _isLoading = false;
+        SavePreferences();
+        OnPropertyChanged(nameof(ResolvedAccentHex));
+        OnPropertyChanged(nameof(SelectedAccentName));
+        return true;
+    }
+
     partial void OnAutomaticallyCheckForUpdatesChanged(bool value)
     {
         if (!_isLoading)
@@ -227,6 +305,30 @@ public partial class MainPageViewModel : ObservableObject
             AutomaticallyCheckForUpdates,
             UpdateChannel: SelectedUpdateChannelIndex == 1
                 ? "Beta"
-                : "Stable"));
+                : "Stable",
+            AccentColour: SelectedAccentName,
+            CustomAccentHex: NormalizeHex(CustomAccentHex) ?? "#F78370"));
+    }
+
+    private static string? NormalizeHex(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var trimmed = value.Trim();
+        if (!trimmed.StartsWith('#'))
+        {
+            trimmed = $"#{trimmed}";
+        }
+
+        if (trimmed.Length != 7 ||
+            !trimmed[1..].All(Uri.IsHexDigit))
+        {
+            return null;
+        }
+
+        return trimmed.ToUpperInvariant();
     }
 }

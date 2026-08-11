@@ -1,5 +1,22 @@
 # Costing App release notes
 
+## 0.3.3 - 2026-08-11
+
+- Rebuilds the Appearance settings as a visual, app-owned workspace with large
+  System, Light, and Dark preview cards instead of a compact mode list.
+- Adds six ready-to-use accent colours plus a validated custom RGB hex colour;
+  the chosen accent is applied only inside Costing App and never changes the
+  user's Windows colour settings.
+- Saves the theme, accent, custom colour, and Mica or Acrylic window material
+  per Windows profile, while the isolated blank-review session remains unable
+  to read or write the installed app's preferences.
+- Keeps Windows text-size and contrast links clearly separated as accessibility
+  settings, and continues to respect system contrast and transparency choices.
+- Preserves older settings files by safely adding the existing coral accent as
+  the default when the new appearance fields are absent.
+- Makes no costing, saved-document schema, database-link, production-speed, or
+  reporting change.
+
 ## 0.3.2 - 2026-08-11
 
 - Makes the optional ATAG/blank launch chooser genuinely resizable and

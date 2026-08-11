@@ -4,7 +4,7 @@
       This is the single version source for the app binary, Velopack package,
       installer and GitHub release workflow. Keep it as a three-part SemVer.
     -->
-    <CostingAppVersion>0.3.2</CostingAppVersion>
+    <CostingAppVersion>0.3.3</CostingAppVersion>
     <Version>$(CostingAppVersion)</Version>
     <InformationalVersion>$(CostingAppVersion)</InformationalVersion>
   </PropertyGroup>

@@ -11,7 +11,9 @@ public sealed record AppPreferences(
     string BackdropMode = "Mica",
     bool HasCompletedFirstRunSetup = false,
     bool AutomaticallyCheckForUpdates = true,
-    string UpdateChannel = "Stable")
+    string UpdateChannel = "Stable",
+    string AccentColour = "Coral",
+    string CustomAccentHex = "#F78370")
 {
     public static AppPreferences Default { get; } = new(
         SaveFolderPath: null,
@@ -20,5 +22,7 @@ public sealed record AppPreferences(
         BackdropMode: "Mica",
         HasCompletedFirstRunSetup: false,
         AutomaticallyCheckForUpdates: true,
-        UpdateChannel: "Stable");
+        UpdateChannel: "Stable",
+        AccentColour: "Coral",
+        CustomAccentHex: "#F78370");
 }

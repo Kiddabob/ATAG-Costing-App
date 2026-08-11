@@ -11,6 +11,7 @@ using ATAG.Costing.Infrastructure.Projects;
 using ATAG.Costing.Infrastructure.Production;
 using ATAG.Costing.Reporting.Quotations;
 using ATAG.Costing.WinUI.ViewModels;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -106,6 +107,7 @@ public sealed partial class MainPage : Page
                 new EcbExchangeRateService());
         }
 
+        ApplyApplicationAccentResources(ViewModel.ResolvedAccentHex);
         _databaseNavigators = databaseNavigators.ToDictionary(
             navigator => navigator.Kind);
         DualCostingViewModel = new DualInsulationCostingViewModel(
@@ -2659,6 +2661,42 @@ public sealed partial class MainPage : Page
         }
     }
 
+    private void ThemeCard_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string tag } &&
+            int.TryParse(tag, out var selectedIndex))
+        {
+            ViewModel.SelectedThemeIndex = selectedIndex;
+            ApplyVisualStyle();
+        }
+    }
+
+    private void AccentSwatch_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string tag } ||
+            !int.TryParse(tag, out var selectedIndex))
+        {
+            return;
+        }
+
+        ViewModel.SelectedAccentIndex = selectedIndex;
+        CustomAccentValidationMessage.Visibility = Visibility.Collapsed;
+        ApplyAccentColour(refreshThemeResources: true);
+    }
+
+    private void ApplyCustomAccent_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.TryUseCustomAccent(CustomAccentHexTextBox.Text))
+        {
+            CustomAccentValidationMessage.Visibility = Visibility.Visible;
+            return;
+        }
+
+        CustomAccentHexTextBox.Text = ViewModel.CustomAccentHex;
+        CustomAccentValidationMessage.Visibility = Visibility.Collapsed;
+        ApplyAccentColour(refreshThemeResources: true);
+    }
+
     private void BackdropMode_SelectionChanged(
         object sender,
         SelectionChangedEventArgs e)
@@ -3361,5 +3399,136 @@ public sealed partial class MainPage : Page
                 requestedTheme,
                 ViewModel.SelectedBackdropIndex);
         }
+
+        UpdateAppearanceControlVisuals();
+    }
+
+    private void ApplyAccentColour(bool refreshThemeResources)
+    {
+        if (!ApplyApplicationAccentResources(ViewModel.ResolvedAccentHex))
+        {
+            return;
+        }
+
+        if (refreshThemeResources)
+        {
+            var selectedTheme = RequestedTheme;
+            RequestedTheme = selectedTheme == ElementTheme.Dark
+                ? ElementTheme.Light
+                : ElementTheme.Dark;
+            RequestedTheme = selectedTheme;
+
+            if (App.Window is MainWindow mainWindow)
+            {
+                mainWindow.ApplyVisualStyle(
+                    selectedTheme,
+                    ViewModel.SelectedBackdropIndex);
+            }
+        }
+
+        UpdateAppearanceControlVisuals();
+    }
+
+    private void UpdateAppearanceControlVisuals()
+    {
+        var selectedBrush = ResourceBrush("AccentFillColorDefaultBrush");
+        var normalBrush = ResourceBrush("CardStrokeColorDefaultBrush");
+        var themeCards = new[]
+        {
+            SystemThemeCard,
+            LightThemeCard,
+            DarkThemeCard,
+        };
+        for (var index = 0; index < themeCards.Length; index++)
+        {
+            var isSelected = index == ViewModel.SelectedThemeIndex;
+            themeCards[index].BorderBrush = isSelected ? selectedBrush : normalBrush;
+            themeCards[index].BorderThickness = new Thickness(isSelected ? 3d : 1d);
+        }
+
+        var accentCards = new[]
+        {
+            CoralAccentCard,
+            BlueAccentCard,
+            CyanAccentCard,
+            GreenAccentCard,
+            PurpleAccentCard,
+            GoldAccentCard,
+            CustomAccentCard,
+        };
+        for (var index = 0; index < accentCards.Length; index++)
+        {
+            accentCards[index].BorderBrush =
+                index == ViewModel.SelectedAccentIndex
+                    ? selectedBrush
+                    : new SolidColorBrush(Colors.Transparent);
+        }
+
+        if (TryParseRgbHex(ViewModel.ResolvedAccentHex, out var accentColour))
+        {
+            var accentBrush = new SolidColorBrush(accentColour);
+            AppearanceAccentPreview.Fill = accentBrush;
+            AppearanceAccentName.Text = ViewModel.SelectedAccentName;
+        }
+
+        if (TryParseRgbHex(ViewModel.CustomAccentHex, out var customColour))
+        {
+            CustomAccentSwatch.Fill = new SolidColorBrush(customColour);
+        }
+    }
+
+    private static bool ApplyApplicationAccentResources(string accentHex)
+    {
+        if (!TryParseRgbHex(accentHex, out var accentColour))
+        {
+            return false;
+        }
+
+        var resources = Microsoft.UI.Xaml.Application.Current.Resources;
+        resources["SystemAccentColor"] = accentColour;
+        resources["SystemAccentColorLight3"] = Blend(accentColour, Colors.White, 0.75d);
+        resources["SystemAccentColorLight2"] = Blend(accentColour, Colors.White, 0.50d);
+        resources["SystemAccentColorLight1"] = Blend(accentColour, Colors.White, 0.25d);
+        resources["SystemAccentColorDark1"] = Blend(accentColour, Colors.Black, 0.20d);
+        resources["SystemAccentColorDark2"] = Blend(accentColour, Colors.Black, 0.40d);
+        resources["SystemAccentColorDark3"] = Blend(accentColour, Colors.Black, 0.60d);
+        return true;
+    }
+
+    private static bool TryParseRgbHex(string? value, out Color colour)
+    {
+        colour = default;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var hex = value.Trim().TrimStart('#');
+        if (hex.Length != 6 || !hex.All(Uri.IsHexDigit))
+        {
+            return false;
+        }
+
+        colour = Color.FromArgb(
+            255,
+            Convert.ToByte(hex[..2], 16),
+            Convert.ToByte(hex.Substring(2, 2), 16),
+            Convert.ToByte(hex.Substring(4, 2), 16));
+        return true;
+    }
+
+    private static Color Blend(Color colour, Color target, double amount)
+    {
+        static byte Channel(byte from, byte to, double factor) =>
+            (byte)Math.Clamp(
+                Math.Round(from + ((to - from) * factor)),
+                byte.MinValue,
+                byte.MaxValue);
+
+        return Color.FromArgb(
+            255,
+            Channel(colour.R, target.R, amount),
+            Channel(colour.G, target.G, amount),
+            Channel(colour.B, target.B, amount));
     }
 }
