@@ -2841,3 +2841,51 @@ version. Keep v0.3.1 installed, publish one further small v0.3.3 update, and
 then use the v0.3.1 updater to inspect separate v0.3.3 and v0.3.2 cards before
 installing. The user will also perform the installed visual acceptance of the
 chooser through that later update. The installer remains unsigned.
+
+## 2026-08-11 public v0.3.3 app-owned Appearance update published
+
+Version 0.3.3 is the deliberately held second update above the user's installed
+v0.3.1. Settings > Appearance now uses large System, Light, and Dark preview
+cards, six named accent swatches, a validated custom six-digit RGB hex colour,
+and the existing Mica/Acrylic choice. The selected colour overrides WinUI's
+`SystemAccentColor` and generated light/dark palette only inside Costing App;
+it does not change Windows. Windows text-size and contrast links remain clearly
+separate because those accessibility settings still take priority. Theme,
+accent, custom colour, and material persist per Windows profile in the existing
+`settings.json`. Older files default safely to the existing coral accent. The
+isolated blank-review preference service remains memory-only and does not read
+or write installed preferences.
+
+The x64 WinUI build compiled, the authoritative release gate passed 137 tests
+with 2 approval-gated workbook fixtures intentionally skipped and 0 failures,
+and the normal package privacy/asset/icon checks passed. A hidden normal launch
+remained running at the optional mode chooser. A separate interface-only smoke
+publish bypassed that chooser, constructed and activated the full main window,
+rendered with zero visible default input values, and logged no unhandled WinUI
+exception. The Computer Use helper was initialised and retried once as its own
+instructions require, but still failed before window enumeration with `EPERM`
+on the Codex application folder, so do not claim screenshot acceptance.
+
+Source commit/tag target
+`fb738f7711f18a004599d205715d5662819ac271` was pushed and successful GitHub
+Actions run `31524553262` published stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.3.3`.
+It is neither draft nor prerelease and contains all seven expected assets. The
+public installer is 100,856,244 bytes with SHA-256
+`20d671b67d4cc21839082275bb1438516b32ac9366aca990349b60d53368b501`.
+The public update package is 96,263,092 bytes with SHA-256
+`e3c3ad4f5443f37fc2aa86abedf1128021e3ab8d76383714596b14723c14f3ee`.
+Anonymous downloads match the checksum manifest and GitHub asset digests. The
+public Velopack feed names exact version 0.3.3, size, notes, and hash. The
+downloaded nupkg contains 561 entries and zero blocked private-data entries.
+
+Immediate installed acceptance: keep v0.3.1 open long enough to see the update
+prompt, inspect that the compact scroll area contains separate 0.3.3 and 0.3.2
+cards, and optionally expand the full-screen reader before choosing Download
+and restart. After updating, confirm the launch chooser shows both choices and
+has working resize/maximise behaviour, then open Settings > Appearance and test
+System/Light/Dark, two preset accents, one valid custom colour, and one invalid
+hex entry. The choice should survive a normal relaunch and must not alter the
+Windows accent. The user is the final visual judge. Once accepted, resume the
+Production Speed Library/line-speed refinement already recorded above rather
+than reopening release infrastructure. The installer remains unsigned.
