@@ -2472,3 +2472,52 @@ assets before release publication. A final branding follow-up commit, public
 GitHub Release, and anonymous verification are still pending and must be
 recorded separately after they actually succeed. No `v0.2.0` tag or Release
 exists at this point.
+
+## 2026-08-11 public version 0.2.0 accepted
+
+This section supersedes the pending publication statements in the release-
+candidate section above. The transparent theme-aware ATAG branding follow-up
+was committed as `518c72becb8630f07758c7a4a8923db0abafcce6`, pushed to
+`origin/main`, and used as the exact source and tag target for the public
+release.
+
+GitHub Actions run
+`https://github.com/Kiddabob/ATAG-Costing-App/actions/runs/31475824203`
+completed successfully in 2 minutes 50 seconds. Restore, the authoritative
+build/test/audit/package script, version read, public release creation, and
+artifact retention all succeeded. The resulting
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.2.0` is published,
+not a draft, not a prerelease, and is the repository's latest stable release.
+Its tag resolves to the final branding commit above.
+
+The seven published application assets are:
+
+```text
+assets.win.json                         205 bytes
+Costing-App-Setup.exe           100,530,264 bytes
+Costing.App-0.2.0-full.nupkg     95,937,112 bytes
+Costing.App-win-Portable.zip     95,882,540 bytes
+RELEASES                                  81 bytes
+releases.win.json                      2,653 bytes
+SHA256SUMS.txt                            525 bytes
+```
+
+The public installer and public checksum manifest were downloaded again from
+the release, independently of the workflow. The downloaded installer hash is
+`66ce6fe81771557682e588900b5defbd9b73474bcd1a44647fbe1ddea9d53ffd`,
+which exactly matches both `SHA256SUMS.txt` and GitHub's asset digest. The
+manifest lists and matches all six generated application/update files; the
+checksum manifest itself has GitHub digest
+`86e35189f81abfea8f947d6cfac8fa63f4516b65a502f8743a1c75fae32310bb`.
+
+Release acceptance therefore includes the V1.3b dual-insulation editor,
+schema-v3 save/revision workflow, the transparent light/dark ATAG long logos,
+and the already-transparent square app icon. The authoritative release suite
+remains 128 passed, 2 intentionally skipped approval-gated golden cases, and 0
+failed. The earlier local upgrade evidence confirms that the four private
+LocalAppData files were preserved byte-for-byte. The installer is still
+unsigned, so Windows may show Unknown publisher or SmartScreen.
+
+Continue product development with the recommended V1.3c dual quotation and
+contract-review payload/reporting slice. Do not recreate the solution, replace
+the accepted v0.2.0 tag/assets, or hard-code a USB drive letter.
