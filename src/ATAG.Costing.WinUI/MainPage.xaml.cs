@@ -2681,7 +2681,7 @@ public sealed partial class MainPage : Page
 
         ViewModel.SelectedAccentIndex = selectedIndex;
         CustomAccentValidationMessage.Visibility = Visibility.Collapsed;
-        ApplyAccentColour(refreshThemeResources: true);
+        ApplyAccentColour();
     }
 
     private void ApplyCustomAccent_Click(object sender, RoutedEventArgs e)
@@ -2694,7 +2694,7 @@ public sealed partial class MainPage : Page
 
         CustomAccentHexTextBox.Text = ViewModel.CustomAccentHex;
         CustomAccentValidationMessage.Visibility = Visibility.Collapsed;
-        ApplyAccentColour(refreshThemeResources: true);
+        ApplyAccentColour();
     }
 
     private void BackdropMode_SelectionChanged(
@@ -3403,29 +3403,17 @@ public sealed partial class MainPage : Page
         UpdateAppearanceControlVisuals();
     }
 
-    private void ApplyAccentColour(bool refreshThemeResources)
+    private void ApplyAccentColour()
     {
         if (!ApplyApplicationAccentResources(ViewModel.ResolvedAccentHex))
         {
             return;
         }
 
-        if (refreshThemeResources)
-        {
-            var selectedTheme = RequestedTheme;
-            RequestedTheme = selectedTheme == ElementTheme.Dark
-                ? ElementTheme.Light
-                : ElementTheme.Dark;
-            RequestedTheme = selectedTheme;
-
-            if (App.Window is MainWindow mainWindow)
-            {
-                mainWindow.ApplyVisualStyle(
-                    selectedTheme,
-                    ViewModel.SelectedBackdropIndex);
-            }
-        }
-
+        // The accent brushes are stable app-owned objects whose colours are
+        // changed in place. This refreshes controls immediately even while the
+        // page follows the Windows theme; forcing a Light/Dark theme round-trip
+        // left ElementTheme.Default (System) using stale theme resources.
         UpdateAppearanceControlVisuals();
     }
 
@@ -3468,7 +3456,8 @@ public sealed partial class MainPage : Page
         {
             var accentBrush = new SolidColorBrush(accentColour);
             AppearanceAccentPreview.Fill = accentBrush;
-            AppearanceAccentName.Text = ViewModel.SelectedAccentName;
+            AppearanceAccentName.Text =
+                $"{ViewModel.SelectedAccentName} · {ViewModel.ResolvedAccentHex}";
         }
 
         if (TryParseRgbHex(ViewModel.CustomAccentHex, out var customColour))
@@ -3492,7 +3481,60 @@ public sealed partial class MainPage : Page
         resources["SystemAccentColorDark1"] = Blend(accentColour, Colors.Black, 0.20d);
         resources["SystemAccentColorDark2"] = Blend(accentColour, Colors.Black, 0.40d);
         resources["SystemAccentColorDark3"] = Blend(accentColour, Colors.Black, 0.60d);
+
+        SetBrushColour(resources, "AccentFillColorDefaultBrush", accentColour);
+        SetBrushColour(resources, "AccentFillColorSecondaryBrush", WithAlpha(accentColour, 0xE6));
+        SetBrushColour(resources, "AccentFillColorTertiaryBrush", WithAlpha(accentColour, 0xCC));
+        SetBrushColour(resources, "AccentFillColorDisabledBrush", WithAlpha(accentColour, 0x5C));
+        SetBrushColour(resources, "AccentTextFillColorPrimaryBrush", accentColour);
+        SetBrushColour(resources, "AccentTextFillColorSecondaryBrush", WithAlpha(accentColour, 0xE6));
+        SetBrushColour(resources, "AccentTextFillColorTertiaryBrush", WithAlpha(accentColour, 0xCC));
+        SetBrushColour(resources, "AccentTextFillColorDisabledBrush", WithAlpha(accentColour, 0x5C));
+
+        var onAccent = ChooseReadableForeground(accentColour);
+        SetBrushColour(resources, "TextOnAccentFillColorPrimaryBrush", onAccent);
+        SetBrushColour(resources, "TextOnAccentFillColorSecondaryBrush", WithAlpha(onAccent, 0xCC));
+        SetBrushColour(resources, "TextOnAccentFillColorDisabledBrush", WithAlpha(onAccent, 0x99));
         return true;
+    }
+
+    private static void SetBrushColour(
+        ResourceDictionary resources,
+        string key,
+        Color colour)
+    {
+        if (resources.TryGetValue(key, out var value) &&
+            value is SolidColorBrush brush)
+        {
+            brush.Color = colour;
+            return;
+        }
+
+        resources[key] = new SolidColorBrush(colour);
+    }
+
+    private static Color WithAlpha(Color colour, byte alpha) =>
+        Color.FromArgb(alpha, colour.R, colour.G, colour.B);
+
+    private static Color ChooseReadableForeground(Color background)
+    {
+        static double LinearChannel(byte channel)
+        {
+            var value = channel / 255d;
+            return value <= 0.04045d
+                ? value / 12.92d
+                : Math.Pow((value + 0.055d) / 1.055d, 2.4d);
+        }
+
+        var luminance =
+            (0.2126d * LinearChannel(background.R)) +
+            (0.7152d * LinearChannel(background.G)) +
+            (0.0722d * LinearChannel(background.B));
+        var contrastWithBlack = (luminance + 0.05d) / 0.05d;
+        var contrastWithWhite = 1.05d / (luminance + 0.05d);
+        return contrastWithBlack >= contrastWithWhite
+            ? Colors.Black
+            : Colors.White;
     }
 
     private static bool TryParseRgbHex(string? value, out Color colour)

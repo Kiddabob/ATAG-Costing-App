@@ -111,18 +111,28 @@ internal sealed class LaunchModeChoiceWindow : Window
         {
             Spacing = 4,
         };
-        text.Children.Add(new TextBlock
+        var titleBlock = new TextBlock
         {
             Text = title,
             FontSize = 17,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-        });
-        text.Children.Add(new TextBlock
+        };
+        var descriptionBlock = new TextBlock
         {
             Text = description,
-            Foreground = ResourceBrush("TextFillColorSecondaryBrush"),
             TextWrapping = TextWrapping.Wrap,
-        });
+        };
+        if (!isPrimary)
+        {
+            titleBlock.Foreground = ResourceBrush("TextFillColorPrimaryBrush");
+            descriptionBlock.Foreground = ResourceBrush("TextFillColorSecondaryBrush");
+        }
+
+        // AccentButtonStyle supplies a contrast-aware foreground. Let both
+        // primary-card lines inherit it so they can never diverge into the
+        // mixed black/white treatment reported in the installed build.
+        text.Children.Add(titleBlock);
+        text.Children.Add(descriptionBlock);
 
         var button = new Button
         {

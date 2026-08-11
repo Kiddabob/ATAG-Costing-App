@@ -1,5 +1,22 @@
 # Costing App release notes
 
+## 0.3.4 - 2026-08-11
+
+- Centres and slightly widens the complete Settings workspace so it sits
+  naturally in the available content area instead of hugging the navigation
+  edge on large windows.
+- Gives the selected launch-mode tile one readable foreground colour chosen for
+  its accent surface, removing the mixed black-and-white text seen on the ATAG
+  choice.
+- Applies accent changes immediately while the theme follows Windows as well as
+  in explicit Light or Dark mode.
+- Keeps the default accent surface at the exact selected RGB value, including a
+  validated custom hex, and shows that active hex beside the accent preview.
+- Chooses black or white text automatically for useful contrast against each
+  accent without changing the requested accent colour.
+- Makes no costing, saved-document schema, database-link, production-speed, or
+  reporting change.
+
 ## 0.3.3 - 2026-08-11
 
 - Rebuilds the Appearance settings as a visual, app-owned workspace with large

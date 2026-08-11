@@ -24,6 +24,21 @@
             <Color x:Key="SystemAccentColorDark2">#945043</Color>
             <Color x:Key="SystemAccentColorDark3">#63342D</Color>
 
+            <!-- Keep the controls on app-owned brush instances. Re-colouring
+                 these instances at run time updates System, Light and Dark
+                 modes immediately and preserves the exact selected RGB value. -->
+            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#F78370" />
+            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#E6F78370" />
+            <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#CCF78370" />
+            <SolidColorBrush x:Key="AccentFillColorDisabledBrush" Color="#5CF78370" />
+            <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#F78370" />
+            <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#E6F78370" />
+            <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#CCF78370" />
+            <SolidColorBrush x:Key="AccentTextFillColorDisabledBrush" Color="#5CF78370" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="Black" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#CC000000" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorDisabledBrush" Color="#99000000" />
+
             <SolidColorBrush x:Key="AtagNavyBrush" Color="{StaticResource AtagNavyColor}" />
             <SolidColorBrush x:Key="AtagBlueBrush" Color="{StaticResource AtagBlueColor}" />
             <SolidColorBrush x:Key="AtagCyanBrush" Color="{StaticResource AtagCyanColor}" />

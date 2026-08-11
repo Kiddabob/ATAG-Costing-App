@@ -5046,11 +5046,12 @@
 
                     <ScrollViewer
                         x:Name="SettingsView"
+                        HorizontalContentAlignment="Stretch"
                         Visibility="Collapsed">
                         <StackPanel
-                            MaxWidth="860"
+                            MaxWidth="980"
                             Margin="32,16,32,40"
-                            HorizontalAlignment="Left"
+                            HorizontalAlignment="Center"
                             Spacing="20">
                             <TextBlock
                                 Style="{StaticResource SectionLabelStyle}"
