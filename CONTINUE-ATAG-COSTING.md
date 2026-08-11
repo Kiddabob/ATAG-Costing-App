@@ -2731,3 +2731,32 @@ workspace path, current-user path, or tester identity.
 This follow-up is not yet committed or released. Commit and push it, dispatch a
 fresh v0.3.0 workflow, verify the exact public tag and seven assets, and
 anonymously download and hash the installer before calling v0.3.0 accepted.
+
+## 2026-08-11 public v0.3.0 accepted
+
+The chooser follow-up was committed and pushed as
+`f816f99d761994f60e7362c7bd1a9d574e1ec9c4`. Fresh GitHub Actions run
+`31518402651` completed successfully, including restore, the authoritative
+build/test/privacy/package gate, public Release creation, and retained build
+evidence. Stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.3.0`.
+The lightweight `v0.3.0` tag points exactly to `f816f99d761994f60e7362c7bd1a9d574e1ec9c4`.
+The Release is neither draft nor prerelease and is the repository's latest
+stable release.
+
+All seven assets are present. The public one-file installer is 100,855,276
+bytes with SHA-256
+`b832bf6601e5cbbbc8a0cedb126349397a561b984b4730ccda130a186999adcf`.
+The public full update package is 96,262,124 bytes with SHA-256
+`c22ae573fbb603b632007ece60ec1cee501be3130008c81b621bdb52f311cd15`.
+Both were downloaded anonymously from the public Release and matched both the
+published checksum manifest and GitHub's asset digest. The public Velopack feed
+reports version 0.3.0, the same update-package size, and the same SHA-256. The
+downloaded nupkg has 561 entries and zero blocked private-data entries.
+
+Public v0.3.0 is therefore accepted. The user can install it directly or update
+from an older installed version without a GitHub login. On this PC the generic
+current-user test opt-in remains enabled, so the normal shortcut offers ATAG or
+Blank for each launch; fresh installs and all other Windows profiles remain on
+the normal automatic path. The installer is still unsigned and may show
+Unknown publisher or SmartScreen.
