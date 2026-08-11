@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ATAG.Costing.Application.Projects;
 using ATAG.Costing.Infrastructure.Projects;
+using ATAG.Costing.Domain.Costing;
 using Xunit;
 
 namespace ATAG.Costing.Application.Tests.Projects;
@@ -135,6 +136,78 @@ public sealed class SingleCoreProjectDocumentTests
         Assert.Equal(CostingRevisionState.WorkingCopy, upgraded.RevisionState);
         Assert.Equal(savedAt, upgraded.CreatedAtUtc);
         Assert.Equal(savedAt, upgraded.UpdatedAtUtc);
+        Assert.Equal(
+            CostingConstructionKind.SingleInsulatedCore,
+            upgraded.ConstructionKind);
+    }
+
+    [Fact]
+    public void SchemaV2Document_UpgradesAsSingleCoreWithoutDualPayload()
+    {
+        const string json = """
+            {
+              "SchemaVersion": 2,
+              "CopperId": "fictional-copper",
+              "SavedAt": "2026-07-29T09:15:00+00:00"
+            }
+            """;
+
+        var restored = JsonSerializer.Deserialize<SingleCoreProjectDocument>(json)!;
+        var upgraded = restored.Upgrade();
+
+        Assert.Equal(3, upgraded.SchemaVersion);
+        Assert.Equal(
+            CostingConstructionKind.SingleInsulatedCore,
+            upgraded.ConstructionKind);
+        Assert.Null(upgraded.DualInsulation);
+        Assert.Null(upgraded.DualCalculatedResult);
+    }
+
+    [Fact]
+    public async Task SchemaV3DualDocument_RoundTripsAndApprovesImmutably()
+    {
+        var directory = Path.Combine(
+            Path.GetTempPath(),
+            $"atag-dual-revision-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+
+        try
+        {
+            var created = DateTimeOffset.UtcNow;
+            var source = CreateDualRevision(created);
+            var service = new SingleCoreProjectRevisionService();
+            var store = new JsonSingleCoreProjectDocumentStore();
+            var path = Path.Combine(directory, "dual.atagcosting");
+
+            await store.SaveAsync(path, source);
+            var restoredWorking = await store.LoadAsync(path);
+            Assert.Equal(
+                CostingConstructionKind.DualInsulation,
+                restoredWorking.ConstructionKind);
+            Assert.Equal(
+                [CableAddOnModule.Tape, CableAddOnModule.DrainWire],
+                restoredWorking.DualInsulation!.AddOnModules);
+            Assert.Equal(
+                10200m,
+                restoredWorking.DualCalculatedResult!
+                    .CoreAndFirstLayerProductionLengthMetres);
+            Assert.Equal(
+                10000m,
+                restoredWorking.DualCalculatedResult
+                    .SecondLayerProductionLengthMetres);
+
+            var approved = service.Approve(source, created.AddMinutes(1));
+            await store.SaveAsync(path, approved);
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => store.SaveAsync(path, approved with
+                {
+                    UpdatedAtUtc = created.AddMinutes(2),
+                }));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
     }
 
     [Fact]
@@ -359,6 +432,60 @@ public sealed class SingleCoreProjectDocumentTests
                 "single-core-material-costing/v1",
                 "commercial-pricing/v1",
             ],
+        };
+    }
+
+    private static SingleCoreProjectDocument CreateDualRevision(
+        DateTimeOffset created)
+    {
+        var traceStep = new SavedCalculationStep(
+            "dual-material-price-for-production-run",
+            "Dual material cost",
+            "FirstLayer + SecondLayer",
+            "100 + 50 = 150 GBP",
+            150m,
+            "150.00",
+            "GBP",
+            [],
+            null,
+            "Both layer scopes included once.",
+            "Display rounded to 2 decimal places.",
+            "dual-insulation-material-costing/v1");
+        return new SingleCoreProjectDocument
+        {
+            ProjectId = Guid.NewGuid(),
+            RevisionId = Guid.NewGuid(),
+            CreatedAtUtc = created,
+            UpdatedAtUtc = created,
+            SavedAt = created,
+            ConstructionKind = CostingConstructionKind.DualInsulation,
+            CustomerName = "Fictional customer",
+            DualInsulation = new DualInsulationProjectPayload
+            {
+                ProjectName = "Fictional dual cable",
+                FinishedQuoteLengthMetres = 10000,
+                CoreStartupLengthMetres = 200,
+                AddOnModules =
+                [
+                    CableAddOnModule.Tape,
+                    CableAddOnModule.DrainWire,
+                ],
+            },
+            DualCalculatedResult = new DualInsulationCalculatedResultSnapshot
+            {
+                ProjectName = "Fictional dual cable",
+                CoreAndFirstLayerProductionLengthMetres = 10200m,
+                SecondLayerProductionLengthMetres = 10000m,
+                SequentialRiskThenMarkupPrice = 250m,
+                RecommendedQuoteDisplay = "GBP 250.00",
+                Trace =
+                [
+                    new SavedCalculationSection(
+                        "dual-materials",
+                        "Dual material costing",
+                        [traceStep]),
+                ],
+            },
         };
     }
 }

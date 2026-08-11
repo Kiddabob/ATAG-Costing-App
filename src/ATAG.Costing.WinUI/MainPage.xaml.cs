@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -62,9 +63,11 @@ public sealed partial class MainPage : Page
     private double _lastPreviewRightDockWidth = 600d;
     private AppUpdateRelease? _availableAppUpdate;
     private bool _isAppUpdateOperationActive;
+    private bool _isSynchronizingNavigation;
 
     public MainPageViewModel ViewModel { get; }
     public SingleCoreCostingViewModel CostingViewModel { get; }
+    public DualInsulationCostingViewModel DualCostingViewModel { get; }
 
     public MainPage()
     {
@@ -101,9 +104,12 @@ public sealed partial class MainPage : Page
 
         _databaseNavigators = databaseNavigators.ToDictionary(
             navigator => navigator.Kind);
+        DualCostingViewModel = new DualInsulationCostingViewModel(
+            _centralDataService);
         InitializeComponent();
         InitializeAppUpdateDisplay();
         AppNavigation.PaneTitle = AppRuntimeMode.ProductName;
+        ConfigureOrganisationBranding();
         ContractReviewPanel.Children.Remove(WorkingCentralDataTablesCard);
         var connectionOptionsIndex =
             LiveDataPanel.Children.IndexOf(CentralDataConnectionOptionsCard);
@@ -113,6 +119,7 @@ public sealed partial class MainPage : Page
         RefreshRetainedSourceTablesView();
         UpdateFirstRunSetupState();
         CostingWorkspaceView.DataContext = CostingViewModel;
+        DualConstructionView.DataContext = DualCostingViewModel;
         ContractReviewView.DataContext = CostingViewModel;
         MaterialDataView.DataContext = CostingViewModel;
         if (AppRuntimeMode.IsPublicReview)
@@ -326,6 +333,40 @@ public sealed partial class MainPage : Page
 
         var megabytes = bytes / (1024d * 1024d);
         return $"{megabytes:0.0} MB";
+    }
+
+    private void ConfigureOrganisationBranding()
+    {
+        if (!AppRuntimeMode.IsOrganisationBranded)
+        {
+            OrganisationBrandingPaneHeader.Visibility = Visibility.Collapsed;
+            OrganisationBrandingHomeLogoCard.Visibility = Visibility.Collapsed;
+            OrganisationBrandingSettingsLogoCard.Visibility =
+                Visibility.Collapsed;
+            OrganisationBrandingStatusTitle.Text =
+                "Standard Costing App branding is active";
+            OrganisationBrandingStatusMessage.Text =
+                "No ATAG OneDrive business account was detected. Sign in to " +
+                "OneDrive with an @atagcables.com work account and restart " +
+                "the app to enable the ATAG Design logo automatically.";
+            Program.Log("Organisation branding: standard branding active.");
+            return;
+        }
+
+        var logo = new BitmapImage(
+            new Uri(AppRuntimeMode.OrganisationLogoAssetUri));
+        OrganisationBrandingPaneLogo.Source = logo;
+        OrganisationBrandingHomeLogo.Source = logo;
+        OrganisationBrandingSettingsLogo.Source = logo;
+        OrganisationBrandingPaneHeader.Visibility = Visibility.Visible;
+        OrganisationBrandingHomeLogoCard.Visibility = Visibility.Visible;
+        OrganisationBrandingSettingsLogoCard.Visibility = Visibility.Visible;
+        OrganisationBrandingStatusTitle.Text =
+            "ATAG Design branding is active";
+        OrganisationBrandingStatusMessage.Text =
+            "An @atagcables.com OneDrive business account was detected for " +
+            "this Windows user, so the ATAG Design logo is enabled.";
+        Program.Log("Organisation branding: ATAG Design logo enabled.");
     }
 
     private void ConfigurePublicReviewMode()
@@ -671,6 +712,7 @@ public sealed partial class MainPage : Page
         }
 
         await CostingViewModel.RefreshCentralDataAsync(isAutomatic: true);
+        RefreshDualCentralData();
         UpdateCentralDataConnectionVisuals();
     }
 
@@ -724,6 +766,11 @@ public sealed partial class MainPage : Page
     private void RecalculateSingleCore_Click(object sender, RoutedEventArgs e)
     {
         CostingViewModel.Recalculate();
+    }
+
+    private void RecalculateDual_Click(object sender, RoutedEventArgs e)
+    {
+        DualCostingViewModel.Recalculate();
     }
 
     private async void SaveSingleCoreProject_Click(
@@ -798,6 +845,36 @@ public sealed partial class MainPage : Page
                     selection.IndexEntry)
                 : await _portableDocumentStore.LoadAsync(
                     selection.PortablePath!);
+
+            if (document.ConstructionKind ==
+                CostingConstructionKind.DualInsulation)
+            {
+                if (!DualCostingViewModel.TryApplyProjectDocument(
+                        document,
+                        out var dualMessage))
+                {
+                    CostingViewModel.CalculationStatus = dualMessage;
+                    return;
+                }
+
+                if (selection.IndexEntry is not null)
+                {
+                    DualCostingViewModel.MarkDocumentPersisted(
+                        document,
+                        Path.Combine(
+                            storageRoot,
+                            selection.IndexEntry.RelativePath));
+                }
+                else
+                {
+                    DualCostingViewModel.MarkDocumentNeedsIndexing(
+                        selection.PortablePath!);
+                }
+
+                DualCostingViewModel.CalculationStatus = dualMessage;
+                ShowSection("costing-dual");
+                return;
+            }
 
             if (!CostingViewModel.TryApplyProjectDocument(
                     document,
@@ -902,6 +979,206 @@ public sealed partial class MainPage : Page
         }
     }
 
+    private async void SaveDualProject_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (!TryGetSelectedStorageRoot(out var storageRoot))
+        {
+            return;
+        }
+
+        if (DualCostingViewModel.CurrentRevisionState ==
+                CostingRevisionState.ApprovedRevision &&
+            !DualCostingViewModel.HasUnsavedChanges)
+        {
+            DualCostingViewModel.CalculationStatus =
+                $"Approved dual revision {DualCostingViewModel.CurrentRevisionNumber} is already saved and immutable. " +
+                "Change an input to begin the next working revision, or duplicate it as a new project.";
+            return;
+        }
+
+        try
+        {
+            var saved = await _projectRepository.SaveAsync(
+                storageRoot,
+                DualCostingViewModel.CreateProjectDocument());
+            DualCostingViewModel.MarkDocumentPersisted(
+                saved.Document,
+                saved.FullPath);
+            DualCostingViewModel.CalculationStatus =
+                $"Saved dual working revision {saved.Document.RevisionNumber} in the selected business-data folder.";
+        }
+        catch (Exception exception)
+        {
+            Program.Log($"Dual costing save failed: {exception}");
+            DualCostingViewModel.CalculationStatus =
+                "The dual costing could not be saved. No existing file was changed.";
+        }
+    }
+
+    private async void OpenDualProject_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (!TryGetSelectedStorageRoot(out var storageRoot))
+        {
+            return;
+        }
+
+        try
+        {
+            if (DualCostingViewModel.HasUnsavedChanges &&
+                !await ConfirmDiscardDualUnsavedChangesAsync())
+            {
+                return;
+            }
+
+            var entries = await _projectRepository.ListAsync(storageRoot);
+            var selection = entries.Count == 0
+                ? await ChoosePortableProjectFileAsync()
+                : await ChooseProjectRevisionAsync(entries);
+            if (selection is null)
+            {
+                return;
+            }
+
+            var document = selection.IndexEntry is not null
+                ? await _projectRepository.LoadAsync(
+                    storageRoot,
+                    selection.IndexEntry)
+                : await _portableDocumentStore.LoadAsync(
+                    selection.PortablePath!);
+
+            if (document.ConstructionKind ==
+                CostingConstructionKind.SingleInsulatedCore)
+            {
+                if (!CostingViewModel.TryApplyProjectDocument(
+                        document,
+                        out var singleMessage))
+                {
+                    DualCostingViewModel.CalculationStatus = singleMessage;
+                    return;
+                }
+
+                if (selection.IndexEntry is not null)
+                {
+                    CostingViewModel.MarkDocumentPersisted(
+                        document,
+                        Path.Combine(
+                            storageRoot,
+                            selection.IndexEntry.RelativePath));
+                }
+                else
+                {
+                    CostingViewModel.MarkDocumentNeedsIndexing(
+                        selection.PortablePath!);
+                }
+
+                CostingViewModel.CalculationStatus = singleMessage;
+                ShowSection("costing");
+                return;
+            }
+
+            if (!DualCostingViewModel.TryApplyProjectDocument(
+                    document,
+                    out var message))
+            {
+                DualCostingViewModel.CalculationStatus = message;
+                return;
+            }
+
+            if (selection.IndexEntry is not null)
+            {
+                DualCostingViewModel.MarkDocumentPersisted(
+                    document,
+                    Path.Combine(
+                        storageRoot,
+                        selection.IndexEntry.RelativePath));
+            }
+            else
+            {
+                DualCostingViewModel.MarkDocumentNeedsIndexing(
+                    selection.PortablePath!);
+                message +=
+                    " Use Save costing to add this portable file to the selected folder index.";
+            }
+
+            DualCostingViewModel.CalculationStatus = message;
+            ShowSection("costing-dual");
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            DualCostingViewModel.CalculationStatus =
+                "The selected file is not a readable costing file.";
+        }
+        catch (Exception exception)
+        {
+            Program.Log($"Dual costing open failed: {exception}");
+            DualCostingViewModel.CalculationStatus =
+                "The dual costing could not be opened. Current values were retained.";
+        }
+    }
+
+    private void DuplicateDualProject_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (DualCostingViewModel.TryDuplicateCurrentProject(out var message))
+        {
+            DualCostingViewModel.CalculationStatus = message;
+            ShowSection("costing-dual");
+        }
+    }
+
+    private async void ApproveDualRevision_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (!TryGetSelectedStorageRoot(out var storageRoot))
+        {
+            return;
+        }
+
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title =
+                    $"Approve dual revision {DualCostingViewModel.CurrentRevisionNumber}?",
+                Content =
+                    "Approval stores both production scopes, both extrusion results, the commercial outputs, ordered optional modules, and the complete calculation trace. This revision then becomes immutable.",
+                PrimaryButtonText = "Approve revision",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            var saved = await _projectRepository.SaveAsync(
+                storageRoot,
+                DualCostingViewModel.CreateApprovedProjectDocument());
+            DualCostingViewModel.MarkDocumentPersisted(
+                saved.Document,
+                saved.FullPath);
+            DualCostingViewModel.CalculationStatus =
+                $"Dual revision {saved.Document.RevisionNumber} is approved and immutable. Its saved outputs and trace will reopen exactly.";
+        }
+        catch (InvalidOperationException exception)
+        {
+            DualCostingViewModel.CalculationStatus = exception.Message;
+        }
+        catch (Exception exception)
+        {
+            Program.Log($"Dual costing approval failed: {exception}");
+            DualCostingViewModel.CalculationStatus =
+                "The dual revision could not be approved. The working copy was retained.";
+        }
+    }
+
     private bool TryGetSelectedStorageRoot(out string storageRoot)
     {
         storageRoot = ViewModel.StorageFolderPath;
@@ -930,6 +1207,21 @@ public sealed partial class MainPage : Page
             Title = "Open another costing?",
             Content =
                 "The current working revision has unsaved changes. Opening another costing will replace those values.",
+            PrimaryButtonText = "Open another",
+            CloseButtonText = "Keep working",
+            DefaultButton = ContentDialogButton.Close,
+        };
+        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+    }
+
+    private async Task<bool> ConfirmDiscardDualUnsavedChangesAsync()
+    {
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = "Open another costing?",
+            Content =
+                "The current dual working revision has unsaved changes. Opening another costing will replace those values.",
             PrimaryButtonText = "Open another",
             CloseButtonText = "Keep working",
             DefaultButton = ContentDialogButton.Close,
@@ -1095,6 +1387,7 @@ public sealed partial class MainPage : Page
         RoutedEventArgs e)
     {
         await CostingViewModel.RefreshCentralDataAsync();
+        RefreshDualCentralData();
         UpdateFirstRunSetupState();
         UpdateCentralDataConnectionVisuals();
     }
@@ -1214,6 +1507,7 @@ public sealed partial class MainPage : Page
         {
             RefreshRetainedSourceTablesView();
             UpdateFirstRunSetupState();
+            RefreshDualCentralData();
         }
 
         if (e.PropertyName ==
@@ -1261,6 +1555,10 @@ public sealed partial class MainPage : Page
             completedAreas.Count,
             missingAreas);
     }
+
+    private void RefreshDualCentralData() =>
+        DualCostingViewModel.RefreshCentralData(
+            _centralDataService.Load());
 
     private void UpdateCorePrintPreviewVisibility()
     {
@@ -2219,6 +2517,11 @@ public sealed partial class MainPage : Page
         NavigationView sender,
         NavigationViewSelectionChangedEventArgs args)
     {
+        if (_isSynchronizingNavigation)
+        {
+            return;
+        }
+
         if (args.IsSettingsSelected)
         {
             ShowSection("settings");
@@ -2338,6 +2641,8 @@ public sealed partial class MainPage : Page
                 break;
         }
 
+        Program.Log($"Main section shown: {section}.");
+
         if (syncNavigation)
         {
             SyncNavigationSelection(section);
@@ -2386,7 +2691,15 @@ public sealed partial class MainPage : Page
         if (matchingItem is not null &&
             !ReferenceEquals(AppNavigation.SelectedItem, matchingItem))
         {
-            AppNavigation.SelectedItem = matchingItem;
+            _isSynchronizingNavigation = true;
+            try
+            {
+                AppNavigation.SelectedItem = matchingItem;
+            }
+            finally
+            {
+                _isSynchronizingNavigation = false;
+            }
         }
     }
 

@@ -93,6 +93,23 @@ reporting module rather than the costing UI.
 Controls storage, reference-data import/export, report templates, calculation-rule
 versions, and future backup/retention options.
 
+### Conditional organisation branding
+
+- On startup, the WinUI shell reads the current Windows user's local OneDrive
+  account registrations. A `Business*` registration whose current or legacy
+  email ends exactly in `@atagcables.com` enables ATAG organisation branding.
+- The account address is used only for this in-memory decision. It is not saved,
+  displayed, logged, or transmitted, and the app does not perform a Microsoft
+  sign-in or call OneDrive over the network.
+- When enabled, the packaged ATAG Design wordmark is shown on a white,
+  theme-safe card in the navigation pane, Home welcome panel, and Settings.
+  Settings also explains the detected state.
+- When no matching account is registered, the logo controls remain collapsed
+  and the standard Costing App branding remains active. Signing into OneDrive
+  and restarting the app causes the decision to be evaluated again.
+- This is shell branding only. Quotation and other report logos remain the
+  responsibility of their versioned Reporting templates.
+
 ## Architecture boundaries
 
 ```text
@@ -198,8 +215,10 @@ Progress as of 29 July 2026:
   than generic application glyphs;
 - the construction tiles fill their equal grid cells consistently, and the
   D-shape silhouette positions its in-line cores above the flat base;
-- the dual planner inserts selected Tape, Chalk, Foil, Braid, Lapscreen, and
-  Drain wire modules after first insulation and before second insulation;
+- the guided dual-insulation workspace inserts selected Tape, Chalk, Foil,
+  Braid, Lapscreen, and Drain wire modules after first insulation and before
+  second insulation, and retains them in that physical order without inventing
+  module material formulas;
 - a typed construction plan preserves the same inside-to-outside order, rejects
   duplicates, and bounds future Flat/D-shape constructions to ten in-line
   cores;
@@ -238,6 +257,10 @@ Progress as of 29 July 2026:
   locked material values, rule identifiers, exact outputs, effective naming,
   recursive calculation trace, and contract-review fields independently of
   central-data availability;
+- schema-v3 adds a construction discriminator, locked dual material inputs,
+  explicit core/first-layer and second-layer production scopes, independent
+  extrusion profiles, ordered optional modules, exact dual results and trace,
+  legacy schema-v1/v2 single-core reads, and immutable dual approval saves;
 - explicit project/revision identities, working-copy versus approved state,
   timestamps, immutable approved saves, next-revision-on-edit, and duplicate as
   new project are implemented;
@@ -343,8 +366,11 @@ V1, and manual
 save/reopen through the selected-folder project index, portable legacy-file
 browse, immutable approved single-core revisions, automatic next working
 revision, duplicate as new project, and clear unsaved/validation state. The Home
-page also contains construction-specific start tiles and the first dual planner
-shows optional modules in the physical layer flow. The working COR page has an
+page also contains construction-specific start tiles. The Dual tile opens a
+complete guided editor with searchable Copper, Compound, and Masterbatch
+selectors for both layers, explicit production scopes, two independent line
+profiles, live material/labour/commercial results, full trace, and schema-v3
+save/open/duplicate/approve lifecycle. The working COR page has an
 off-by-default responsive preview dock with its cross-section above its side
 profile. At wide sizes it is a user-resizable right-hand rail outside the
 costing scroller; at compact sizes it moves to a bottom dock. The fixed-coordinate
@@ -372,8 +398,8 @@ scrollable scale strip; the entire print block is absent when print is disabled.
 The redundant
 in-workspace cable chooser is removed. Revision comparison, search
 for every remaining data selector, the full visual colour browser, an editable
-page-accurate quotation preview, the complete saved/editable dual-insulation
-workspace, the shared Dual/Flat/D-shape renderer, Flat/D-shape calculation
+page-accurate quotation preview, dual-specific quotation/contract-review
+wording, the shared Dual/Flat/D-shape renderer, Flat/D-shape calculation
 engines, scenario comparison, and archive remain future work. See
 `CABLE-CONSTRUCTION-AND-VISUALISATION.md`.
 

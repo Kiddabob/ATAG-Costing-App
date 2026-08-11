@@ -114,6 +114,41 @@
                     Text="{Binding ConnectorText}" />
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="CalculationStepCardTemplate">
+            <Border
+                Margin="0,0,0,8"
+                Padding="12"
+                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                CornerRadius="8">
+                <StackPanel Spacing="4">
+                    <TextBlock FontWeight="SemiBold" Text="{Binding Label}" TextWrapping="Wrap" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding BusinessMeaning}"
+                        TextWrapping="Wrap" />
+                    <TextBlock FontFamily="Consolas" Text="{Binding Formula}" TextWrapping="Wrap" />
+                    <TextBlock
+                        FontFamily="Consolas"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding SubstitutedFormula}"
+                        TextWrapping="Wrap" />
+                    <TextBlock FontWeight="SemiBold" Text="{Binding Result}" TextWrapping="Wrap" />
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                        Text="{Binding RoundingRule}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                        Text="{Binding RuleVersion}" />
+                    <TextBlock
+                        Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                        Text="{Binding Warning}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
         <DataTemplate x:Key="ContactSuggestionTemplate">
             <StackPanel MinWidth="420" Spacing="2">
                 <TextBlock
@@ -176,6 +211,26 @@
             PaneDisplayMode="Left"
             PaneTitle="Costing App"
             SelectionChanged="AppNavigation_SelectionChanged">
+
+            <NavigationView.PaneHeader>
+                <Border
+                    x:Name="OrganisationBrandingPaneHeader"
+                    Width="218"
+                    Height="76"
+                    Margin="0,8,0,12"
+                    Padding="10"
+                    HorizontalAlignment="Left"
+                    Background="White"
+                    BorderBrush="#D9DEE3"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Visibility="Collapsed">
+                    <Image
+                        x:Name="OrganisationBrandingPaneLogo"
+                        AutomationProperties.Name="ATAG Design logo"
+                        Stretch="Uniform" />
+                </Border>
+            </NavigationView.PaneHeader>
 
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Home" IsSelected="True" Tag="home">
@@ -314,7 +369,32 @@
                                 Background="{StaticResource AtagNavyBrush}"
                                 CornerRadius="16">
                                 <Grid>
-                                    <StackPanel MaxWidth="760" HorizontalAlignment="Left" Spacing="10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Border
+                                        x:Name="OrganisationBrandingHomeLogoCard"
+                                        Width="270"
+                                        Height="90"
+                                        Margin="0,0,0,18"
+                                        Padding="10"
+                                        HorizontalAlignment="Left"
+                                        Background="White"
+                                        BorderBrush="#D9DEE3"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Visibility="Collapsed">
+                                        <Image
+                                            x:Name="OrganisationBrandingHomeLogo"
+                                            AutomationProperties.Name="ATAG Design logo"
+                                            Stretch="Uniform" />
+                                    </Border>
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        MaxWidth="760"
+                                        HorizontalAlignment="Left"
+                                        Spacing="10">
                                         <TextBlock
                                             Foreground="{StaticResource AtagCyanBrush}"
                                             Style="{StaticResource SectionLabelStyle}"
@@ -718,7 +798,7 @@
                                         TextWrapping="Wrap" />
                                     <TextBlock
                                         Foreground="#D9E7F2"
-                                        Text="The material calculator is verified. This construction planner fixes the physical layer order before the full guided dual editor is connected."
+                                        Text="Cost both insulation layers in one guided, traceable workspace while retaining their different production scopes."
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
@@ -729,6 +809,254 @@
                                 Message="The conductor and first insulation use quote length plus the internal 200 m start-up. The second insulation uses quote length only. The 3% allowance is applied once to every material stream; masterbatch adds material cost only."
                                 Severity="Success"
                                 Title="Confirmed calculation boundary" />
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnSpacing="12" RowSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="3">
+                                            <TextBlock
+                                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                                Text="Dual costing revision" />
+                                            <TextBlock
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{Binding RevisionStatusDisplay}" />
+                                        </StackPanel>
+                                        <CommandBar Grid.Column="1" DefaultLabelPosition="Right">
+                                            <AppBarButton
+                                                Click="OpenDualProject_Click"
+                                                Icon="OpenFile"
+                                                Label="Open" />
+                                            <AppBarButton
+                                                Click="SaveDualProject_Click"
+                                                Icon="Save"
+                                                Label="Save costing" />
+                                            <AppBarButton
+                                                Click="RecalculateDual_Click"
+                                                Icon="Refresh"
+                                                Label="Recalculate" />
+                                            <AppBarSeparator />
+                                            <AppBarButton
+                                                Click="ApproveDualRevision_Click"
+                                                Icon="Accept"
+                                                Label="Approve" />
+                                            <AppBarButton
+                                                Click="DuplicateDualProject_Click"
+                                                Icon="Copy"
+                                                Label="Duplicate" />
+                                        </CommandBar>
+                                    </Grid>
+                                    <InfoBar
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Message="{Binding CalculationStatus}"
+                                        Severity="Informational" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel Spacing="14">
+                                    <TextBlock
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="1 · Project and production scope" />
+                                    <Grid ColumnSpacing="12" RowSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <TextBox
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            Header="Project / cable name"
+                                            Text="{Binding ProjectName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox
+                                            Grid.Row="0"
+                                            Grid.Column="1"
+                                            Grid.ColumnSpan="2"
+                                            Header="Customer (optional at this stage)"
+                                            Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <NumberBox
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Header="Finished quote length (m)"
+                                            Minimum="0.001"
+                                            SpinButtonPlacementMode="Compact"
+                                            Value="{Binding FinishedQuoteLengthMetres, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Header="Core / first-layer start-up (m)"
+                                            Minimum="0"
+                                            SpinButtonPlacementMode="Compact"
+                                            Value="{Binding CoreStartupLengthMetres, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Grid.Row="1"
+                                            Grid.Column="2"
+                                            Header="Usage allowance (%)"
+                                            Minimum="0"
+                                            SpinButtonPlacementMode="Compact"
+                                            Value="{Binding UsageAllowancePercent, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Grid.Row="2"
+                                            Grid.Column="0"
+                                            Header="Risk (%)"
+                                            Minimum="0"
+                                            SpinButtonPlacementMode="Compact"
+                                            Value="{Binding RiskPercent, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Grid.Row="2"
+                                            Grid.Column="1"
+                                            Header="Markup (%)"
+                                            Minimum="0"
+                                            SpinButtonPlacementMode="Compact"
+                                            Value="{Binding MarkupPercent, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Grid.Row="2"
+                                            Grid.Column="2"
+                                            Header="Comparison gross margin (%)"
+                                            Minimum="0"
+                                            Maximum="99.999"
+                                            SpinButtonPlacementMode="Compact"
+                                            Value="{Binding TargetMarginPercent, Mode=TwoWay}" />
+                                    </Grid>
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Padding="12" Background="{ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8">
+                                            <StackPanel Spacing="3">
+                                                <TextBlock FontWeight="SemiBold" Text="Core and first layer" />
+                                                <TextBlock Text="{Binding CoreProductionScopeDisplay}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="1" Padding="12" Background="{ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8">
+                                            <StackPanel Spacing="3">
+                                                <TextBlock FontWeight="SemiBold" Text="Second layer" />
+                                                <TextBlock Text="{Binding SecondLayerProductionScopeDisplay}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel Spacing="14">
+                                    <TextBlock
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="2 · Copper conductor" />
+                                    <TextBox
+                                        Header="Search Copper by construction, supplier or reference"
+                                        PlaceholderText="Start typing to narrow the retained Copper table"
+                                        Text="{Binding CopperSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <ComboBox
+                                        Header="Copper reference"
+                                        HorizontalAlignment="Stretch"
+                                        DisplayMemberPath="DisplayDescription"
+                                        ItemsSource="{Binding CopperOptions}"
+                                        SelectedItem="{Binding SelectedCopper, Mode=TwoWay}" />
+                                    <Grid ColumnSpacing="12" RowSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <NumberBox
+                                            Grid.Column="0"
+                                            Header="Supplier quote total (£)"
+                                            Minimum="0"
+                                            Value="{Binding ConductorSupplierQuoteTotal, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Grid.Column="1"
+                                            Header="Quoted mass (kg)"
+                                            Minimum="0.000001"
+                                            Value="{Binding ConductorSupplierQuotedKilograms, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Grid.Column="2"
+                                            Header="Locked yield (m/kg)"
+                                            IsEnabled="False"
+                                            Value="{Binding ConductorYieldMetresPerKilogram}" />
+                                        <NumberBox
+                                            Grid.Column="3"
+                                            Header="Locked conductor OD (mm)"
+                                            IsEnabled="False"
+                                            Value="{Binding ConductorOutsideDiameterMillimetres}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel Spacing="16">
+                                    <TextBlock
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="3 · First insulation layer" />
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="10">
+                                            <TextBlock FontWeight="SemiBold" Text="Compound" />
+                                            <TextBox
+                                                Header="Search Compounds"
+                                                Text="{Binding FirstCompoundSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ComboBox
+                                                Header="First compound reference"
+                                                HorizontalAlignment="Stretch"
+                                                DisplayMemberPath="CompoundName"
+                                                ItemsSource="{Binding FirstCompoundOptions}"
+                                                SelectedItem="{Binding SelectedFirstCompound, Mode=TwoWay}" />
+                                            <Grid ColumnSpacing="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <NumberBox Grid.Column="0" Header="Quote total (£)" Minimum="0" Value="{Binding FirstCompoundSupplierQuoteTotal, Mode=TwoWay}" />
+                                                <NumberBox Grid.Column="1" Header="Quoted kg" Minimum="0.000001" Value="{Binding FirstCompoundSupplierQuotedKilograms, Mode=TwoWay}" />
+                                                <NumberBox Grid.Column="2" Header="Locked SG" IsEnabled="False" Value="{Binding FirstCompoundSpecificGravity}" />
+                                            </Grid>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Spacing="10">
+                                            <TextBlock FontWeight="SemiBold" Text="Masterbatch and finished size" />
+                                            <TextBox
+                                                Header="Search Masterbatch by code, colour or tone"
+                                                Text="{Binding FirstMasterbatchSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ComboBox
+                                                Header="First-layer masterbatch"
+                                                HorizontalAlignment="Stretch"
+                                                ItemsSource="{Binding FirstMasterbatchOptions}"
+                                                SelectedItem="{Binding SelectedFirstMasterbatch, Mode=TwoWay}" />
+                                            <Grid ColumnSpacing="10" RowSpacing="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <NumberBox Grid.Row="0" Grid.Column="0" Header="Quote total (£)" Minimum="0" Value="{Binding FirstMasterbatchSupplierQuoteTotal, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="0" Grid.Column="1" Header="Quoted kg" Minimum="0.000001" Value="{Binding FirstMasterbatchSupplierQuotedKilograms, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="0" Grid.Column="2" Header="Addition (%)" Minimum="0" Value="{Binding FirstMasterbatchAdditionPercent, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Header="First-layer finished OD (mm)" Minimum="0.000001" Value="{Binding FirstFinishedOutsideDiameterMillimetres, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="1" Grid.Column="2" Header="Positive tolerance (mm)" Minimum="0" Value="{Binding FirstOutsideDiameterToleranceMillimetres, Mode=TwoWay}" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
 
                             <Border Style="{StaticResource CardBorderStyle}">
                                 <StackPanel Spacing="14">
@@ -755,6 +1083,7 @@
                                             Grid.Column="0"
                                             Checked="DualModuleSelection_Changed"
                                             Content="Tape"
+                                            IsChecked="{Binding IncludeTape, Mode=TwoWay}"
                                             Unchecked="DualModuleSelection_Changed" />
                                         <CheckBox
                                             x:Name="DualChalkSelection"
@@ -762,6 +1091,7 @@
                                             Grid.Column="1"
                                             Checked="DualModuleSelection_Changed"
                                             Content="Chalk"
+                                            IsChecked="{Binding IncludeChalk, Mode=TwoWay}"
                                             Unchecked="DualModuleSelection_Changed" />
                                         <CheckBox
                                             x:Name="DualFoilSelection"
@@ -769,6 +1099,7 @@
                                             Grid.Column="2"
                                             Checked="DualModuleSelection_Changed"
                                             Content="Foil"
+                                            IsChecked="{Binding IncludeFoil, Mode=TwoWay}"
                                             Unchecked="DualModuleSelection_Changed" />
                                         <CheckBox
                                             x:Name="DualBraidSelection"
@@ -776,6 +1107,7 @@
                                             Grid.Column="0"
                                             Checked="DualModuleSelection_Changed"
                                             Content="Braid"
+                                            IsChecked="{Binding IncludeBraid, Mode=TwoWay}"
                                             Unchecked="DualModuleSelection_Changed" />
                                         <CheckBox
                                             x:Name="DualLapscreenSelection"
@@ -783,6 +1115,7 @@
                                             Grid.Column="1"
                                             Checked="DualModuleSelection_Changed"
                                             Content="Lapscreen"
+                                            IsChecked="{Binding IncludeLapscreen, Mode=TwoWay}"
                                             Unchecked="DualModuleSelection_Changed" />
                                         <CheckBox
                                             x:Name="DualDrainSelection"
@@ -790,7 +1123,76 @@
                                             Grid.Column="2"
                                             Checked="DualModuleSelection_Changed"
                                             Content="Drain wire"
+                                            IsChecked="{Binding IncludeDrainWire, Mode=TwoWay}"
                                             Unchecked="DualModuleSelection_Changed" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel Spacing="16">
+                                    <TextBlock
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="4 · Second insulation layer" />
+                                    <InfoBar
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Message="This compound and masterbatch cover the finished quote length only; the internal core start-up is excluded."
+                                        Severity="Informational" />
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="10">
+                                            <TextBlock FontWeight="SemiBold" Text="Compound" />
+                                            <TextBox
+                                                Header="Search Compounds"
+                                                Text="{Binding SecondCompoundSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ComboBox
+                                                Header="Second compound reference"
+                                                HorizontalAlignment="Stretch"
+                                                DisplayMemberPath="CompoundName"
+                                                ItemsSource="{Binding SecondCompoundOptions}"
+                                                SelectedItem="{Binding SelectedSecondCompound, Mode=TwoWay}" />
+                                            <Grid ColumnSpacing="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <NumberBox Grid.Column="0" Header="Quote total (£)" Minimum="0" Value="{Binding SecondCompoundSupplierQuoteTotal, Mode=TwoWay}" />
+                                                <NumberBox Grid.Column="1" Header="Quoted kg" Minimum="0.000001" Value="{Binding SecondCompoundSupplierQuotedKilograms, Mode=TwoWay}" />
+                                                <NumberBox Grid.Column="2" Header="Locked SG" IsEnabled="False" Value="{Binding SecondCompoundSpecificGravity}" />
+                                            </Grid>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Spacing="10">
+                                            <TextBlock FontWeight="SemiBold" Text="Masterbatch and finished size" />
+                                            <TextBox
+                                                Header="Search Masterbatch by code, colour or tone"
+                                                Text="{Binding SecondMasterbatchSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ComboBox
+                                                Header="Second-layer masterbatch"
+                                                HorizontalAlignment="Stretch"
+                                                ItemsSource="{Binding SecondMasterbatchOptions}"
+                                                SelectedItem="{Binding SelectedSecondMasterbatch, Mode=TwoWay}" />
+                                            <Grid ColumnSpacing="10" RowSpacing="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <NumberBox Grid.Row="0" Grid.Column="0" Header="Quote total (£)" Minimum="0" Value="{Binding SecondMasterbatchSupplierQuoteTotal, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="0" Grid.Column="1" Header="Quoted kg" Minimum="0.000001" Value="{Binding SecondMasterbatchSupplierQuotedKilograms, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="0" Grid.Column="2" Header="Addition (%)" Minimum="0" Value="{Binding SecondMasterbatchAdditionPercent, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Header="Final finished OD (mm)" Minimum="0.000001" Value="{Binding SecondFinishedOutsideDiameterMillimetres, Mode=TwoWay}" />
+                                                <NumberBox Grid.Row="1" Grid.Column="2" Header="Positive tolerance (mm)" Minimum="0" Value="{Binding SecondOutsideDiameterToleranceMillimetres, Mode=TwoWay}" />
+                                            </Grid>
+                                        </StackPanel>
                                     </Grid>
                                 </StackPanel>
                             </Border>
@@ -914,29 +1316,207 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}">
-                                    <StackPanel Spacing="8">
-                                        <TextBlock FontWeight="SemiBold" Text="First extrusion production profile" />
+                                    <StackPanel Spacing="12">
+                                        <TextBlock
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            Text="5 · First extrusion production" />
                                         <TextBlock
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Own size-to-speed table, set-up time, operators and labour rate. It runs the conductor and first layer including start-up."
+                                            Text="Independent working line profile over the core and first-layer production length. Confirm these line settings for each costing."
                                             TextWrapping="Wrap" />
+                                        <Grid ColumnSpacing="10" RowSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <NumberBox Grid.Row="0" Grid.Column="0" Header="OD band maximum (mm)" Minimum="0.000001" Value="{Binding FirstProfileMaximumOutsideDiameterMillimetres, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="0" Grid.Column="1" Header="Speed at/below band (m/h)" Minimum="0.000001" Value="{Binding FirstProfileLineSpeedMetresPerHour, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="0" Grid.Column="2" Header="Speed above band (m/h)" Minimum="0.000001" Value="{Binding FirstAboveMaximumLineSpeedMetresPerHour, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="1" Grid.Column="0" Header="Set-up time (h)" Minimum="0" Value="{Binding FirstSetupTimeHours, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="1" Grid.Column="1" Header="Operators" Minimum="0.000001" Value="{Binding FirstOperatorCount, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="1" Grid.Column="2" Header="Labour rate (£/h)" Minimum="0" Value="{Binding FirstHourlyLabourRate, Mode=TwoWay}" />
+                                        </Grid>
+                                        <ToggleSwitch
+                                            Header="Manual line-speed override"
+                                            IsOn="{Binding UseFirstManualLineSpeed, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Header="Manual first-line speed (m/h)"
+                                            IsEnabled="{Binding UseFirstManualLineSpeed}"
+                                            Minimum="0.000001"
+                                            Value="{Binding FirstManualLineSpeedMetresPerHour, Mode=TwoWay}" />
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Padding="10" Background="{ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8">
+                                                <StackPanel Spacing="3">
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Total process time" />
+                                                    <TextBlock FontWeight="SemiBold" Text="{Binding FirstProductionTimeDisplay}" />
+                                                </StackPanel>
+                                            </Border>
+                                            <Border Grid.Column="1" Padding="10" Background="{ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8">
+                                                <StackPanel Spacing="3">
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Labour cost" />
+                                                    <TextBlock FontWeight="SemiBold" Text="{Binding FirstExtrusionLabourDisplay}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
                                     </StackPanel>
                                 </Border>
                                 <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
-                                    <StackPanel Spacing="8">
-                                        <TextBlock FontWeight="SemiBold" Text="Second extrusion production profile" />
+                                    <StackPanel Spacing="12">
+                                        <TextBlock
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            Text="6 · Second extrusion production" />
                                         <TextBlock
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Independent size-to-speed table, set-up time, operators and labour rate. It runs the finished quote length only."
+                                            Text="Independent working line profile over finished quote length only. Its speed, set-up, operators and rate are separate from the first line."
                                             TextWrapping="Wrap" />
+                                        <Grid ColumnSpacing="10" RowSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <NumberBox Grid.Row="0" Grid.Column="0" Header="OD band maximum (mm)" Minimum="0.000001" Value="{Binding SecondProfileMaximumOutsideDiameterMillimetres, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="0" Grid.Column="1" Header="Speed at/below band (m/h)" Minimum="0.000001" Value="{Binding SecondProfileLineSpeedMetresPerHour, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="0" Grid.Column="2" Header="Speed above band (m/h)" Minimum="0.000001" Value="{Binding SecondAboveMaximumLineSpeedMetresPerHour, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="1" Grid.Column="0" Header="Set-up time (h)" Minimum="0" Value="{Binding SecondSetupTimeHours, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="1" Grid.Column="1" Header="Operators" Minimum="0.000001" Value="{Binding SecondOperatorCount, Mode=TwoWay}" />
+                                            <NumberBox Grid.Row="1" Grid.Column="2" Header="Labour rate (£/h)" Minimum="0" Value="{Binding SecondHourlyLabourRate, Mode=TwoWay}" />
+                                        </Grid>
+                                        <ToggleSwitch
+                                            Header="Manual line-speed override"
+                                            IsOn="{Binding UseSecondManualLineSpeed, Mode=TwoWay}" />
+                                        <NumberBox
+                                            Header="Manual second-line speed (m/h)"
+                                            IsEnabled="{Binding UseSecondManualLineSpeed}"
+                                            Minimum="0.000001"
+                                            Value="{Binding SecondManualLineSpeedMetresPerHour, Mode=TwoWay}" />
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Padding="10" Background="{ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8">
+                                                <StackPanel Spacing="3">
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Total process time" />
+                                                    <TextBlock FontWeight="SemiBold" Text="{Binding SecondProductionTimeDisplay}" />
+                                                </StackPanel>
+                                            </Border>
+                                            <Border Grid.Column="1" Padding="10" Background="{ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8">
+                                                <StackPanel Spacing="3">
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Labour cost" />
+                                                    <TextBlock FontWeight="SemiBold" Text="{Binding SecondExtrusionLabourDisplay}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
                                     </StackPanel>
                                 </Border>
                             </Grid>
 
+                            <Border
+                                Padding="24"
+                                Background="{StaticResource AtagNavyBrush}"
+                                CornerRadius="16">
+                                <StackPanel Spacing="16">
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Foreground="{StaticResource AtagCyanBrush}" Text="7 · RECOMMENDED SELLING PRICE" />
+                                            <TextBlock
+                                                FontSize="34"
+                                                FontWeight="SemiBold"
+                                                Foreground="White"
+                                                Text="{Binding RecommendedQuoteDisplay}" />
+                                            <TextBlock
+                                                Foreground="#D9E7F2"
+                                                Text="Sequential risk, then markup · GBP calculation basis" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="3">
+                                            <TextBlock Foreground="#D9E7F2" Text="Material + both extrusion labour" />
+                                            <TextBlock FontSize="24" FontWeight="SemiBold" Foreground="White" Text="{Binding EstimatedCostDisplay}" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid ColumnSpacing="10" RowSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Padding="12" Background="#293E50" CornerRadius="8">
+                                            <StackPanel Spacing="3">
+                                                <TextBlock FontSize="12" Foreground="#D9E7F2" Text="Material run" />
+                                                <TextBlock FontWeight="SemiBold" Foreground="White" Text="{Binding MaterialCostDisplay}" />
+                                                <TextBlock FontSize="11" Foreground="#D9E7F2" Text="{Binding MaterialCostPerMetreDisplay}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="1" Padding="12" Background="#293E50" CornerRadius="8">
+                                            <StackPanel Spacing="3">
+                                                <TextBlock FontSize="12" Foreground="#D9E7F2" Text="Both lines labour" />
+                                                <TextBlock FontWeight="SemiBold" Foreground="White" Text="{Binding TotalLabourDisplay}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="2" Padding="12" Background="#293E50" CornerRadius="8">
+                                            <StackPanel Spacing="3">
+                                                <TextBlock FontSize="12" Foreground="#D9E7F2" Text="Cost including risk" />
+                                                <TextBlock FontWeight="SemiBold" Foreground="White" Text="{Binding RiskAdjustedCostDisplay}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="3" Padding="12" Background="#293E50" CornerRadius="8">
+                                            <StackPanel Spacing="3">
+                                                <TextBlock FontSize="12" Foreground="#D9E7F2" Text="Target-margin comparison" />
+                                                <TextBlock FontWeight="SemiBold" Foreground="White" Text="{Binding TargetMarginPriceDisplay}" />
+                                                <TextBlock FontSize="11" Foreground="#D9E7F2" Text="Additive comparison" />
+                                                <TextBlock FontSize="11" Foreground="#D9E7F2" Text="{Binding CombinedRatePriceDisplay}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Expander Header="Complete dual-insulation calculation trace" IsExpanded="False">
+                                <ItemsRepeater
+                                    HorizontalAlignment="Stretch"
+                                    ItemTemplate="{StaticResource CalculationStepCardTemplate}"
+                                    ItemsSource="{Binding CalculationSteps}">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout
+                                            MinColumnSpacing="12"
+                                            MinItemWidth="410"
+                                            MinRowSpacing="12"
+                                            ItemsJustification="SpaceBetween"
+                                            ItemsStretch="Fill"
+                                            Orientation="Horizontal" />
+                                    </ItemsRepeater.Layout>
+                                </ItemsRepeater>
+                            </Expander>
+
                             <InfoBar
                                 IsClosable="False"
                                 IsOpen="True"
-                                Message="The optional scaled cross-section and side-profile renderer is specified for the next visual slice. It will remain off by default and will consume this same ordered construction model."
+                                Message="Dual revision save/open/approval is active. Customer quotation and contract-review wording remain deliberately staged until the dual-cable wording and presentation fields are specified; the app does not reuse single-core wording silently."
+                                Severity="Informational"
+                                Title="Documents staged explicitly" />
+
+                            <InfoBar
+                                IsClosable="False"
+                                IsOpen="True"
+                                Message="The optional scaled dual cross-section and side-profile renderer remains a later visual slice. It will consume this saved ordered construction and stay off by default."
                                 Severity="Informational"
                                 Title="Live cable view staged" />
                         </StackPanel>
@@ -4341,6 +4921,52 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
+                            </Border>
+
+                            <TextBlock
+                                Style="{StaticResource SectionLabelStyle}"
+                                Text="ORGANISATION BRANDING" />
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <Grid ColumnSpacing="24">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="6">
+                                        <TextBlock
+                                            x:Name="OrganisationBrandingStatusTitle"
+                                            FontWeight="SemiBold"
+                                            Text="Checking organisation branding" />
+                                        <TextBlock
+                                            x:Name="OrganisationBrandingStatusMessage"
+                                            MaxWidth="540"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="The app checks this Windows user's local OneDrive registration when it starts."
+                                            TextWrapping="Wrap" />
+                                        <TextBlock
+                                            FontSize="11"
+                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                            Text="The account address is not retained, displayed, logged, or sent anywhere."
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Border
+                                        x:Name="OrganisationBrandingSettingsLogoCard"
+                                        Grid.Column="1"
+                                        Width="240"
+                                        Height="80"
+                                        Padding="9"
+                                        Background="White"
+                                        BorderBrush="#D9DEE3"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Visibility="Collapsed">
+                                        <Image
+                                            x:Name="OrganisationBrandingSettingsLogo"
+                                            AutomationProperties.Name="ATAG Design logo"
+                                            Stretch="Uniform" />
+                                    </Border>
+                                </Grid>
                             </Border>
 
                             <TextBlock

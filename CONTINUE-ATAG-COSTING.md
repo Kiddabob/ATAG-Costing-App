@@ -2233,3 +2233,232 @@ restore, Debug build, and test commands passed: 114 tests passed, the same 2
 approval-gated workbook cases were skipped, and there were no failures. NuGet's
 optional vulnerability-feed lookup emitted four `NU1900` warnings because that
 feed was unavailable, but restore/build/test all completed successfully.
+
+## 2026-08-11 V1.3b dual-insulation document and guided editor
+
+The recommended V1.3b slice is implemented in the local working tree. It has
+not been committed, pushed, packaged, or added to the public 0.1.0 installer.
+The repository remains on `main` at `52c605f`, aligned with `origin/main` before
+these local changes.
+
+### Implemented document and lifecycle boundary
+
+- `.atagcosting` current schema is now version 3 with an explicit
+  `SingleInsulatedCore` / `DualInsulation` construction discriminator;
+- schema-v1 and schema-v2 documents still upgrade as single-core documents and
+  retain their existing reader/recalculation behaviour;
+- the dual payload stores locked conductor, first-layer compound/masterbatch,
+  second-layer compound/masterbatch, quote values, dimensions, addition rates,
+  commercial inputs, and the central-data revision;
+- both confirmed scopes are explicit: core/first layer uses finished quote
+  length plus the separate start-up length; second layer uses finished quote
+  length only;
+- two independent extrusion profiles retain their OD band, line speeds,
+  optional manual override, setup, operators, and hourly rate;
+- Tape, Chalk, Foil, Braid, Lapscreen, and Drain wire selections persist in
+  physical inside-to-outside order. They deliberately add no unapproved module
+  material formulas;
+- approved dual revisions retain raw results, exact display strings, both
+  production scopes, both extrusion results, commercial comparisons, and the
+  recursive material/production/commercial trace;
+- the existing repository, relative-path index, working/approved lifecycle,
+  immutable approved save, automatic next working revision, portable browse,
+  and duplicate-as-new-project paths now accept both construction kinds;
+- index names use the saved dual project name without changing the v1 index
+  format or writing a machine-specific storage root.
+
+### Implemented Application and WinUI boundary
+
+- `DualInsulationCostingApplicationService` is the only new orchestration seam.
+  It calls `DualInsulationCostingCalculator`,
+  `DualInsulationProductionCalculator`, and `CommercialPricingCalculator`;
+  WinUI contains no copied material, labour, or commercial formulas;
+- `DualInsulationWorkspaceState` provides testable Copper/Compound/Masterbatch
+  search and stable optional-module ordering independently of WinUI;
+- the Dual Home tile opens a complete scrollable costing editor with one
+  searchable Copper selector and separate searchable Compound/Masterbatch
+  selectors for both layers;
+- the page keeps finished length, core start-up, allowance, risk, markup and
+  margin visible, then shows the two calculated scopes side by side;
+- supplier quote total/mass remain editable while retained yield, conductor OD,
+  and compound specific gravity are locked from central data;
+- both extrusion cards expose their own working line profile, optional manual
+  speed, setup, operators, labour rate, process time, and labour cost;
+- the result surface shows complete material cost, both-line labour, estimated
+  cost, risk-adjusted cost, sequential risk-then-markup recommendation, additive
+  comparison, target-margin comparison, and the complete trace;
+- Open, Save costing, Recalculate, Approve, and Duplicate are available on the
+  dual page. Opening from either single or dual surfaces dispatches to the
+  document's construction kind rather than trying to read it as the wrong
+  editor;
+- dual quotation and contract-review wording are explicitly labelled staged.
+  The UI does not silently reuse single-core wording before that contract is
+  specified;
+- the inherited navigation synchronisation bug was fixed. Previously the Dual
+  tile briefly selected `costing-dual`, then the left navigation's generic
+  Costing selection immediately replaced it with the single-core page.
+  Programmatic navigation synchronisation is now suppressed from re-entering
+  the selection handler.
+
+Primary new files:
+
+```text
+src/ATAG.Costing.Application/Costing/DualInsulationCostingApplicationService.cs
+src/ATAG.Costing.Application/Costing/DualInsulationWorkspaceState.cs
+src/ATAG.Costing.Application/Projects/DualInsulationProjectPayload.cs
+src/ATAG.Costing.WinUI/ViewModels/DualInsulationCostingViewModel.cs
+tests/ATAG.Costing.Application.Tests/Costing/DualInsulationCostingApplicationServiceTests.cs
+tests/ATAG.Costing.Application.Tests/Costing/DualInsulationWorkspaceStateTests.cs
+```
+
+### Verification on 11 August 2026
+
+- the current PC uses .NET SDK `10.0.301`;
+- missing NuGet packages were downloaded to the current user's normal package
+  cache only; no package path was written into maintained source;
+- final x64 Debug solution build succeeded with zero compile errors. The only
+  two warnings were `NU1900` because the sandbox could not read NuGet's optional
+  vulnerability feed;
+- Domain: 50 passed;
+- Application/Infrastructure/Reporting: 68 passed;
+- workbook parity: 2 evidence tests passed and the same 2 approval-gated golden
+  cases remain intentionally skipped;
+- new coverage includes schema-v3 dual round trip, schema-v2 legacy read,
+  immutable dual approval overwrite rejection, Application orchestration,
+  separate production lengths, searchable reference state, and ordered module
+  state;
+- the exact rebuilt `ATAG.Costing.WinUI.exe` reached an activated native ATAG
+  window. Exact-process UI Automation invoked the Dual tile and the project
+  diagnostic log recorded `Main section shown: costing-dual` with no following
+  single-core fallback;
+- the test process was closed after verification. One intermediate build failed
+  only because the intentionally open test process held its output DLLs; the
+  final build after closing it passed;
+- `git diff --check` found no whitespace errors, and maintained source contains
+  no current workspace drive, current user path, workbook data rows, database
+  link, or credential added by this slice.
+
+### Recommended next slice
+
+V1.3c should define and implement the dual-specific quotation and contract-review
+payload before enabling those documents. Start by recording the exact customer
+description, two-layer colour/material wording, optional-module wording,
+production/reel fields, and approval questions that differ from COR. Then:
+
+1. extend schema 3 with versioned dual quotation/review sub-payloads without
+   changing approved V1.3b result evidence;
+2. make Reporting consume the saved dual snapshot without recalculating;
+3. add a clearly dual A4 preview/PDF and contract-review surface;
+4. add round-trip, immutable revision, one-page PDF, and clean-package tests;
+5. keep the shared Dual/Flat/D-shape renderer and every optional-module material
+   formula as separate later slices;
+6. keep the dual and single-core workbook golden cases approval-gated.
+
+Before continuing on another PC, read this file, the root GitHub handoff,
+`docs/PROJECT-REVISIONS.md`, and
+`docs/CABLE-CONSTRUCTION-AND-VISUALISATION.md`; run the unchanged x64 build and
+tests; inspect `git status`; and do not recreate the solution or hard-code the
+USB drive letter.
+
+## 2026-08-11 conditional ATAG Design logo from OneDrive identity
+
+The local working tree now extends the existing privacy-safe organisation
+branding boundary. This is an additional uncommitted development change on top
+of the V1.3b work above; it has not been pushed, packaged, released, or added to
+the public 0.1.0 installer.
+
+### Implemented behaviour
+
+- the existing current-user registry reader still checks only
+  `Software\Microsoft\OneDrive\Accounts` and performs no Microsoft sign-in or
+  network request;
+- `OrganisationBrandingPolicy` now owns the testable decision: only a
+  `Business*` OneDrive registration whose `UserEmail` or legacy `Email` ends
+  exactly in `@atagcables.com` enables ATAG branding;
+- the address exists in memory only while the local registrations are checked.
+  It is never stored, displayed, logged, or transmitted;
+- the clean transparent 900 x 300 ATAG Design wordmark is packaged at
+  `Assets/Organisation/ATAGDesignLogo.png`. No source OneDrive/database path or
+  workspace drive is retained;
+- when enabled, a white theme-safe logo card appears in the expanded navigation
+  pane and Home welcome panel. Settings also shows the logo and explicitly says
+  that ATAG Design branding is active;
+- when no matching registration exists, all three logo cards remain collapsed,
+  Settings explains how to enable them, and standard Costing App branding stays
+  active;
+- the state is evaluated once at process startup. After signing into or out of
+  OneDrive, restart Costing App to refresh it;
+- this change affects the application shell only. It does not silently insert a
+  logo into quotation or other Reporting templates.
+
+Primary files for this slice:
+
+```text
+src/ATAG.Costing.Application/Branding/OrganisationBrandingPolicy.cs
+src/ATAG.Costing.WinUI/Assets/Organisation/ATAGDesignLogo.png
+src/ATAG.Costing.WinUI/LocalBrandingService.cs
+src/ATAG.Costing.WinUI/AppRuntimeMode.cs
+src/ATAG.Costing.WinUI/MainPage.xaml
+src/ATAG.Costing.WinUI/MainPage.xaml.cs
+tests/ATAG.Costing.Application.Tests/Branding/OrganisationBrandingPolicyTests.cs
+```
+
+### Verification
+
+- eight policy cases cover accepted current/legacy ATAG business addresses,
+  case and whitespace handling, non-business registrations, similar but invalid
+  domains, blanks, and multiple-account discovery;
+- final x64 Debug build succeeds with zero errors. The same two `NU1900`
+  warnings only report the sandbox-blocked optional NuGet vulnerability feed;
+- Domain: 50 passed;
+- Application/Infrastructure/Reporting: 76 passed;
+- workbook parity: 2 evidence tests passed and the same 2 approval-gated golden
+  cases remain intentionally skipped;
+- total: 128 passed, 2 intentionally skipped, 0 failed;
+- the exact rebuilt app launched on this PC, detected its matching ATAG OneDrive
+  registration, reported `ATAG Costing App`, logged only
+  `Organisation branding: ATAG Design logo enabled`, and reached Home without an
+  exception. The exact test process was then closed;
+- no email address, credential, OneDrive folder, current-user path, or removable
+  drive letter was added to maintained text source.
+
+The recommended product-development slice remains V1.3c dual-specific
+quotation and contract-review payload/reporting. Keep report logo placement and
+wording in that versioned Reporting slice rather than coupling it to the shell.
+
+## 2026-08-11 version 0.2.0 release candidate
+
+The user authorised publication of the completed V1.3b dual-insulation editor
+and conditional ATAG shell branding as the next GitHub version. Semantic version
+`0.2.0` was selected because this adds a new construction workflow and saved
+document capability rather than a patch-only correction.
+
+Release preparation completed before the source commit:
+
+- `Directory.Build.props` and `CHANGELOG.md` now define and describe 0.2.0;
+- the authoritative Release suite passed 128 tests, with the same 2
+  approval-gated workbook golden cases intentionally skipped and no failures;
+- `tools/Build-Release.ps1` completed the self-contained x64 publish, blocked
+  file audit, Velopack 1.2.0 package, update feeds, portable ZIP, one-file
+  installer, and checksums;
+- all six checksum-manifest entries match their generated files;
+- both generated archives contain no Access/SQL/workbook/saved-costing files,
+  retained settings/data, environment files, or debug symbols;
+- the publish contains no current workspace/user/old removable-drive string or
+  named costing-workbook/database-backup source path;
+- the ATAG Design logo is compiled into `ATAG.Costing.WinUI.pri` under
+  `Assets\Organisation\ATAGDesignLogo.png` rather than shipped from its original
+  workspace location;
+- `Costing-App-Setup.exe` is 100,480,945 bytes with SHA-256
+  `8b2b089143b0fe8e3798de5b6e33ae4e3d315cd5e9724eb8981602d25eb81d10`;
+- the exact candidate silently upgraded the local installed app from 0.1.0 to
+  0.2.0 with exit code 0. All four retained private LocalAppData files existed
+  before and after with identical SHA-256 values;
+- the exact installed 0.2.0 executable launched, reported the 0.2.0 product/file
+  version, selected `ATAG Costing App`, enabled the logo branch, activated a
+  native window, and reached Home. The verification process was then closed.
+
+The installer remains unsigned, so Unknown publisher/SmartScreen remains the
+only known distribution caveat. At this point Git commit/push and public GitHub
+Release publication/anonymous verification are still pending and must be
+recorded separately after they actually succeed.

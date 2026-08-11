@@ -1338,6 +1338,7 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         var now = DateTimeOffset.UtcNow;
         return new SingleCoreProjectDocument
         {
+            ConstructionKind = CostingConstructionKind.SingleInsulatedCore,
             ProjectId = CurrentProjectId,
             RevisionId = CurrentRevisionId,
             RevisionNumber = CurrentRevisionNumber,
@@ -1478,6 +1479,13 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         }
 
         document = document.Upgrade();
+        if (document.ConstructionKind !=
+            CostingConstructionKind.SingleInsulatedCore)
+        {
+            message = "The selected revision is a dual-insulation costing.";
+            return false;
+        }
+
         var copper = _allCopperMaterials.FirstOrDefault(
             item => item.Id == document.CopperId) ??
             CreateSavedCopperReference(document);

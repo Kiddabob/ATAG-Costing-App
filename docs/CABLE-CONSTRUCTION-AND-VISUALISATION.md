@@ -12,7 +12,7 @@ The Home page starts with four descriptive construction tiles:
 | Tile | Construction | Current state |
 |---|---|---|
 | COR | one conductor and one insulation layer | working single-core V1 |
-| Dual insulated | one conductor and two extrusion layers | material and production domain rules implemented; first construction planner visible |
+| Dual insulated | one conductor and two extrusion layers | working guided costing and schema-v3 revision flow; shared renderer staged |
 | Flat cable | up to ten cores in a line | planned |
 | D-shape cable | up to ten cores in a line with a D-shaped finish | planned |
 
@@ -76,7 +76,8 @@ Module meaning:
 
 The domain types `CableConstructionPlan`, `ExtrusionLineSpeedProfile`, and
 `DualInsulationProductionCalculator` preserve these boundaries without placing
-formulas in WinUI.
+formulas in WinUI. `DualInsulationCostingApplicationService` now coordinates
+material, both extrusion and commercial results for the guided editor.
 
 ## Opt-in live cable visualisation
 
@@ -271,16 +272,20 @@ before the Home tiles stop being labelled planned.
 
 ## Persistence and acceptance
 
-The next document schema needs:
+Schema version 3 now stores:
 
-- construction discriminator;
-- ordered stages with stable identifiers;
-- optional-module settings;
+- a construction discriminator;
+- locked dual material/quote/dimension inputs and exact approved results;
+- both production scopes explicitly;
+- ordered optional-module selections;
 - independent extrusion production profiles;
 - visualisation preference, conductor detail mode, zoom, and view state as
-  presentation settings rather than costing inputs.
+  presentation settings rather than costing inputs remain part of the later
+  shared-renderer slice.
 
-Acceptance requires domain tests for stage ordering and duplicate rejection,
-round-trip tests for the versioned document, and visual checks using asymmetric
-layers, rope-lay conductor, foil direction, braid, lapscreen, and an off-centre
-drain construction.
+Domain ordering/duplicate tests, schema-v3 round-trip and legacy-reader tests,
+immutable dual-save tests, Application orchestration tests, and focused
+reference-search/module-order state tests are implemented. Golden workbook
+approval remains gated. Visual acceptance using asymmetric layers, rope-lay
+conductor, foil direction, braid, lapscreen, and an off-centre drain
+construction remains part of the shared-renderer slice.

@@ -8,10 +8,12 @@ namespace ATAG.Costing.Application.Projects;
 /// </summary>
 public sealed record SingleCoreProjectDocument
 {
-    public const int CurrentSchemaVersion = 2;
+    public const int CurrentSchemaVersion = 3;
     public const int OldestSupportedSchemaVersion = 1;
 
     public int SchemaVersion { get; init; } = CurrentSchemaVersion;
+    public CostingConstructionKind ConstructionKind { get; init; } =
+        CostingConstructionKind.SingleInsulatedCore;
     public Guid ProjectId { get; init; }
     public Guid RevisionId { get; init; }
     public int RevisionNumber { get; init; } = 1;
@@ -98,6 +100,8 @@ public sealed record SingleCoreProjectDocument
     public string QuoteTermsAndConditions { get; init; } = "";
     public IReadOnlyList<string> RuleVersions { get; init; } = [];
     public SingleCoreCalculatedResultSnapshot? CalculatedResult { get; init; }
+    public DualInsulationProjectPayload? DualInsulation { get; init; }
+    public DualInsulationCalculatedResultSnapshot? DualCalculatedResult { get; init; }
 
     public bool IsSupportedSchema =>
         SchemaVersion is >= OldestSupportedSchemaVersion and
@@ -121,6 +125,9 @@ public sealed record SingleCoreProjectDocument
         return this with
         {
             SchemaVersion = CurrentSchemaVersion,
+            ConstructionKind = SchemaVersion < 3
+                ? CostingConstructionKind.SingleInsulatedCore
+                : ConstructionKind,
             ProjectId = ProjectId == Guid.Empty ? Guid.NewGuid() : ProjectId,
             RevisionId = RevisionId == Guid.Empty ? Guid.NewGuid() : RevisionId,
             RevisionNumber = Math.Max(1, RevisionNumber),

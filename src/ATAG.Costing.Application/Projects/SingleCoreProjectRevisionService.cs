@@ -40,8 +40,18 @@ public sealed class SingleCoreProjectRevisionService
                 "This revision is already approved.");
         }
 
-        if (normalized.CalculatedResult is null ||
-            normalized.CalculatedResult.Trace.Count == 0)
+        var hasApprovalEvidence = normalized.ConstructionKind switch
+        {
+            CostingConstructionKind.SingleInsulatedCore =>
+                normalized.CalculatedResult is not null &&
+                normalized.CalculatedResult.Trace.Count > 0,
+            CostingConstructionKind.DualInsulation =>
+                normalized.DualInsulation is not null &&
+                normalized.DualCalculatedResult is not null &&
+                normalized.DualCalculatedResult.Trace.Count > 0,
+            _ => false,
+        };
+        if (!hasApprovalEvidence)
         {
             throw new InvalidOperationException(
                 "A valid calculated result and trace are required before approval.");

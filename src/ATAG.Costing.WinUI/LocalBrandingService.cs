@@ -1,4 +1,5 @@
 using System.Security;
+using ATAG.Costing.Application.Branding;
 using Microsoft.Win32;
 
 namespace ATAG.Costing.WinUI;
@@ -10,7 +11,6 @@ namespace ATAG.Costing.WinUI;
 /// </summary>
 internal static class LocalBrandingService
 {
-    private const string OrganisationDomain = "@atagcables.com";
     private const string OneDriveAccountsKey =
         @"Software\Microsoft\OneDrive\Accounts";
 
@@ -26,24 +26,20 @@ internal static class LocalBrandingService
                 return false;
             }
 
+            var registrations = new List<OneDriveAccountRegistration>();
             foreach (var accountName in accounts.GetSubKeyNames())
             {
-                if (!accountName.StartsWith(
-                        "Business",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
                 using var account = accounts.OpenSubKey(
                     accountName,
                     writable: false);
-                if (IsOrganisationEmail(account?.GetValue("UserEmail")) ||
-                    IsOrganisationEmail(account?.GetValue("Email")))
-                {
-                    return true;
-                }
+                registrations.Add(new OneDriveAccountRegistration(
+                    accountName,
+                    account?.GetValue("UserEmail") as string,
+                    account?.GetValue("Email") as string));
             }
+
+            return OrganisationBrandingPolicy.ShouldUseAtagBranding(
+                registrations);
         }
         catch (IOException)
         {
@@ -57,13 +53,5 @@ internal static class LocalBrandingService
         {
             return false;
         }
-
-        return false;
     }
-
-    private static bool IsOrganisationEmail(object? value) =>
-        value is string email &&
-        email.Trim().EndsWith(
-            OrganisationDomain,
-            StringComparison.OrdinalIgnoreCase);
 }

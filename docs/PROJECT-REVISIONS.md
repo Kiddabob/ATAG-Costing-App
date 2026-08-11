@@ -1,10 +1,12 @@
-# Single-core projects and revisions
+# Costing projects and revisions
 
 ## Purpose
 
-The single-core `.atagcosting` format is a portable project-revision document.
-Schema version 2 stores both the editable costing inputs and the exact result
-evidence required to reproduce an approved revision.
+The `.atagcosting` format is a portable project-revision document. Schema
+version 3 adds an explicit construction discriminator plus dual-insulation
+inputs and result evidence while retaining the schema-v1/v2 single-core
+reader. Approved revisions store the exact evidence required to reproduce what
+was reviewed.
 
 Business files are rooted only in the folder selected during storage setup. The
 app does not substitute Documents, local application data, or another folder if
@@ -57,7 +59,23 @@ quotation, and contract-review inputs.
 
 ## Stored approval evidence
 
-Schema version 2 adds:
+Schema version 2 added the single-core revision identity, lifecycle, result and
+trace evidence. Schema version 3 retains those fields unchanged and adds:
+
+- `SingleInsulatedCore` or `DualInsulation` construction kind;
+- a locked conductor reference and two locked compound/masterbatch layers;
+- explicit finished quote length, core/first-layer start-up, allowance, risk,
+  markup, and comparison-margin inputs;
+- first-layer production length as finished plus start-up and second-layer
+  production length as finished-only;
+- two independent extrusion line profiles, manual overrides, setup times,
+  operator counts, and rates;
+- ordered Tape, Chalk, Foil, Braid, Lapscreen, and Drain wire selections, even
+  though module-specific material formulas remain staged;
+- dual material, both extrusion, labour, commercial, and complete recursive
+  trace evidence.
+
+The common revision evidence includes:
 
 - project identity, revision identity, and revision number;
 - working/approved state;
@@ -71,10 +89,10 @@ Each saved calculation step retains its identifier, label, business meaning,
 expression, substituted expression, raw value, displayed value, unit, rounding
 rule, warning, rule version, and recursive input steps.
 
-When an approved revision opens, the WinUI view model uses the stored result and
-trace rather than silently recalculating it with newer rules. Working copies are
-recalculated from their locked saved material values and current shared domain
-rules.
+When an approved revision opens, the matching WinUI view model uses the stored
+result and trace rather than silently recalculating it with newer rules.
+Working copies are recalculated from their locked saved material values and
+current shared domain rules.
 
 ## Central-data and offline boundary
 
@@ -90,10 +108,11 @@ and schema are available for validation.
 
 ## Legacy compatibility
 
-Schema version 1 input-only documents remain readable. On load they receive a
-project identity, revision identity, working-copy state, and timestamps derived
-from their saved time. Their outputs are recalculated because no approved
-result snapshot exists. The upgraded identity is persisted on the next save.
+Schema versions 1 and 2 remain readable as single insulated core documents.
+Schema-v1 input-only files receive project/revision identity, working-copy
+state, and timestamps derived from their saved time. Their outputs are
+recalculated because no approved result snapshot exists. The schema-v3
+construction discriminator is persisted on the next save.
 
 The indexed Open dialog can also browse an older portable `.atagcosting` file.
 The file is opened without changing it; **Save costing** adds it to the current
@@ -103,12 +122,16 @@ selected business-data folder and index.
 
 ```text
 src/ATAG.Costing.Application/Projects/SingleCoreProjectDocument.cs
+src/ATAG.Costing.Application/Projects/DualInsulationProjectPayload.cs
+src/ATAG.Costing.Application/Costing/DualInsulationCostingApplicationService.cs
+src/ATAG.Costing.Application/Costing/DualInsulationWorkspaceState.cs
 src/ATAG.Costing.Application/Projects/SingleCoreCalculatedResultSnapshot.cs
 src/ATAG.Costing.Application/Projects/SingleCoreProjectRevisionService.cs
 src/ATAG.Costing.Application/Projects/ISingleCoreProjectRepository.cs
 src/ATAG.Costing.Infrastructure/Projects/JsonSingleCoreProjectDocumentStore.cs
 src/ATAG.Costing.Infrastructure/Projects/JsonSingleCoreProjectRepository.cs
 src/ATAG.Costing.WinUI/ViewModels/SingleCoreCostingViewModel.cs
+src/ATAG.Costing.WinUI/ViewModels/DualInsulationCostingViewModel.cs
 src/ATAG.Costing.WinUI/MainPage.xaml.cs
 tests/ATAG.Costing.Application.Tests/Projects/SingleCoreProjectDocumentTests.cs
 ```

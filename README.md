@@ -49,7 +49,7 @@ remain outside the replaceable application directory.
 
 ## Current scope
 
-Version 0.1.0 includes:
+Version 0.2.0 includes:
 
 - a working single insulated core (COR) costing flow;
 - conductor, compound, masterbatch, production-labour, risk, and markup
@@ -59,11 +59,17 @@ Version 0.1.0 includes:
 - costing revisions, customer/core naming, contract review, and A4 quotation
   PDF generation;
 - an opt-in scaled cross-section and side-profile preview;
-- tested dual-insulation calculation and construction-planning engines.
+- a complete guided dual-insulation costing editor with two material layers,
+  separate production scopes and profiles, schema-v3 revisions, commercial
+  comparisons, and a full calculation trace;
+- automatic ATAG Design shell branding when the current Windows user has an
+  `atagcables.com` OneDrive business account.
 
-The complete guided dual-insulation editor is the next development slice.
-Flat and D-shape constructions remain future modules. Real ATAG schema and
-business acceptance are still required before production rollout.
+Dual-specific quotation and contract-review documents, Flat construction, and
+D-shape construction remain future modules. Real ATAG schema and business
+acceptance are still required before production rollout. The OneDrive account
+address used for conditional branding is checked only on the device and is not
+retained, displayed, logged, or sent.
 
 See [docs/SCOPE.md](docs/SCOPE.md) for the migration boundary and planned work.
 

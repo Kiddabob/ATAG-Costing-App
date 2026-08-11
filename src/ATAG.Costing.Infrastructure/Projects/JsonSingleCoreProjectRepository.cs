@@ -210,15 +210,27 @@ public sealed class JsonSingleCoreProjectRepository :
             document.RevisionId,
             document.RevisionNumber,
             document.RevisionState,
-            string.IsNullOrWhiteSpace(
-                document.CalculatedResult?.EffectiveCoreName)
-                ? "Single core costing"
-                : document.CalculatedResult.EffectiveCoreName,
+            ProjectName(document),
             document.CustomerName,
             document.CreatedAtUtc,
             document.UpdatedAtUtc,
             document.ApprovedAtUtc,
             relativePath);
+
+    private static string ProjectName(SingleCoreProjectDocument document)
+    {
+        if (document.ConstructionKind == CostingConstructionKind.DualInsulation)
+        {
+            return string.IsNullOrWhiteSpace(document.DualInsulation?.ProjectName)
+                ? "Dual-insulation costing"
+                : document.DualInsulation.ProjectName;
+        }
+
+        return string.IsNullOrWhiteSpace(
+                document.CalculatedResult?.EffectiveCoreName)
+            ? "Single core costing"
+            : document.CalculatedResult.EffectiveCoreName;
+    }
 
     private sealed record ProjectIndexFile(
         int SchemaVersion,
