@@ -130,7 +130,7 @@ try {
     )
     $blockedNames = @(
         'central-data-state.json', 'central-data-snapshot.json', 'settings.json',
-        'window-placement.json'
+        'window-placement.json', 'production-speed-library.json'
     )
     $unsafeFiles = Get-ChildItem -LiteralPath $publishDir -Recurse -File | Where-Object {
         $blockedExtensions -contains $_.Extension.ToLowerInvariant() -or

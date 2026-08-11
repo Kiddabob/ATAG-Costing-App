@@ -204,6 +204,12 @@ Progress as of 29 July 2026:
 - production time and labour are implemented from the workbook's core-OD
   line-speed bands, with visible manual-speed, setup-time, operator-count, and
   hourly-rate inputs and a complete calculation trace;
+- version 0.3.0 provides a private Production Speed Library with
+  user-created production lines, per-line OD speed bands, measured cable-run
+  evidence, transparent speed/runtime estimates, and explicit application to
+  COR or either dual extrusion. Clean installations contain no production rows;
+  the accepted general insulation profile is added only when the user requests
+  the editable starter profile;
 - sequential risk then markup is the recommended selling-price result;
   additive risk plus markup and target gross margin are separately labelled
   comparison methods;

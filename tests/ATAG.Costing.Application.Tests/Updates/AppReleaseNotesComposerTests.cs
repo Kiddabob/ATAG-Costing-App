@@ -75,6 +75,21 @@ public sealed class AppReleaseNotesComposerTests
         Assert.Equal("Target package notes.", notes);
     }
 
+    [Fact]
+    public void Compose_RemovesTheDuplicateMarkdownVersionHeading()
+    {
+        var notes = AppReleaseNotesComposer.Compose(
+            "1.0.0",
+            "1.1.0",
+            AppUpdateChannel.Stable,
+            [Release("v1.1.0", "## 1.1.0 - 2026-08-11\n\n- First change.")],
+            "Fallback.");
+
+        Assert.Contains("Version 1.1.0", notes);
+        Assert.Contains("- First change.", notes);
+        Assert.DoesNotContain("## 1.1.0", notes);
+    }
+
     private static AppReleaseNotesEntry Release(
         string version,
         string notes,

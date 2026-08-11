@@ -2584,3 +2584,109 @@ The installer remains unsigned, so Unknown publisher/SmartScreen is still the
 only known distribution caveat. Continue product development from V1.3c dual
 quotation and contract-review payload/reporting. Do not recreate the solution,
 replace the accepted tags/assets, or hard-code a removable-drive letter.
+
+## 2026-08-11 local Production Speed Library and changelog-reader slice
+
+Development continued from accepted public v0.2.3. This slice is intentionally
+local and uncommitted: it has not been pushed, packaged, tagged, or published,
+and v0.2.3 remains the latest accepted public release.
+
+The Line Speed Library goal is now represented directly in the application:
+
+- `Production speeds` is a first-class navigation destination;
+- each user can create any number of production lines, and every line owns its
+  ordered maximum-finished-OD speed bands, above-maximum speed, and known cable
+  runs;
+- known runs record process, core/finished ODs and tolerances, capstan and
+  extruder machine-dial values, measured speed or produced length plus running
+  minutes, and notes;
+- capstan/extruder settings are calibration evidence and are never silently
+  treated as metres per hour;
+- estimates use up to three sufficiently similar measured runs with visible
+  source/confidence/evidence, then fall back to the selected line's OD bands;
+- the estimator refuses to invent a fallback speed when no usable measured run
+  or OD band exists;
+- the current COR, dual first extrusion, or dual second extrusion geometry can
+  be copied into the estimator. The first dual scope includes its internal core
+  start-up length; the second uses finished quote length only;
+- an accepted estimate is applied only as a visible manual speed to COR or the
+  chosen dual extrusion, so production time and labour continue through the
+  existing traceable costing rules.
+
+Clean installations now start with no production lines, observations, machine
+settings, or estimator example values. The known general insulation rule
+(1.00/15,000; 1.20/13,000; 2.00/8,000; 2.50/6,000; above 700 m/h) is available
+only through a clearly labelled, confirmed **Add general starter profile**
+action and remains editable. Runtime data is stored at the current user's
+LocalAppData `production-speed-library.json`; that filename is Git-ignored and
+the release script now rejects it if it ever enters a package.
+
+The cumulative update notes were also refined:
+
+- duplicate GitHub markdown version headings are removed by the Application
+  composer;
+- every release is displayed as a separate styled card;
+- Settings and the automatic update prompt use a bounded independent changelog
+  scroller, while `Download and restart` / `Later` stay outside the scroller;
+- **Open full screen** opens an owned, resizable WinUI reader on the main app's
+  display. It stays above Costing App but is not topmost over unrelated apps,
+  and exposes an explicit exit-full-screen control.
+
+Verification on this PC:
+
+- x64 Debug solution build: 0 warnings, 0 errors;
+- complete suite: 137 passed, 2 approval-gated workbook golden fixtures
+  intentionally skipped, 0 failed;
+- x64 public-review WinUI build: 0 warnings, 0 errors;
+- `git diff --check` found no whitespace errors (only the existing exFAT
+  CRLF-conversion notices);
+- maintained source contains no fixed drive letter or machine-local database
+  path introduced by this slice;
+- the Windows Computer Use helper failed before it could enumerate windows with
+  `EPERM` on the Codex application folder, including after its required reset
+  and retry. Live visual acceptance of the two new views therefore remains
+  pending; no guessed window or screen coordinate was used.
+
+On continuation, preserve this dirty working tree, re-run build/tests, and
+visually inspect `Production speeds`, the bounded Settings changelog, and the
+owned full-screen changelog reader when Windows control is available. Do not
+publish until the user accepts that UI. The next Line Speed Library expansion
+should build on this model with real user-entered per-line bands and measured
+runs; do not seed private production values or reinterpret machine dial values
+as speeds.
+
+## 2026-08-11 version 0.3.0 release candidate
+
+The user authorised publishing the Production Speed Library and improved
+cumulative changelog as the next public version, using their own application
+screenshots for visual feedback while the Windows control bridge remains
+unavailable. Version `0.3.0` was selected because this is a new application
+module rather than a patch-only correction.
+
+Release preparation completed in the working tree:
+
+- `Directory.Build.props`, `CHANGELOG.md`, the public README, installation
+  guide, scope document, and Production Speed Library guide describe 0.3.0;
+- the normal x64 Debug solution build passed with zero warnings and errors;
+- the x64 interface-only/public-review build passed with zero warnings and
+  errors;
+- the authoritative Release suite passed 137 tests, with the same 2
+  approval-gated workbook fixtures intentionally skipped and no failures;
+- `tools/Build-Release.ps1` completed the self-contained publish, privacy audit,
+  Velopack 1.2.0 package, portable ZIP, one-file installer, feeds, and checksum
+  manifest;
+- all generated manifest hashes match their files. The local installer is
+  100,853,209 bytes with SHA-256
+  `b4c3b8c49d2e3aacd4e9b6578ca62ef5137419172ad6397dcd1d70834670e3ac`;
+- both generated archives contain no database/workbook/saved-costing files,
+  retained settings/data, production-speed library, environment file, CSV, or
+  debug symbols;
+- the publish contains neither the current workspace path nor current-user
+  path, and `production-speed-library.json` is not tracked;
+- the release remains unsigned, so Windows may still show Unknown publisher or
+  SmartScreen.
+
+This section records the local candidate only. The source commit, public push,
+GitHub Actions release, final public asset hashes, and anonymous download
+verification must be appended after they actually succeed. Do not describe
+0.3.0 as public until that evidence exists.

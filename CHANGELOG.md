@@ -1,5 +1,26 @@
 # Costing App release notes
 
+## 0.3.0 - 2026-08-11
+
+- Adds a private Production Speed Library where each user can define production
+  lines, finished-OD speed bands, and known cable runs with their measured
+  speeds, dimensions, tolerances, and machine dial settings.
+- Estimates production speed from up to three sufficiently similar measured
+  runs, then falls back to the selected line's explicit OD bands without
+  inventing a value when no usable evidence exists.
+- Lets users copy geometry from COR or either dual-insulation extrusion and
+  explicitly apply the accepted estimate as that costing's visible manual line
+  speed.
+- Keeps clean installations free of production data. The general insulation
+  bands are added only through a confirmed, editable starter-profile action;
+  all user-entered line data remains in LocalAppData and outside Git and update
+  packages.
+- Presents cumulative update notes as compact per-version cards inside an
+  independent scroll area, keeping update actions visible even when several
+  releases have been missed.
+- Adds an owned, resizable full-screen changelog reader on the Costing App
+  display and removes duplicate markdown version headings from release notes.
+
 ## 0.2.3 - 2026-08-11
 
 - Embeds the transparent square ATAG icon in the Windows executable so the

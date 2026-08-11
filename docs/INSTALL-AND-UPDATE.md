@@ -19,8 +19,9 @@ It must not contain:
 
 - Access, SQL Server, workbook, backup, or environment files;
 - retained central-data JSON or database connection details;
-- settings, window placement, customer/operator/material rows, saved costings,
-  quotation PDFs, or other user documents;
+- settings, window placement, production-speed-library rows and machine
+  settings, customer/operator/material rows, saved costings, quotation PDFs,
+  or other user documents;
 - developer symbols or machine-local source paths.
 
 First run asks the user to choose business-file storage and import the five LIVE
@@ -34,6 +35,10 @@ update, repair, and uninstall unless the user deliberately removes them.
 Settings shows the installed version, automatic-check toggle, Stable/Beta
 choice, the notes for every applicable release after the installed version,
 download progress, and explicit download/restart action.
+The cumulative changelog is presented as separate version cards inside its own
+bounded scroll area, so long notes cannot move the update buttons off screen.
+It can also open in an owned, resizable full-screen WinUI reader on the same
+display as the main app.
 The client uses the public GitHub repository without a token, so users do not
 need a GitHub account. Stable ignores GitHub pre-releases; Beta may also offer
 them. Package size and SHA-256 are supplied by the Velopack release feed and the

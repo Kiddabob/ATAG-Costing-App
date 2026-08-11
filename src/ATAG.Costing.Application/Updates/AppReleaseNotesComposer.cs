@@ -62,11 +62,59 @@ public static class AppReleaseNotesComposer
         var date = release.PublishedAt.ToLocalTime().ToString(
             "dd MMM yyyy",
             CultureInfo.GetCultureInfo("en-GB"));
+        var normalizedVersion = NormalizeVersion(release.Version);
         var notes = string.IsNullOrWhiteSpace(release.Notes)
             ? "No additional notes were supplied for this version."
-            : release.Notes.Trim();
-        return $"Version {NormalizeVersion(release.Version)} · {date}" +
+            : RemoveRedundantVersionHeading(
+                release.Notes.Trim(),
+                normalizedVersion);
+        return $"Version {normalizedVersion} · {date}" +
                Environment.NewLine + notes;
+    }
+
+    private static string RemoveRedundantVersionHeading(
+        string notes,
+        string version)
+    {
+        var lines = notes
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n')
+            .ToList();
+        var firstContent = lines.FindIndex(line =>
+            !string.IsNullOrWhiteSpace(line));
+        if (firstContent < 0)
+        {
+            return "No additional notes were supplied for this version.";
+        }
+
+        var firstLine = lines[firstContent].Trim();
+        if (!firstLine.StartsWith('#'))
+        {
+            return notes;
+        }
+
+        var heading = firstLine.TrimStart('#').Trim();
+        var isSameVersion =
+            heading.Equals(version, StringComparison.OrdinalIgnoreCase) ||
+            heading.StartsWith(version + " ", StringComparison.OrdinalIgnoreCase) ||
+            heading.Equals("v" + version, StringComparison.OrdinalIgnoreCase) ||
+            heading.StartsWith("v" + version + " ", StringComparison.OrdinalIgnoreCase);
+        if (!isSameVersion)
+        {
+            return notes;
+        }
+
+        lines.RemoveAt(firstContent);
+        while (firstContent < lines.Count &&
+               string.IsNullOrWhiteSpace(lines[firstContent]))
+        {
+            lines.RemoveAt(firstContent);
+        }
+
+        var cleaned = string.Join(Environment.NewLine, lines).Trim();
+        return string.IsNullOrWhiteSpace(cleaned)
+            ? "No additional notes were supplied for this version."
+            : cleaned;
     }
 
     private static string NormalizeVersion(string version) =>

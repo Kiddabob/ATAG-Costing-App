@@ -1,5 +1,6 @@
 using ATAG.Costing.Application.CentralData;
 using ATAG.Costing.Application.Projects;
+using ATAG.Costing.Application.Production;
 using ATAG.Costing.Application.Updates;
 using ATAG.Costing.Application.Visualisation;
 using ATAG.Costing.Domain.Conductors;
@@ -7,6 +8,7 @@ using ATAG.Costing.Infrastructure.CentralData;
 using ATAG.Costing.Infrastructure.Currency;
 using ATAG.Costing.Infrastructure.Preferences;
 using ATAG.Costing.Infrastructure.Projects;
+using ATAG.Costing.Infrastructure.Production;
 using ATAG.Costing.Reporting.Quotations;
 using ATAG.Costing.WinUI.ViewModels;
 using Microsoft.UI.Xaml;
@@ -62,12 +64,14 @@ public sealed partial class MainPage : Page
     private double _previewResizeStartWidth = 600d;
     private double _lastPreviewRightDockWidth = 600d;
     private AppUpdateRelease? _availableAppUpdate;
+    private UpdateReleaseNotesWindow? _updateReleaseNotesWindow;
     private bool _isAppUpdateOperationActive;
     private bool _isSynchronizingNavigation;
 
     public MainPageViewModel ViewModel { get; }
     public SingleCoreCostingViewModel CostingViewModel { get; }
     public DualInsulationCostingViewModel DualCostingViewModel { get; }
+    public ProductionSpeedLibraryViewModel ProductionSpeedViewModel { get; }
 
     public MainPage()
     {
@@ -106,6 +110,13 @@ public sealed partial class MainPage : Page
             navigator => navigator.Kind);
         DualCostingViewModel = new DualInsulationCostingViewModel(
             _centralDataService);
+        ProductionSpeedViewModel = AppRuntimeMode.IsPublicReview
+            ? new ProductionSpeedLibraryViewModel(
+                new InMemoryProductionSpeedLibraryStore(
+                    ProductionSpeedLibraryDefaults.Empty()),
+                isEditingEnabled: false)
+            : new ProductionSpeedLibraryViewModel(
+                new JsonProductionSpeedLibraryStore());
         InitializeComponent();
         InitializeAppUpdateDisplay();
         AppNavigation.PaneTitle = AppRuntimeMode.IsOrganisationBranded
@@ -125,6 +136,7 @@ public sealed partial class MainPage : Page
         DualConstructionView.DataContext = DualCostingViewModel;
         ContractReviewView.DataContext = CostingViewModel;
         MaterialDataView.DataContext = CostingViewModel;
+        ProductionSpeedDataView.DataContext = ProductionSpeedViewModel;
         if (AppRuntimeMode.IsPublicReview)
         {
             ConfigurePublicReviewMode();
@@ -230,10 +242,9 @@ public sealed partial class MainPage : Page
             AppUpdateInfoBar.Message =
                 $"Download size: {size}. The package SHA-256 is checked before installation.";
             AppUpdateInfoBar.Severity = InfoBarSeverity.Success;
-            AppUpdateReleaseNotesText.Text =
-                string.IsNullOrWhiteSpace(_availableAppUpdate.ReleaseNotes)
-                    ? "No release notes were supplied for this version."
-                    : _availableAppUpdate.ReleaseNotes.Trim();
+            AppUpdateReleaseNotesContent.Content =
+                UpdateReleaseNotesPresenter.Create(
+                    ReleaseNotesForAvailableUpdate());
             AvailableUpdatePanel.Visibility = Visibility.Visible;
             shouldShowAutomaticPrompt = isAutomatic;
         }
@@ -291,14 +302,19 @@ public sealed partial class MainPage : Page
             Text = "Changes since your installed version",
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
         });
+        var fullScreenButton = new Button
+        {
+            Content = "Open changelog full screen",
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+        fullScreenButton.Click += (_, _) => OpenUpdateReleaseNotesFullScreen();
+        content.Children.Add(fullScreenButton);
         content.Children.Add(new ScrollViewer
         {
             MaxHeight = 320,
-            Content = new TextBlock
-            {
-                Text = releaseNotes,
-                TextWrapping = TextWrapping.Wrap,
-            },
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            Content = UpdateReleaseNotesPresenter.Create(releaseNotes),
         });
 
         var dialog = new ContentDialog
@@ -353,6 +369,44 @@ public sealed partial class MainPage : Page
 
         await InstallAvailableUpdateAsync();
     }
+
+    private void OpenUpdateReleaseNotesFullscreen_Click(
+        object sender,
+        RoutedEventArgs e) =>
+        OpenUpdateReleaseNotesFullScreen();
+
+    private void OpenUpdateReleaseNotesFullScreen()
+    {
+        if (_availableAppUpdate is null)
+        {
+            return;
+        }
+
+        if (_updateReleaseNotesWindow is not null)
+        {
+            _updateReleaseNotesWindow.ShowFullScreen();
+            return;
+        }
+
+        var window = new UpdateReleaseNotesWindow(
+            _availableAppUpdate.Version,
+            ReleaseNotesForAvailableUpdate(),
+            ActualTheme);
+        window.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(_updateReleaseNotesWindow, window))
+            {
+                _updateReleaseNotesWindow = null;
+            }
+        };
+        _updateReleaseNotesWindow = window;
+        window.ShowFullScreen();
+    }
+
+    private string ReleaseNotesForAvailableUpdate() =>
+        string.IsNullOrWhiteSpace(_availableAppUpdate?.ReleaseNotes)
+            ? "No release notes were supplied for this version."
+            : _availableAppUpdate.ReleaseNotes.Trim();
 
     private async Task InstallAvailableUpdateAsync()
     {
@@ -522,6 +576,7 @@ public sealed partial class MainPage : Page
         CentralDataConnectionInfoBar.Message =
             "This edition uses an empty, in-memory table set. It does not read retained organisation rows, saved database paths, or app preferences from this PC.";
         CentralDataConnectionInfoBar.Severity = InfoBarSeverity.Informational;
+        ProductionSpeedPublicReviewInfoBar.IsOpen = true;
     }
 
     private static void ClearPublicReviewInputDefaults(
@@ -2700,6 +2755,7 @@ public sealed partial class MainPage : Page
         CostingWorkspaceView.Visibility = Visibility.Collapsed;
         ContractReviewView.Visibility = Visibility.Collapsed;
         MaterialDataView.Visibility = Visibility.Collapsed;
+        ProductionSpeedDataView.Visibility = Visibility.Collapsed;
 
         switch (section)
         {
@@ -2755,6 +2811,13 @@ public sealed partial class MainPage : Page
                     "Live Data",
                     "Use retained last-known data and map each material table from Microsoft Access or SQL Server.");
                 MaterialDataView.Visibility = Visibility.Visible;
+                break;
+
+            case "production-speeds":
+                ViewModel.SetSection(
+                    "Production speeds",
+                    "Maintain line-specific OD rules and known machine settings, then estimate quote running time.");
+                ProductionSpeedDataView.Visibility = Visibility.Visible;
                 break;
 
             case "braid":

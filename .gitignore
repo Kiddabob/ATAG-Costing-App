@@ -13,6 +13,7 @@ BundleArtifacts/
 **/settings.json
 **/window-placement.json
 **/exchange-rates*.json
+**/production-speed-library.json
 *.atagcosting
 
 # Business databases, backups and machine-local secrets
