@@ -2760,3 +2760,43 @@ current-user test opt-in remains enabled, so the normal shortcut offers ATAG or
 Blank for each launch; fresh installs and all other Windows profiles remain on
 the normal automatic path. The installer is still unsigned and may show
 Unknown publisher or SmartScreen.
+
+## 2026-08-11 public v0.3.1 long-logo spacing update accepted
+
+The user requested a deliberately small second update to exercise the new
+cumulative changelog UI. Version 0.3.1 trims only the transparent frame around
+the approved light/dark ATAG Design long logos and reduces the three WinUI image
+margins in the navigation pane, Home banner, and Settings from 8/4/6 to 2 px.
+Both source images changed from 870 x 293 to 828 x 251 with exactly 4 transparent
+pixels on every edge. A direct pixel comparison before replacement proved every
+visible artwork pixel and colour unchanged. The final source hashes are:
+
+- light-text logo:
+  `eb6e4d045ae530f37a3a8c3ffb1ea9b9bb1eb7015c9fac863ad8d1ea0c2ba82b`;
+- dark-text logo:
+  `117cbe4796af37df4012a0c87aa9cb180cc227401305cedac24d6f530f4e444b`.
+
+Normal and interface-only x64 Debug builds passed with zero warnings/errors.
+The authoritative Release gate passed 137 tests, with 2 approval-gated workbook
+fixtures intentionally skipped and 0 failures. Local package audits found zero
+blocked private entries, no current workspace/user path, and exact checksum-
+manifest matches.
+
+Commit/tag target `af714d72327c40f33b22d8d8eb1ef40f48aa7cef` was pushed and
+GitHub Actions run `31520231191` completed successfully. Stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.3.1`.
+It is latest, neither draft nor prerelease, and contains all seven assets. The
+public installer is 100,846,385 bytes with SHA-256
+`e4cb494a0770bc211ef1a670eb6b351e4cce15978b3dedc416bfc9008a523f0e`.
+The public update package is 96,253,233 bytes with SHA-256
+`d0fc7212e3ca9d1b333c7eee8ecef865498e3b42d274ed6f135bf0d0583e41ba`.
+Anonymous downloads matched the public checksum manifest and GitHub digests;
+the public Velopack feed names exact version 0.3.1, size, and hash. The public
+nupkg contains 561 entries and zero blocked private-data entries.
+
+The Computer Use plugin was initialised exactly as documented and retried after
+a kernel reset, but both attempts failed before window enumeration with `EPERM`
+on the Codex application folder. Do not infer a WinUI screenshot acceptance
+from that failure. The user is the final appearance check through the installed
+v0.3.0-to-v0.3.1 update and can confirm that the cumulative 0.3.1 and 0.3.0
+cards use the new changelog style. The installer remains unsigned.
