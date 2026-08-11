@@ -67,6 +67,25 @@ try {
         -o $publishDir
     if ($LASTEXITCODE -ne 0) { throw 'Release publish failed.' }
 
+    $requiredPublishedAssets = @(
+        'Assets\AppIcon.ico',
+        'Assets\Organisation\ATAGDesignLongLogoDarkText.png',
+        'Assets\Organisation\ATAGDesignLongLogoLightText.png'
+    )
+    foreach ($relativeAssetPath in $requiredPublishedAssets) {
+        $sourceAsset = Join-Path (Split-Path -Parent $project) $relativeAssetPath
+        $publishedAsset = Join-Path $publishDir $relativeAssetPath
+        if (-not (Test-Path -LiteralPath $publishedAsset -PathType Leaf)) {
+            throw "Release publish is missing required app asset: $relativeAssetPath"
+        }
+
+        $sourceHash = (Get-FileHash -LiteralPath $sourceAsset -Algorithm SHA256).Hash
+        $publishedHash = (Get-FileHash -LiteralPath $publishedAsset -Algorithm SHA256).Hash
+        if (-not $sourceHash.Equals($publishedHash, [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Published app asset does not match its source: $relativeAssetPath"
+        }
+    }
+
     $blockedExtensions = @(
         '.accdb', '.mdb', '.mdf', '.ldf', '.bak', '.xls', '.xlsx', '.xlsm',
         '.atagcosting', '.pdb'

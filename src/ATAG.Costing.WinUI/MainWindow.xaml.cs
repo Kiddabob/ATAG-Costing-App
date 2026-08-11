@@ -45,7 +45,9 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 
-        AppWindow.SetIcon("Assets/AppIcon.ico");
+        AppWindow.SetIcon(Path.Combine(
+            AppContext.BaseDirectory,
+            AppRuntimeMode.AppIconRelativePath));
 
         RestoreOrSizeWindow();
         AppWindow.Changed += AppWindow_Changed;

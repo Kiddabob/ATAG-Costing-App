@@ -108,10 +108,11 @@ public sealed partial class MainPage : Page
             _centralDataService);
         InitializeComponent();
         InitializeAppUpdateDisplay();
-        AppNavigation.PaneTitle = AppRuntimeMode.ProductName;
+        AppNavigation.PaneTitle = AppRuntimeMode.IsOrganisationBranded
+            ? string.Empty
+            : AppRuntimeMode.ProductName;
         ConfigureOrganisationBranding();
-        ActualThemeChanged += (_, _) =>
-            ApplyOrganisationBrandingImages();
+        ActualThemeChanged += MainPage_ActualThemeChanged;
         ContractReviewPanel.Children.Remove(WorkingCentralDataTablesCard);
         var connectionOptionsIndex =
             LiveDataPanel.Children.IndexOf(CentralDataConnectionOptionsCard);
@@ -138,6 +139,7 @@ public sealed partial class MainPage : Page
     private async void MainPage_Loaded(object sender, RoutedEventArgs e)
     {
         ApplyVisualStyle();
+        await ApplyOrganisationBrandingImagesAsync();
         UpdateFirstRunSetupState();
         if (!AppRuntimeMode.IsPublicReview)
         {
@@ -194,6 +196,7 @@ public sealed partial class MainPage : Page
             return;
         }
 
+        var shouldShowAutomaticPrompt = false;
         _isAppUpdateOperationActive = true;
         CheckForUpdatesButton.IsEnabled = false;
         UpdateChannelComboBox.IsEnabled = false;
@@ -232,6 +235,7 @@ public sealed partial class MainPage : Page
                     ? "No release notes were supplied for this version."
                     : _availableAppUpdate.ReleaseNotes.Trim();
             AvailableUpdatePanel.Visibility = Visibility.Visible;
+            shouldShowAutomaticPrompt = isAutomatic;
         }
         catch (Exception exception)
         {
@@ -250,6 +254,76 @@ public sealed partial class MainPage : Page
             CheckForUpdatesButton.IsEnabled = true;
             UpdateChannelComboBox.IsEnabled = true;
             _isAppUpdateOperationActive = false;
+        }
+
+        if (shouldShowAutomaticPrompt)
+        {
+            await ShowAutomaticUpdatePromptAsync();
+        }
+    }
+
+    private async Task ShowAutomaticUpdatePromptAsync()
+    {
+        if (_availableAppUpdate is null ||
+            _isAppUpdateOperationActive ||
+            XamlRoot is null)
+        {
+            return;
+        }
+
+        var releaseNotes = string.IsNullOrWhiteSpace(
+            _availableAppUpdate.ReleaseNotes)
+                ? "No release notes were supplied for this version."
+                : _availableAppUpdate.ReleaseNotes.Trim();
+        var content = new StackPanel
+        {
+            Spacing = 12,
+        };
+        content.Children.Add(new TextBlock
+        {
+            Text =
+                $"Download size: {FormatFileSize(_availableAppUpdate.DownloadSizeBytes)}. " +
+                "The package SHA-256 is checked before installation.",
+            TextWrapping = TextWrapping.Wrap,
+        });
+        content.Children.Add(new TextBlock
+        {
+            Text = "Changes since your installed version",
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+        });
+        content.Children.Add(new ScrollViewer
+        {
+            MaxHeight = 320,
+            Content = new TextBlock
+            {
+                Text = releaseNotes,
+                TextWrapping = TextWrapping.Wrap,
+            },
+        });
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = $"Costing App {_availableAppUpdate.Version} is available",
+            Content = content,
+            PrimaryButtonText = "Download and restart",
+            CloseButtonText = "Later",
+            DefaultButton = ContentDialogButton.Primary,
+        };
+
+        Program.Log(
+            $"Automatic update prompt shown for version {_availableAppUpdate.Version}.");
+        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+        {
+            await InstallAvailableUpdateAsync();
+        }
+        else
+        {
+            AppUpdateInfoBar.Title = "Update deferred";
+            AppUpdateInfoBar.Message =
+                "The current version will keep working. Check again in Settings when you are ready.";
+            AppUpdateInfoBar.Severity = InfoBarSeverity.Informational;
+            Program.Log("Automatic update prompt deferred.");
         }
     }
 
@@ -273,6 +347,16 @@ public sealed partial class MainPage : Page
             DefaultButton = ContentDialogButton.Primary,
         };
         if (await confirmation.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        await InstallAvailableUpdateAsync();
+    }
+
+    private async Task InstallAvailableUpdateAsync()
+    {
+        if (_isAppUpdateOperationActive || _availableAppUpdate is null)
         {
             return;
         }
@@ -355,7 +439,6 @@ public sealed partial class MainPage : Page
             return;
         }
 
-        ApplyOrganisationBrandingImages();
         OrganisationBrandingPaneHeader.Visibility = Visibility.Visible;
         OrganisationBrandingHomeLogoCard.Visibility = Visibility.Visible;
         OrganisationBrandingSettingsLogoCard.Visibility = Visibility.Visible;
@@ -367,25 +450,52 @@ public sealed partial class MainPage : Page
         Program.Log("Organisation branding: ATAG Design logo enabled.");
     }
 
-    private void ApplyOrganisationBrandingImages()
+    private async void MainPage_ActualThemeChanged(
+        FrameworkElement sender,
+        object args) =>
+        await ApplyOrganisationBrandingImagesAsync();
+
+    private async Task ApplyOrganisationBrandingImagesAsync()
     {
         if (!AppRuntimeMode.IsOrganisationBranded)
         {
             return;
         }
 
-        var adaptiveLogoUri = ActualTheme == ElementTheme.Dark
-            ? AppRuntimeMode.OrganisationLongLogoLightTextAssetUri
-            : AppRuntimeMode.OrganisationLongLogoDarkTextAssetUri;
-        OrganisationBrandingPaneLogo.Source = new BitmapImage(
-            new Uri(adaptiveLogoUri));
-        OrganisationBrandingSettingsLogo.Source = new BitmapImage(
-            new Uri(adaptiveLogoUri));
+        try
+        {
+            var adaptiveLogoPath = ActualTheme == ElementTheme.Dark
+                ? AppRuntimeMode.OrganisationLongLogoLightTextRelativePath
+                : AppRuntimeMode.OrganisationLongLogoDarkTextRelativePath;
+            OrganisationBrandingPaneLogo.Source =
+                await LoadPackagedBitmapAsync(adaptiveLogoPath);
+            OrganisationBrandingSettingsLogo.Source =
+                await LoadPackagedBitmapAsync(adaptiveLogoPath);
 
-        // The Home banner is always navy, independently of the selected app
-        // theme, so its transparent white wordmark is always the clear variant.
-        OrganisationBrandingHomeLogo.Source = new BitmapImage(
-            new Uri(AppRuntimeMode.OrganisationLongLogoLightTextAssetUri));
+            // The Home banner is always navy, independently of the selected
+            // app theme, so its transparent white wordmark is always clear.
+            OrganisationBrandingHomeLogo.Source =
+                await LoadPackagedBitmapAsync(
+                    AppRuntimeMode.OrganisationLongLogoLightTextRelativePath);
+        }
+        catch (Exception exception) when (
+            exception is IOException or UnauthorizedAccessException or
+            FileNotFoundException)
+        {
+            Program.Log(
+                $"Organisation branding logo load failed: {exception.GetType().Name}.");
+        }
+    }
+
+    private static async Task<BitmapImage> LoadPackagedBitmapAsync(
+        string relativePath)
+    {
+        var assetPath = Path.Combine(AppContext.BaseDirectory, relativePath);
+        var asset = await StorageFile.GetFileFromPathAsync(assetPath);
+        using var stream = await asset.OpenReadAsync();
+        var bitmap = new BitmapImage();
+        await bitmap.SetSourceAsync(stream);
+        return bitmap;
     }
 
     private void ConfigurePublicReviewMode()

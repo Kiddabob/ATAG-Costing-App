@@ -4771,7 +4771,7 @@
                                                 Text="Check automatically" />
                                             <TextBlock
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="Checks quietly after the main window has opened. A failed check never blocks the app."
+                                                Text="Checks after the main window opens and shows an install-or-later pop-up when a release is available. A failed check never blocks the app."
                                                 TextWrapping="Wrap" />
                                         </StackPanel>
                                         <ToggleSwitch

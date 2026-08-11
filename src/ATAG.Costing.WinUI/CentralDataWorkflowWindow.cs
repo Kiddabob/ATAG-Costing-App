@@ -30,7 +30,9 @@ internal sealed class CentralDataWorkflowWindow : Window
         bool showPrimaryButton = true)
     {
         Title = $"{AppRuntimeMode.ProductName} - {title}";
-        AppWindow.SetIcon("Assets/AppIcon.ico");
+        AppWindow.SetIcon(Path.Combine(
+            AppContext.BaseDirectory,
+            AppRuntimeMode.AppIconRelativePath));
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {
             presenter.IsResizable = true;

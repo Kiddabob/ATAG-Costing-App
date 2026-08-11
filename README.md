@@ -41,7 +41,9 @@ offline and can be refreshed when the connection returns.
 Installed builds check the public GitHub Releases feed anonymously; users do
 not need a GitHub account. Settings provides Stable/Beta selection, manual and
 automatic checks, cumulative release notes for every missed version, download
-progress, and an explicit **Download and restart** action.
+progress, and an explicit **Download and restart** action. When an automatic
+launch check finds a release, the app presents the same choice in a visible
+install-or-later pop-up instead of requiring the user to open Settings.
 
 Application updates replace application files only. Per-user settings,
 database-link definitions, retained offline tables, and saved business files
@@ -49,7 +51,7 @@ remain outside the replaceable application directory.
 
 ## Current scope
 
-Version 0.2.0 includes:
+Version 0.2.1 includes:
 
 - a working single insulated core (COR) costing flow;
 - conductor, compound, masterbatch, production-labour, risk, and markup
@@ -63,7 +65,9 @@ Version 0.2.0 includes:
   separate production scopes and profiles, schema-v3 revisions, commercial
   comparisons, and a full calculation trace;
 - automatic ATAG Design shell branding when the current Windows user has an
-  `atagcables.com` OneDrive business account.
+  `atagcables.com` OneDrive business account, with both transparent logo
+  variants included in installed/update packages;
+- an on-launch update pop-up when a newer GitHub release is available.
 
 Dual-specific quotation and contract-review documents, Flat construction, and
 D-shape construction remain future modules. Real ATAG schema and business

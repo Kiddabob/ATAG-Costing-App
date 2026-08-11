@@ -1,5 +1,14 @@
 # Costing App release notes
 
+## 0.2.1 - 2026-08-11
+
+- Fixes the conditional ATAG Design long logos in installed builds by carrying
+  both transparent theme variants as explicit publish and update-package files.
+- Shows a clear launch pop-up when an installed build finds a newer release,
+  including its download size and cumulative release notes.
+- Lets the user install directly from that pop-up or defer the update while the
+  existing Settings update controls remain available.
+
 ## 0.2.0 - 2026-08-11
 
 - Adds the complete guided dual-insulation costing editor with separate Copper,
