@@ -86,6 +86,44 @@ try {
         }
     }
 
+    Add-Type -AssemblyName System.Drawing
+    $publishedExecutable = Join-Path $publishDir 'ATAG.Costing.WinUI.exe'
+    $publishedIcon = [System.Drawing.Icon]::ExtractAssociatedIcon(
+        $publishedExecutable)
+    if ($null -eq $publishedIcon) {
+        throw 'The published executable does not contain an application icon.'
+    }
+
+    $sourceIcon = New-Object System.Drawing.Icon -ArgumentList @(
+        $icon,
+        $publishedIcon.Size)
+    $publishedBitmap = $publishedIcon.ToBitmap()
+    $sourceBitmap = $sourceIcon.ToBitmap()
+    try {
+        $embeddedIconMatches =
+            $publishedBitmap.Width -eq $sourceBitmap.Width -and
+            $publishedBitmap.Height -eq $sourceBitmap.Height
+        for ($x = 0; $embeddedIconMatches -and $x -lt $publishedBitmap.Width; $x++) {
+            for ($y = 0; $y -lt $publishedBitmap.Height; $y++) {
+                if ($publishedBitmap.GetPixel($x, $y).ToArgb() -ne
+                    $sourceBitmap.GetPixel($x, $y).ToArgb()) {
+                    $embeddedIconMatches = $false
+                    break
+                }
+            }
+        }
+
+        if (-not $embeddedIconMatches) {
+            throw 'The published executable icon does not match Assets\AppIcon.ico.'
+        }
+    }
+    finally {
+        $sourceBitmap.Dispose()
+        $publishedBitmap.Dispose()
+        $sourceIcon.Dispose()
+        $publishedIcon.Dispose()
+    }
+
     $blockedExtensions = @(
         '.accdb', '.mdb', '.mdf', '.ldf', '.bak', '.xls', '.xlsx', '.xlsm',
         '.atagcosting', '.pdb'

@@ -1,5 +1,16 @@
 # Costing App release notes
 
+## 0.2.3 - 2026-08-11
+
+- Embeds the transparent square ATAG icon in the Windows executable so the
+  taskbar, Desktop shortcut, and Start menu shortcut no longer fall back to the
+  generic application-window icon.
+- Keeps the same icon as a packaged loose asset for WinUI windows and continues
+  to pass it to the Velopack installer/shortcut builder.
+- Adds a release-gate pixel check that rejects a published executable whose
+  embedded icon does not match the supplied square icon.
+- Makes no costing, saved-document schema, database-link, or reporting change.
+
 ## 0.2.2 - 2026-08-11
 
 - Provides the small follow-up release used to verify the v0.2.1 on-launch
