@@ -2521,3 +2521,66 @@ unsigned, so Windows may show Unknown publisher or SmartScreen.
 Continue product development with the recommended V1.3c dual quotation and
 contract-review payload/reporting slice. Do not recreate the solution, replace
 the accepted v0.2.0 tag/assets, or hard-code a USB drive letter.
+
+## 2026-08-11 installed-branding, updater, and taskbar hotfix accepted
+
+This section supersedes v0.2.0 as the latest public/installed state. The user
+reported that the reserved logo spaces were blank in installed v0.2.0. The app
+had correctly detected the ATAG OneDrive account and selected `ATAG Costing App`,
+but the two logo PNGs were not present as loose Velopack application files and
+the dynamic `ms-appx` image load did not resolve them in the Release payload.
+
+The accepted correction was delivered and exercised as three small releases:
+
+- v0.2.1, source/tag `19964613a3cd002034cc3ae80f8ed0fdf63eeb82`,
+  carries both transparent logo variants and `AppIcon.ico` as explicit publish
+  and update-package files, loads the long logos directly from the installed
+  application directory, removes redundant navigation-title overlap, and turns
+  the existing automatic check into a visible install-or-later launch dialog;
+- v0.2.2, source/tag `7a1748cbf114e46646f1afff2163ab2944692276`,
+  is the no-calculation-change follow-up used to exercise that launch dialog
+  against a real newer GitHub release;
+- v0.2.3, source/tag `065537db5eadda8131c19139cbdeef6e08196e44`,
+  embeds the supplied transparent square ICO in the Windows executable. This
+  fixes the generic taskbar/Desktop/Start-menu icon that remained even though
+  the loose ICO and WinUI title-bar icon were correct.
+
+GitHub Actions runs 31479185856, 31480209956, and 31481224931 all completed
+successfully. Public v0.2.3 is the latest stable Release, not a draft or
+prerelease:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.2.3`.
+It contains seven application assets. The installer is 100,822,733 bytes with
+GitHub SHA-256
+`e001011ee2f2921d2cd1319f850304f67aa3cdb53f9d6c214906e536fd0df717`.
+The full update package is 96,229,581 bytes with SHA-256
+`086baedb11a7b2ff99e6988a88f1b4df02e21d9f199c0695b8e9e00ed275993d`.
+The package downloaded by the app has that exact size and hash.
+
+End-to-end acceptance evidence:
+
+- installed v0.2.0 detected v0.2.1 through its existing Settings updater,
+  downloaded the public package, applied it, and restarted as v0.2.1;
+- the updater-installed v0.2.1 displayed both long logos correctly. Its three
+  loose icon/logo files matched their maintained source SHA-256 values;
+- installed v0.2.1 displayed the new v0.2.2 launch dialog on Home with version,
+  download size, cumulative notes, checksum assurance, `Download and restart`,
+  and `Later`; the update completed and restarted as v0.2.2;
+- installed v0.2.2 displayed the same launch dialog for v0.2.3. The dialog's
+  primary action downloaded, verified, installed, and restarted into exact
+  version `0.2.3+065537db5eadda8131c19139cbdeef6e08196e44`;
+- the installed v0.2.3 executable's extracted 32 x 32 icon matches the supplied
+  ICO pixel-for-pixel, and a live desktop capture shows that ATAG icon as the
+  running taskbar button rather than the previous generic window icon;
+- the release gate now rejects a publish that omits or changes the loose ICO or
+  either logo, or whose executable icon differs from the supplied ICO;
+- every final release gate passed 128 tests, with the same 2 approval-gated
+  workbook golden cases intentionally skipped and 0 failures;
+- all four private LocalAppData files remained present through the update chain.
+  `settings.json` stayed byte-identical; central-data state, exchange-rate data,
+  and window placement were legitimately refreshed by the running app during
+  the multi-launch test rather than being supplied by an update package.
+
+The installer remains unsigned, so Unknown publisher/SmartScreen is still the
+only known distribution caveat. Continue product development from V1.3c dual
+quotation and contract-review payload/reporting. Do not recreate the solution,
+replace the accepted tags/assets, or hard-code a removable-drive letter.
