@@ -1,5 +1,13 @@
 # Costing App release notes
 
+## 0.2.2 - 2026-08-11
+
+- Provides the small follow-up release used to verify the v0.2.1 on-launch
+  update pop-up, verified download, install, and automatic restart end to end.
+- Retains the installed transparent ATAG logos, transparent square app icon,
+  package-asset integrity checks, and all v0.2.1 behaviour.
+- Makes no costing, saved-document schema, database-link, or reporting change.
+
 ## 0.2.1 - 2026-08-11
 
 - Fixes the conditional ATAG Design long logos in installed builds by carrying

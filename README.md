@@ -51,7 +51,7 @@ remain outside the replaceable application directory.
 
 ## Current scope
 
-Version 0.2.1 includes:
+Version 0.2.2 includes:
 
 - a working single insulated core (COR) costing flow;
 - conductor, compound, masterbatch, production-labour, risk, and markup
