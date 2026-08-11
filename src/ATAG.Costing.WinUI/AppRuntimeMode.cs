@@ -2,8 +2,10 @@ namespace ATAG.Costing.WinUI;
 
 internal static class AppRuntimeMode
 {
-    public const string OrganisationLogoAssetUri =
-        "ms-appx:///Assets/Organisation/ATAGDesignLogo.png";
+    public const string OrganisationLongLogoDarkTextAssetUri =
+        "ms-appx:///Assets/Organisation/ATAGDesignLongLogoDarkText.png";
+    public const string OrganisationLongLogoLightTextAssetUri =
+        "ms-appx:///Assets/Organisation/ATAGDesignLongLogoLightText.png";
 
 #if ATAG_PUBLIC_REVIEW
     public static bool IsPublicReview { get; } = true;

@@ -101,8 +101,10 @@ versions, and future backup/retention options.
 - The account address is used only for this in-memory decision. It is not saved,
   displayed, logged, or transmitted, and the app does not perform a Microsoft
   sign-in or call OneDrive over the network.
-- When enabled, the packaged ATAG Design wordmark is shown on a white,
-  theme-safe card in the navigation pane, Home welcome panel, and Settings.
+- When enabled, the packaged transparent ATAG Design long logo is shown without
+  an artificial card/background in the navigation pane, Home welcome panel,
+  and Settings. Navigation and Settings switch between dark-text and white-text
+  variants with the app theme; the navy Home banner always uses white text.
   Settings also explains the detected state.
 - When no matching account is registered, the logo controls remain collapsed
   and the standard Costing App branding remains active. Signing into OneDrive

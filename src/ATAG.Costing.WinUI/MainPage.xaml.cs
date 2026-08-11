@@ -110,6 +110,8 @@ public sealed partial class MainPage : Page
         InitializeAppUpdateDisplay();
         AppNavigation.PaneTitle = AppRuntimeMode.ProductName;
         ConfigureOrganisationBranding();
+        ActualThemeChanged += (_, _) =>
+            ApplyOrganisationBrandingImages();
         ContractReviewPanel.Children.Remove(WorkingCentralDataTablesCard);
         var connectionOptionsIndex =
             LiveDataPanel.Children.IndexOf(CentralDataConnectionOptionsCard);
@@ -353,11 +355,7 @@ public sealed partial class MainPage : Page
             return;
         }
 
-        var logo = new BitmapImage(
-            new Uri(AppRuntimeMode.OrganisationLogoAssetUri));
-        OrganisationBrandingPaneLogo.Source = logo;
-        OrganisationBrandingHomeLogo.Source = logo;
-        OrganisationBrandingSettingsLogo.Source = logo;
+        ApplyOrganisationBrandingImages();
         OrganisationBrandingPaneHeader.Visibility = Visibility.Visible;
         OrganisationBrandingHomeLogoCard.Visibility = Visibility.Visible;
         OrganisationBrandingSettingsLogoCard.Visibility = Visibility.Visible;
@@ -367,6 +365,27 @@ public sealed partial class MainPage : Page
             "An @atagcables.com OneDrive business account was detected for " +
             "this Windows user, so the ATAG Design logo is enabled.";
         Program.Log("Organisation branding: ATAG Design logo enabled.");
+    }
+
+    private void ApplyOrganisationBrandingImages()
+    {
+        if (!AppRuntimeMode.IsOrganisationBranded)
+        {
+            return;
+        }
+
+        var adaptiveLogoUri = ActualTheme == ElementTheme.Dark
+            ? AppRuntimeMode.OrganisationLongLogoLightTextAssetUri
+            : AppRuntimeMode.OrganisationLongLogoDarkTextAssetUri;
+        OrganisationBrandingPaneLogo.Source = new BitmapImage(
+            new Uri(adaptiveLogoUri));
+        OrganisationBrandingSettingsLogo.Source = new BitmapImage(
+            new Uri(adaptiveLogoUri));
+
+        // The Home banner is always navy, independently of the selected app
+        // theme, so its transparent white wordmark is always the clear variant.
+        OrganisationBrandingHomeLogo.Source = new BitmapImage(
+            new Uri(AppRuntimeMode.OrganisationLongLogoLightTextAssetUri));
     }
 
     private void ConfigurePublicReviewMode()

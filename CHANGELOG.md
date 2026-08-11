@@ -10,9 +10,10 @@
   labour results, commercial comparisons, and full calculation trace.
 - Persists optional Tape, Chalk, Foil, Braid, Lapscreen, and Drain wire modules
   in physical construction order without inventing unapproved material rules.
-- Enables the ATAG Design wordmark automatically when the current Windows user
-  has an `atagcables.com` OneDrive business account. The address is checked only
-  on the device and is not retained, displayed, logged, or transmitted.
+- Enables transparent light/dark ATAG Design long-logo variants automatically
+  when the current Windows user has an `atagcables.com` OneDrive business
+  account. The address is checked only on the device and is not retained,
+  displayed, logged, or transmitted.
 - Fixes Dual workspace navigation so selecting the construction no longer falls
   back to the single-core page.
 - Keeps dual-specific quotation and contract-review documents staged until

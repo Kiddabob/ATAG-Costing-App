@@ -2377,12 +2377,14 @@ the public 0.1.0 installer.
   exactly in `@atagcables.com` enables ATAG branding;
 - the address exists in memory only while the local registrations are checked.
   It is never stored, displayed, logged, or transmitted;
-- the clean transparent 900 x 300 ATAG Design wordmark is packaged at
-  `Assets/Organisation/ATAGDesignLogo.png`. No source OneDrive/database path or
+- the supplied transparent 870 x 293 ATAG Design long-logo variants are
+  packaged at `Assets/Organisation/ATAGDesignLongLogoDarkText.png` and
+  `ATAGDesignLongLogoLightText.png`. No source OneDrive/database path or
   workspace drive is retained;
-- when enabled, a white theme-safe logo card appears in the expanded navigation
-  pane and Home welcome panel. Settings also shows the logo and explicitly says
-  that ATAG Design branding is active;
+- when enabled, the long logo appears without an artificial card/background in
+  the expanded navigation pane, Home welcome panel, and Settings. Navigation
+  and Settings follow the app's light/dark theme while the navy Home banner
+  always uses the white-text version;
 - when no matching registration exists, all three logo cards remain collapsed,
   Settings explains how to enable them, and standard Costing App branding stays
   active;
@@ -2395,7 +2397,8 @@ Primary files for this slice:
 
 ```text
 src/ATAG.Costing.Application/Branding/OrganisationBrandingPolicy.cs
-src/ATAG.Costing.WinUI/Assets/Organisation/ATAGDesignLogo.png
+src/ATAG.Costing.WinUI/Assets/Organisation/ATAGDesignLongLogoDarkText.png
+src/ATAG.Costing.WinUI/Assets/Organisation/ATAGDesignLongLogoLightText.png
 src/ATAG.Costing.WinUI/LocalBrandingService.cs
 src/ATAG.Costing.WinUI/AppRuntimeMode.cs
 src/ATAG.Costing.WinUI/MainPage.xaml
@@ -2446,19 +2449,26 @@ Release preparation completed before the source commit:
   retained settings/data, environment files, or debug symbols;
 - the publish contains no current workspace/user/old removable-drive string or
   named costing-workbook/database-backup source path;
-- the ATAG Design logo is compiled into `ATAG.Costing.WinUI.pri` under
-  `Assets\Organisation\ATAGDesignLogo.png` rather than shipped from its original
-  workspace location;
-- `Costing-App-Setup.exe` is 100,480,945 bytes with SHA-256
-  `8b2b089143b0fe8e3798de5b6e33ae4e3d315cd5e9724eb8981602d25eb81d10`;
+- the ATAG Design logos are compiled into `ATAG.Costing.WinUI.pri` under their
+  two `Assets\Organisation\ATAGDesignLongLogo*` names rather than shipped from
+  their original workspace locations;
+- the final transparent light/dark-logo candidate was rebuilt from scratch;
+  `Costing-App-Setup.exe` is 100,481,236 bytes with SHA-256
+  `65c09e11cac11c44cff3080c3d50f08fc6547160cd654b99f03c78d6b017389c`;
 - the exact candidate silently upgraded the local installed app from 0.1.0 to
   0.2.0 with exit code 0. All four retained private LocalAppData files existed
   before and after with identical SHA-256 values;
-- the exact installed 0.2.0 executable launched, reported the 0.2.0 product/file
-  version, selected `ATAG Costing App`, enabled the logo branch, activated a
-  native window, and reached Home. The verification process was then closed.
+- the exact final same-version installer updated the installed WinUI PRI to the
+  exact final publish hash while all four private-data hashes remained
+  identical;
+- the exact installed 0.2.0 executable launched, selected `ATAG Costing App`,
+  enabled the logo branch, activated a native window, and reached Home. The
+  verification process was then closed.
 
 The installer remains unsigned, so Unknown publisher/SmartScreen remains the
-only known distribution caveat. At this point Git commit/push and public GitHub
-Release publication/anonymous verification are still pending and must be
-recorded separately after they actually succeed.
+only known distribution caveat. Initial 0.2.0 source commit `32ffd7a` has been
+fast-forwarded to public `main`, but the user supplied final light/dark branding
+assets before release publication. A final branding follow-up commit, public
+GitHub Release, and anonymous verification are still pending and must be
+recorded separately after they actually succeed. No `v0.2.0` tag or Release
+exists at this point.

@@ -213,23 +213,19 @@
             SelectionChanged="AppNavigation_SelectionChanged">
 
             <NavigationView.PaneHeader>
-                <Border
+                <Grid
                     x:Name="OrganisationBrandingPaneHeader"
                     Width="218"
                     Height="76"
                     Margin="0,8,0,12"
-                    Padding="10"
                     HorizontalAlignment="Left"
-                    Background="White"
-                    BorderBrush="#D9DEE3"
-                    BorderThickness="1"
-                    CornerRadius="10"
                     Visibility="Collapsed">
                     <Image
                         x:Name="OrganisationBrandingPaneLogo"
+                        Margin="8"
                         AutomationProperties.Name="ATAG Design logo"
                         Stretch="Uniform" />
-                </Border>
+                </Grid>
             </NavigationView.PaneHeader>
 
             <NavigationView.MenuItems>
@@ -373,23 +369,19 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Border
+                                    <Grid
                                         x:Name="OrganisationBrandingHomeLogoCard"
                                         Width="270"
                                         Height="90"
                                         Margin="0,0,0,18"
-                                        Padding="10"
                                         HorizontalAlignment="Left"
-                                        Background="White"
-                                        BorderBrush="#D9DEE3"
-                                        BorderThickness="1"
-                                        CornerRadius="10"
                                         Visibility="Collapsed">
                                         <Image
                                             x:Name="OrganisationBrandingHomeLogo"
+                                            Margin="4"
                                             AutomationProperties.Name="ATAG Design logo"
                                             Stretch="Uniform" />
-                                    </Border>
+                                    </Grid>
                                     <StackPanel
                                         Grid.Row="1"
                                         MaxWidth="760"
@@ -4950,22 +4942,18 @@
                                             Text="The account address is not retained, displayed, logged, or sent anywhere."
                                             TextWrapping="Wrap" />
                                     </StackPanel>
-                                    <Border
+                                    <Grid
                                         x:Name="OrganisationBrandingSettingsLogoCard"
                                         Grid.Column="1"
                                         Width="240"
                                         Height="80"
-                                        Padding="9"
-                                        Background="White"
-                                        BorderBrush="#D9DEE3"
-                                        BorderThickness="1"
-                                        CornerRadius="10"
                                         Visibility="Collapsed">
                                         <Image
                                             x:Name="OrganisationBrandingSettingsLogo"
+                                            Margin="6"
                                             AutomationProperties.Name="ATAG Design logo"
                                             Stretch="Uniform" />
-                                    </Border>
+                                    </Grid>
                                 </Grid>
                             </Border>
 
