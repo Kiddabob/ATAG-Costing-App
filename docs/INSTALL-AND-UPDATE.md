@@ -44,6 +44,23 @@ need a GitHub account. Stable ignores GitHub pre-releases; Beta may also offer
 them. Package size and SHA-256 are supplied by the Velopack release feed and the
 download is verified before it is applied.
 
+### Per-user ATAG / blank test chooser
+
+The normal installer does not enable test mode. A designated tester can opt in
+only their current Windows profile by setting the `ShowLaunchModeChooser`
+DWORD to `1` beneath:
+
+```text
+HKEY_CURRENT_USER\Software\Costing App\Developer Options
+```
+
+On the next shortcut launch, the tester can choose the normal ATAG session or
+the isolated blank interface-only session. The selection applies only to that
+launch. The registry opt-in is per Windows profile and remains outside Git and
+the installer; the app does not compile, save, display, log, or transmit the
+tester name, email address, SID, or an identity hash. Removing the value turns
+the chooser off.
+
 An update failure never blocks launch and leaves the current installed version
 unchanged. The app checks only after its main window is visible. Installation
 is explicit because an update restarts the app and users may need to save a

@@ -20,6 +20,9 @@
   releases have been missed.
 - Adds an owned, resizable full-screen changelog reader on the Costing App
   display and removes duplicate markdown version headings from release notes.
+- Adds an optional per-Windows-profile launch chooser for the designated
+  tester. It can open either the normal ATAG session or the isolated blank
+  interface without compiling or publishing the tester's identity.
 
 ## 0.2.3 - 2026-08-11
 

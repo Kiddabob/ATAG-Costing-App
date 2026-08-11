@@ -2690,3 +2690,44 @@ This section records the local candidate only. The source commit, public push,
 GitHub Actions release, final public asset hashes, and anonymous download
 verification must be appended after they actually succeed. Do not describe
 0.3.0 as public until that evidence exists.
+
+## 2026-08-11 private per-user launch chooser follow-up
+
+The initial 0.3.0 source slice was committed and pushed as
+`30cf5ee7bc7535879416ed28c54f73bbaed6c272`. GitHub Actions run
+`31516851021` was then cancelled before packaging or publication when the user
+added this requirement. It finished with conclusion `cancelled`; no v0.3.0 tag
+or Release was created by that run.
+
+The app now supports a privacy-safe, current-Windows-profile test opt-in at
+`HKCU\Software\Costing App\Developer Options`, DWORD
+`ShowLaunchModeChooser = 1`. The installer does not create this value and no
+user name, email address, SID, or identity hash is compiled or published. The
+value is enabled on this PC for the user's profile. Each shortcut launch offers
+**ATAG version** or **Blank test version**, and the choice is held only for that
+process. ATAG mode uses the normal local data and branding. Blank mode reuses
+the isolated interface-only services and paths, with no database navigators,
+retained tables, JSON preferences, exchange service, production-speed library,
+or ATAG quotation identity.
+
+Exact-process UI Automation acceptance on this PC selected both accessible
+buttons independently. ATAG mode opened a responsive window titled
+`ATAG Costing App`. Blank mode opened a responsive window titled `Costing App`
+and exposed the banner `Public review · no organisation data included`. Both
+test processes were closed normally.
+
+After this follow-up, normal and interface-only x64 Debug builds again passed
+with zero warnings and errors. The authoritative Release suite passed 137
+tests, with 2 approval-gated workbook fixtures intentionally skipped and no
+failures. The rebuilt installer is 100,855,289 bytes with SHA-256
+`600706174469e4882f4d9585886cdb71b6442e4500b7ec0d0aa60543a487bc3c`.
+The full package is 96,262,137 bytes with SHA-256
+`da928180ce21efa04881f5aadeeee3d0e44a28e9e7aec41747303a9b3a65b126`.
+All seven manifest entries match. Both generated archives contain zero blocked
+database/workbook/costing/cache/settings/production-library/environment/symbol
+entries, no production library is tracked, and the publish contains no current
+workspace path, current-user path, or tester identity.
+
+This follow-up is not yet committed or released. Commit and push it, dispatch a
+fresh v0.3.0 workflow, verify the exact public tag and seven assets, and
+anonymously download and hash the installer before calling v0.3.0 accepted.

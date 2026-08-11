@@ -13,19 +13,17 @@ namespace ATAG.Costing.WinUI;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
-#if ATAG_PUBLIC_REVIEW
-    private static readonly string PlacementPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Costing App",
-        "Public Review",
-        "window-placement.json");
-#else
-    private static readonly string PlacementPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "ATAG Design Ltd",
-        "ATAG Costing",
-        "window-placement.json");
-#endif
+    private static string PlacementPath => AppRuntimeMode.IsPublicReview
+        ? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Costing App",
+            "Public Review",
+            "window-placement.json")
+        : Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ATAG Design Ltd",
+            "ATAG Costing",
+            "window-placement.json");
 
     private RectInt32 _lastRestoredBounds;
 

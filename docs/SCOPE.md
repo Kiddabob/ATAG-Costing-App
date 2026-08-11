@@ -210,6 +210,9 @@ Progress as of 29 July 2026:
   COR or either dual extrusion. Clean installations contain no production rows;
   the accepted general insulation profile is added only when the user requests
   the editable starter profile;
+- a locally opted-in tester profile can choose the normal ATAG session or the
+  isolated blank interface on launch; this uses a generic current-user registry
+  flag and publishes no tester identity;
 - sequential risk then markup is the recommended selling-price result;
   additive risk plus markup and target gross margin are separately labelled
   comparison methods;

@@ -6,6 +6,8 @@ namespace ATAG.Costing.WinUI;
 /// </summary>
 public partial class App : Microsoft.UI.Xaml.Application
 {
+    private LaunchModeChoiceWindow? _launchModeChoiceWindow;
+
     /// <summary>
     /// The main application window. Use <c>App.Window</c> from any class that needs
     /// the window reference (for dialogs, pickers, interop, etc.).
@@ -50,19 +52,46 @@ public partial class App : Microsoft.UI.Xaml.Application
 
         try
         {
-            Window = new MainWindow();
-            Program.Log(
-                $"MainWindow constructed with HWND 0x{WindowHandle:X}.");
-
             DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
-            Window.Activate();
-            Program.Log(
-                $"MainWindow activated with HWND 0x{WindowHandle:X}.");
+            if (AppRuntimeMode.ShouldOfferLaunchModeChoice)
+            {
+                Program.Log(
+                    "Per-user launch mode chooser enabled for this Windows profile.");
+                _launchModeChoiceWindow = new LaunchModeChoiceWindow(
+                    CompleteModeChoice);
+                _launchModeChoiceWindow.Activate();
+                return;
+            }
+
+            OpenMainWindow();
         }
         catch (Exception exception)
         {
             Program.Log($"OnLaunched failed: {exception}");
             throw;
         }
+    }
+
+    private void CompleteModeChoice(AppSessionMode mode)
+    {
+        AppRuntimeMode.SelectSessionMode(mode);
+        Program.Log(mode == AppSessionMode.BlankReview
+            ? "Blank test session selected."
+            : "ATAG session selected.");
+
+        var choiceWindow = _launchModeChoiceWindow;
+        _launchModeChoiceWindow = null;
+        OpenMainWindow();
+        choiceWindow?.Close();
+    }
+
+    private static void OpenMainWindow()
+    {
+        Window = new MainWindow();
+        Program.Log(
+            $"MainWindow constructed with HWND 0x{WindowHandle:X}.");
+        Window.Activate();
+        Program.Log(
+            $"MainWindow activated with HWND 0x{WindowHandle:X}.");
     }
 }

@@ -75,7 +75,10 @@ Version 0.3.0 includes:
   editable finished-OD speed bands, measured-run evidence, transparent
   estimates, and explicit application to COR or either dual extrusion;
 - independently scrollable cumulative update notes and an owned, resizable
-  full-screen changelog reader.
+  full-screen changelog reader;
+- an optional local tester launch choice between the normal ATAG session and
+  the isolated blank interface, enabled per Windows profile without storing a
+  tester identity in the public source or installer.
 
 Dual-specific quotation and contract-review documents, Flat construction, and
 D-shape construction remain future modules. Real ATAG schema and business
