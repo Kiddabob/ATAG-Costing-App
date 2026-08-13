@@ -74,6 +74,12 @@ An independent engineering calculator backed by the same braid domain rules used
 by a costing. It supports scenario comparison and reverse calculations without
 duplicating formulas.
 
+Version 0.4.0 supplies the first direction: target coverage and cable geometry
+produce a live 16/24-carrier comparison, with the full workbook-derived core
+lay-up/OD-factor table, 1-to-10 ends per carrier, formula trace, and exact
+Buncher Lay machine/gear selection. Reverse calculation and insertion into a
+saved costing remain later slices over the same domain module.
+
 ### Reports
 
 Separate templates over the same saved costing revision:
@@ -210,6 +216,9 @@ Progress as of 29 July 2026:
   COR or either dual extrusion. Clean installations contain no production rows;
   the accepted general insulation profile is added only when the user requests
   the editable starter profile;
+- version 0.4.0 provides the independent Braid Coverage and Buncher Lay
+  interfaces, with workbook-parity formula tests and reusable domain-owned
+  reference tables;
 - a locally opted-in tester profile can choose the normal ATAG session or the
   isolated blank interface on launch; this uses a generic current-user registry
   flag and publishes no tester identity;

@@ -5044,6 +5044,10 @@
                         </StackPanel>
                     </ScrollViewer>
 
+                    <local:BraidCalculatorView
+                        x:Name="BraidCalculatorModuleView"
+                        Visibility="Collapsed" />
+
                     <ScrollViewer
                         x:Name="SettingsView"
                         HorizontalContentAlignment="Stretch"

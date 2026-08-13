@@ -54,7 +54,7 @@ remain outside the replaceable application directory.
 
 ## Current scope
 
-Version 0.3.0 includes:
+Version 0.4.0 includes:
 
 - a working single insulated core (COR) costing flow;
 - conductor, compound, masterbatch, production-labour, risk, and markup
@@ -74,14 +74,18 @@ Version 0.3.0 includes:
 - a private Production Speed Library with user-created production lines,
   editable finished-OD speed bands, measured-run evidence, transparent
   estimates, and explicit application to COR or either dual extrusion;
+- a live Braid Coverage module with the workbook-derived core lay-up table,
+  16/24-carrier comparison, 1-to-10 ends-per-carrier selection, fully visible
+  formulas, and an exact Buncher Lay machine/gear selector;
 - independently scrollable cumulative update notes and an owned, resizable
   full-screen changelog reader;
 - an optional local tester launch choice between the normal ATAG session and
   the isolated blank interface, enabled per Windows profile without storing a
   tester identity in the public source or installer.
 
-Dual-specific quotation and contract-review documents, Flat construction, and
-D-shape construction remain future modules. Real ATAG schema and business
+Dual layout/live-preview parity, shared costing-page components, dual-specific
+quotation and contract-review documents, Flat construction, D-shape
+construction, and reverse braid calculation remain future modules. Real ATAG schema and business
 acceptance are still required before production rollout. The OneDrive account
 address used for conditional branding is checked only on the device and is not
 retained, displayed, logged, or sent.

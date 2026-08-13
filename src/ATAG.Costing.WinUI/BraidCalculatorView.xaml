@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="ATAG.Costing.WinUI.BraidCalculatorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="BraidCalculationStepTemplate">
+            <Border
+                Margin="0,0,0,8"
+                Padding="14"
+                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                CornerRadius="8">
+                <StackPanel Spacing="5">
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            FontWeight="SemiBold"
+                            Text="{Binding Label}"
+                            TextWrapping="Wrap" />
+                        <TextBlock
+                            Grid.Column="1"
+                            FontWeight="SemiBold"
+                            Text="{Binding Result}"
+                            TextAlignment="Right" />
+                    </Grid>
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding BusinessMeaning}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        FontFamily="Consolas"
+                        FontSize="12"
+                        Text="{Binding Formula}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        FontFamily="Consolas"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding SubstitutedFormula}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                        Text="{Binding RoundingRule}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer HorizontalContentAlignment="Stretch">
+        <StackPanel
+            MaxWidth="1460"
+            Margin="32,16,32,48"
+            HorizontalAlignment="Center"
+            Spacing="20">
+            <Border
+                Padding="28"
+                Background="{StaticResource AtagNavyBrush}"
+                CornerRadius="16">
+                <Grid ColumnSpacing="24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="7">
+                        <TextBlock
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Foreground="{StaticResource AtagCyanBrush}"
+                            Text="BRAID COVERAGE MODULE" />
+                        <TextBlock
+                            FontSize="26"
+                            FontWeight="SemiBold"
+                            Foreground="White"
+                            Text="Set the cable, compare the carriers, and see every formula."
+                            TextWrapping="Wrap" />
+                        <TextBlock
+                            MaxWidth="850"
+                            Foreground="#D2E8F5"
+                            Text="The core lay-up factors, braid formula and buncher gears come from the workbook calculator. Results update immediately as an input changes."
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Border
+                        Grid.Column="1"
+                        Padding="14,10"
+                        VerticalAlignment="Center"
+                        Background="#293E50"
+                        CornerRadius="8">
+                        <TextBlock
+                            Foreground="#D2E8F5"
+                            Text="{Binding CalculationStatus}"
+                            TextWrapping="Wrap" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel Spacing="16">
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            Text="Braid inputs" />
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="The ends list is expanded to 1–10; the workbook presets are 4 and 6."
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="14" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <NumberBox
+                            Header="Target coverage (%)"
+                            Maximum="99.99"
+                            Minimum="0.01"
+                            SmallChange="1"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{Binding TargetCoveragePercent, Mode=TwoWay}" />
+                        <NumberBox
+                            Grid.Column="1"
+                            Header="Single core OD (mm)"
+                            Minimum="0.001"
+                            SmallChange="0.1"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{Binding CoreOutsideDiameterMillimetres, Mode=TwoWay}" />
+                        <ComboBox
+                            Grid.Column="2"
+                            DisplayMemberPath="Display"
+                            Header="Number of cores and lay-up"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding CoreLayouts}"
+                            SelectedItem="{Binding SelectedCoreLayout, Mode=TwoWay}" />
+                        <ComboBox
+                            Grid.Row="1"
+                            Header="Ends per carrier"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding EndsPerCarrierOptions}"
+                            SelectedItem="{Binding SelectedEndsPerCarrier, Mode=TwoWay}" />
+                        <ComboBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Header="Effective wire diameter (mm)"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding EffectiveWireDiameterOptions}"
+                            SelectedItem="{Binding SelectedEffectiveWireDiameterMillimetres, Mode=TwoWay}" />
+                        <NumberBox
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Header="Target cable length (m)"
+                            Minimum="0.001"
+                            SmallChange="1"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{Binding CableLengthMetres, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border
+                            Padding="14"
+                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                            CornerRadius="8">
+                            <StackPanel Spacing="3">
+                                <TextBlock FontWeight="SemiBold" Text="Selected lay-up" />
+                                <TextBlock
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="{Binding CoreLayoutDetail}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Grid.Column="1"
+                            Padding="14"
+                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                            CornerRadius="8">
+                            <StackPanel Spacing="3">
+                                <TextBlock FontWeight="SemiBold" Text="Mean cable OD" />
+                                <TextBlock FontSize="20" Text="{Binding MeanOutsideDiameterDisplay}" />
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Grid.Column="2"
+                            Padding="14"
+                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                            CornerRadius="8">
+                            <StackPanel Spacing="3">
+                                <TextBlock FontWeight="SemiBold" Text="Target fill" />
+                                <TextBlock FontSize="20" Text="{Binding TargetFillDisplay}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnSpacing="18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            Text="16-carrier result" />
+                        <TextBlock
+                            FontSize="24"
+                            FontWeight="SemiBold"
+                            Text="{Binding SixteenCarrierPitchDisplay}" />
+                        <TextBlock Text="{Binding SixteenCarrierStrandsDisplay}" />
+                        <TextBlock Text="{Binding SixteenCarrierAnglesDisplay}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SixteenCarrierCoverageDisplay}" />
+                        <TextBlock Text="{Binding SixteenCarrierLengthDisplay}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            Text="24-carrier result" />
+                        <TextBlock
+                            FontSize="24"
+                            FontWeight="SemiBold"
+                            Text="{Binding TwentyFourCarrierPitchDisplay}" />
+                        <TextBlock Text="{Binding TwentyFourCarrierStrandsDisplay}" />
+                        <TextBlock Text="{Binding TwentyFourCarrierAnglesDisplay}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding TwentyFourCarrierCoverageDisplay}" />
+                        <TextBlock Text="{Binding TwentyFourCarrierLengthDisplay}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel Spacing="16">
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            Text="Buncher lay selector" />
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="Choose an available target lay. The exact workbook table match supplies the buncher and gear pair."
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox
+                            DisplayMemberPath="Display"
+                            Header="Target lay length"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding BuncherLaySettings}"
+                            SelectedItem="{Binding SelectedBuncherLaySetting, Mode=TwoWay}" />
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="Machine" />
+                            <TextBlock
+                                FontSize="20"
+                                FontWeight="SemiBold"
+                                Text="{Binding BuncherSizeDisplay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="Required gears" />
+                            <TextBlock
+                                FontSize="20"
+                                FontWeight="SemiBold"
+                                Text="{Binding BuncherGearsDisplay}" />
+                        </StackPanel>
+                    </Grid>
+                    <Border
+                        Padding="12"
+                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                        CornerRadius="8">
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Text="{Binding BuncherTraceDisplay}"
+                            TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Expander Header="Full braid calculation trace" IsExpanded="True">
+                <StackPanel Margin="0,14,0,0" Spacing="4">
+                    <TextBlock
+                        Margin="0,0,0,8"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="Every workbook-derived intermediate value, formula, substituted input and rounding rule is shown below."
+                        TextWrapping="Wrap" />
+                    <ItemsRepeater
+                        ItemTemplate="{StaticResource BraidCalculationStepTemplate}"
+                        ItemsSource="{Binding CalculationSteps}">
+                        <ItemsRepeater.Layout>
+                            <UniformGridLayout
+                                MinColumnSpacing="10"
+                                MinItemWidth="430"
+                                MinRowSpacing="4"
+                                ItemsJustification="SpaceBetween"
+                                ItemsStretch="Fill"
+                                Orientation="Horizontal" />
+                        </ItemsRepeater.Layout>
+                    </ItemsRepeater>
+                </StackPanel>
+            </Expander>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

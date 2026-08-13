@@ -73,6 +73,7 @@ public sealed partial class MainPage : Page
     public SingleCoreCostingViewModel CostingViewModel { get; }
     public DualInsulationCostingViewModel DualCostingViewModel { get; }
     public ProductionSpeedLibraryViewModel ProductionSpeedViewModel { get; }
+    public BraidCoverageViewModel BraidViewModel { get; }
 
     public MainPage()
     {
@@ -119,6 +120,7 @@ public sealed partial class MainPage : Page
                 isEditingEnabled: false)
             : new ProductionSpeedLibraryViewModel(
                 new JsonProductionSpeedLibraryStore());
+        BraidViewModel = new BraidCoverageViewModel();
         InitializeComponent();
         InitializeAppUpdateDisplay();
         AppNavigation.PaneTitle = AppRuntimeMode.IsOrganisationBranded
@@ -139,6 +141,7 @@ public sealed partial class MainPage : Page
         ContractReviewView.DataContext = CostingViewModel;
         MaterialDataView.DataContext = CostingViewModel;
         ProductionSpeedDataView.DataContext = ProductionSpeedViewModel;
+        BraidCalculatorModuleView.DataContext = BraidViewModel;
         if (AppRuntimeMode.IsPublicReview)
         {
             ConfigurePublicReviewMode();
@@ -2794,6 +2797,7 @@ public sealed partial class MainPage : Page
         ContractReviewView.Visibility = Visibility.Collapsed;
         MaterialDataView.Visibility = Visibility.Collapsed;
         ProductionSpeedDataView.Visibility = Visibility.Collapsed;
+        BraidCalculatorModuleView.Visibility = Visibility.Collapsed;
 
         switch (section)
         {
@@ -2859,9 +2863,10 @@ public sealed partial class MainPage : Page
                 break;
 
             case "braid":
-                ShowModulePlaceholder(
+                ViewModel.SetSection(
                     "Braid calculator",
                     "Compare carrier counts, pitch, coverage and buncher settings with a full calculation trace.");
+                BraidCalculatorModuleView.Visibility = Visibility.Visible;
                 break;
 
             case "reports":

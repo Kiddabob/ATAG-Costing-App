@@ -2942,3 +2942,64 @@ on the ATAG choice use one readable foreground. The user remains the final
 visual judge. Once accepted, resume the recorded Production Speed Library and
 line-speed refinement rather than reopening updater foundations. The installer
 remains unsigned.
+
+## 2026-08-13 shared costing-page layout and preview goal
+
+Before further construction types are treated as visually complete, repair the
+Dual Insulation costing page so it matches the layout and interaction
+improvements already made to the single-core COR page. This explicitly includes
+the same usable live-preview experience and equivalent placement/hierarchy for
+shared costing sections.
+
+The maintainable target is a shared costing-page shell and reusable section
+components. A general edit to shared areas such as the result header, costing
+basis, material cards, production/labour presentation, preview rail, action
+placement, validation/status treatment, and calculation trace should flow to
+COR, Dual Insulation, and later cable constructions without copying XAML or
+presentation logic between pages. Each construction keeps only its true
+differences as modular content: for example a second extrusion layer, braid,
+tape, foil, lapscreen, drain wire, flat/profile geometry, or other optional
+physical modules.
+
+Treat this as a recorded future layout/refactoring goal, not part of the focused
+Braid Coverage/Buncher Lay release requested on 13 August 2026. Do not use the
+refactor to change accepted costing formulae or saved-result evidence. Add
+shared visual regression/smoke coverage when this goal is implemented so a
+change to the common layout is demonstrated on every supported construction.
+
+## 2026-08-13 Braid Coverage and Buncher Lay v0.4.0
+
+The focused braid slice is implemented as version 0.4.0. The former Braid
+calculator placeholder now opens `BraidCalculatorView`, backed by
+`BraidCoverageCalculator` in the Domain project rather than page-owned maths.
+It contains the workbook's 45-row core lay-up/combined-OD-factor table, the
+0.1/0.2 mm effective-wire list, an intentionally expanded 1-to-10
+ends-per-carrier list, target coverage/core OD/cable length inputs, live 16- and
+24-carrier comparison, and a 16-step formula/substitution/unit/rounding trace.
+
+The same page includes an exact Buncher Lay selector over the workbook's four
+large-buncher and fourteen small-buncher rows. Choosing a target lay returns
+its machine and Gear A/Gear B pair without interpolation. The domain calculator
+deliberately preserves the workbook's existing perpendicular-angle formula and
+labels that output explicitly; do not silently change it without business
+approval. Reverse braid calculation and saved-costing insertion remain future
+work over this reusable module.
+
+Verification completed before publication:
+
+- x64 Debug solution build: 0 warnings and 0 errors;
+- 140 tests passed, 2 approval-gated workbook fixtures intentionally skipped,
+  and 0 failed;
+- the workbook reference case reproduces its target fill, both pitches,
+  angles, reference coverage, and strand/bobbin length;
+- the authoritative release builder completed its required-logo, embedded-icon,
+  privacy-file, checksum, publish, and Velopack gates;
+- the local unsigned v0.4.0 installer/update assets are in
+  `artifacts/release/releases`.
+
+After this section is committed and pushed, run the existing manual GitHub
+release workflow, verify the public v0.4.0 tag/assets/feed anonymously, and
+record the commit/run/hash results here and in the root handoff. The installer
+remains unsigned. The recommended later development slice is the recorded
+shared costing-page shell and Dual layout/live-preview parity goal, not a braid
+formula rewrite.

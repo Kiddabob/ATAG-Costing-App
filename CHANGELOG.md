@@ -1,5 +1,25 @@
 # Costing App release notes
 
+## 0.4.0 - 2026-08-13
+
+- Replaces the Braid calculator placeholder with a live engineering module
+  derived from the workbook's Braid Coverage Calculator sheet.
+- Adds the complete 1-to-45-core lay-up and combined-OD-factor reference table,
+  target coverage, core OD, cable length, effective wire diameter, and an
+  expanded 1-to-10 ends-per-carrier selector.
+- Compares 16- and 24-carrier pitch, total strands, base fill, longitudinal and
+  workbook perpendicular angles, coverage at the workbook's 55 mm comparison
+  pitch, and strand/bobbin length as inputs change.
+- Shows every intermediate value, formula, substituted input, unit, rounding
+  rule, and version in an expandable calculation trace.
+- Adds a Buncher Lay selector that maps each available target lay length to the
+  exact large/small machine and Gear A/Gear B pair from the workbook table.
+- Keeps the calculation engine and reference tables outside the page so the
+  same braid module can later be inserted into any compatible costing type.
+- Records the next shared-layout goal: bring Dual Insulation to single-core
+  layout and live-preview parity, then move common costing-page elements into
+  reusable components while retaining unique construction modules.
+
 ## 0.3.4 - 2026-08-11
 
 - Centres and slightly widens the complete Settings workspace so it sits
