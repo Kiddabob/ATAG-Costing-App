@@ -109,9 +109,7 @@ internal static class UpdateReleaseNotesPresenter
         var normalized = string.IsNullOrWhiteSpace(notes)
             ? "No release notes were supplied for this version."
             : notes.Trim();
-        var lines = normalized
-            .Replace("\r\n", "\n", StringComparison.Ordinal)
-            .Split('\n');
+        var lines = MergeWrappedBulletLines(normalized);
         var sections = new List<ReleaseNotesSection>();
         string? title = null;
         var body = new List<string>();
@@ -147,6 +145,34 @@ internal static class UpdateReleaseNotesPresenter
 
         AddSection();
         return sections;
+    }
+
+    private static IReadOnlyList<string> MergeWrappedBulletLines(string notes)
+    {
+        var physicalLines = notes
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n');
+        var logicalLines = new List<string>();
+
+        foreach (var physicalLine in physicalLines)
+        {
+            var line = physicalLine.Trim();
+            var isIndentedContinuation =
+                physicalLine.Length > 0 &&
+                char.IsWhiteSpace(physicalLine[0]) &&
+                !line.StartsWith("- ", StringComparison.Ordinal) &&
+                logicalLines.Count > 0 &&
+                logicalLines[^1].StartsWith("- ", StringComparison.Ordinal);
+            if (isIndentedContinuation)
+            {
+                logicalLines[^1] += " " + line;
+                continue;
+            }
+
+            logicalLines.Add(line);
+        }
+
+        return logicalLines;
     }
 
     private static Brush ResourceBrush(string key) =>

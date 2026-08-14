@@ -3003,3 +3003,55 @@ record the commit/run/hash results here and in the root handoff. The installer
 remains unsigned. The recommended later development slice is the recorded
 shared costing-page shell and Dual layout/live-preview parity goal, not a braid
 formula rewrite.
+
+## 2026-08-13 deferred Braid/Buncher UX and copper-data refinement
+
+Record the following as a future slice only; do not fold it into the v0.4.1
+release-note layout hotfix:
+
+- replace the simple 1-to-45 core-layout ComboBox rows with a structured,
+  styled selector whose columns separately present core count, cores-per-layer
+  lay-up, and combined-OD multiplier;
+- source ends-per-carrier and effective wire diameter from the application's
+  complete copper reference data rather than two independent hard-coded lists;
+- keep the loose/multi-wire bunch limit at 1 to 10 ends and include only
+  available copper wire sizes up to 0.25 mm; after the end count changes,
+  filter the effective-diameter choices to copper constructions that contain
+  that number of ends;
+- add `0.15 mm` to the effective-wire choices; the user confirmed that the
+  earlier `1.5` wording meant `0.15 mm`, and `0.25 mm` is the firm maximum;
+- visually identify the recommended 16- or 24-carrier result with a strong
+  unambiguous accent and plain-language recommendation;
+- make pitch and effective wire diameter the dominant large setup values,
+  because both are settings used at the braider;
+- split Target Lay Length/Buncher selection into its own module so Braid
+  Coverage and Buncher Lay can each gain an independent LIVE Preview later;
+- the Target Lay drop-down must show lay lengths only. Buncher size and Gear A/
+  Gear B remain calculated/displayed results outside the drop-down.
+
+Do not infer a best-carrier rule solely from colour. Define and test the
+selection rule first (for example target attainment, usable pitch range,
+material/length consequence, and machine availability), then make the colour
+communicate that explained result. Preserve the full calculation trace.
+
+## 2026-08-13 public v0.4.0 accepted and v0.4.1 card-layout hotfix
+
+Public v0.4.0 is accepted. Commit/tag
+`37711cd4296cef120022dd035a1188fe3f0c9911` was published by successful
+GitHub Actions run `31714428415`. Stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.4.0`.
+The seven public assets target that exact commit. The installer is 100,872,001
+bytes with SHA-256
+`00072149c1c14d4fae461286e53a41498728e6662b8d7db5a763d0932e3f749d`;
+the full updater package is 96,278,849 bytes with SHA-256
+`644ed2b44c9b6c57d45055bd873192f00b7306a254bcac3e5395d17dea9d576d`.
+
+The installed v0.4.0 update notes revealed that a long Markdown bullet split
+across source lines was rendered as one ticked first line followed by separate,
+over-indented paragraphs. v0.4.1 merges indented physical continuation lines
+into the preceding bullet before creating the card, so WinUI wraps the complete
+change inside one consistent text column beside the tick. No costing or braid
+rule changes in this hotfix. The x64 Debug build has zero warnings/errors and
+the suite has 140 passing tests, 2 intentionally skipped approval fixtures,
+and no failures. Complete the normal release gate and public verification,
+then record its exact commit/run/assets in this handoff.

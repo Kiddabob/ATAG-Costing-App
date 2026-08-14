@@ -1,5 +1,13 @@
 # Costing App release notes
 
+## 0.4.1 - 2026-08-13
+
+- Keeps every wrapped update bullet inside one aligned text column beside its
+  tick, removing the large indentation and vertical gaps seen when a changelog
+  item spans several source lines.
+- Makes no costing, braid formula, lookup-table, saved-document, database-link,
+  production-speed, or reporting change.
+
 ## 0.4.0 - 2026-08-13
 
 - Replaces the Braid calculator placeholder with a live engineering module
