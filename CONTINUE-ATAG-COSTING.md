@@ -3055,3 +3055,25 @@ rule changes in this hotfix. The x64 Debug build has zero warnings/errors and
 the suite has 140 passing tests, 2 intentionally skipped approval fixtures,
 and no failures. Complete the normal release gate and public verification,
 then record its exact commit/run/assets in this handoff.
+
+### Public v0.4.1 verification completed - 14 August 2026
+
+The hotfix is now fully published and verified. Exact release commit/tag:
+`401adc3f9e4208600ab94bd76b201724b4c79769`. GitHub Actions run
+`31778077408` completed successfully. Stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.4.1`.
+
+All seven public assets target that exact commit. The installer is 100,871,130
+bytes with SHA-256
+`4850cca5e083c6cb921b35deab329c2fbb470d1c6f21d88b134c852c6cd976e3`.
+The full updater package is 96,277,978 bytes with SHA-256
+`a92411ca4d8ce277d92c1925c0e0d99e1baa3c7f715e836e30d4706fd4adcb10`.
+An anonymous download of that package matches the public checksum manifest,
+GitHub asset digest, and `releases.win.json` feed. The downloaded package has
+561 entries and zero blocked private-data entries. The release remains unsigned.
+
+This completes the interrupted v0.4.1 work. Do not continue automatically into
+the deferred braid/copper UX requirements or the shared costing-page refactor.
+The next task should begin only when the user explicitly asks for it. Installed
+visual acceptance of the corrected card wrapping can be performed by updating
+v0.4.0 to v0.4.1.
