@@ -3118,3 +3118,29 @@ and a 96,285,075-byte full updater package with SHA-256
 `775c67ab5677e70239f3dc05fef8872d3ba129cb0917ef27d9e10cdfcd49f331`.
 Commit/push, GitHub Actions publication, anonymous asset/feed verification, and
 installed visual acceptance are still required before calling v0.5.0 public.
+
+### Public v0.5.0 verification completed - 15 August 2026
+
+The shared module shell and reference Braid LIVE Preview release is now public
+at exact commit/tag
+`39cc50c9a9fda3e756c069b1dc6181df7cb2bee8`. GitHub Actions run
+`31855215655` completed successfully. Stable Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.5.0`.
+
+The Release is neither draft nor prerelease and contains all seven expected
+assets. Its public installer is 100,878,248 bytes with SHA-256
+`d1748ca85ebf1f2889a36b488880e7337884213cd263d8f7f0bd1668a0a96723`.
+The public full updater package is 96,285,096 bytes with SHA-256
+`45915387e29d4e61195eccec68232dde4d960ab3cb03618aae369d4cc8acb153`.
+Anonymous downloads of both files match GitHub's asset digests and the public
+checksum manifest. `releases.win.json` reports version 0.5.0 with the same
+updater size and hash. The downloaded nupkg has 561 entries and zero blocked
+private-data entries. The release remains unsigned.
+
+Publication is therefore accepted. Installed visual acceptance is still
+required for the shared shell's wide/compact switching, resize-divider hover,
+colour hierarchy, disabled-preview deferral, and Braid diagrams. After the user
+accepts that installed behaviour, the recommended next development slice is
+Dual Insulation shell migration plus a visual-only dual-layer preview sourced
+from its existing ordered calculation results. COR remains a later controlled
+migration that must preserve its accepted preview geometry exactly.
