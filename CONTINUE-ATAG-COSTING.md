@@ -3144,3 +3144,94 @@ accepts that installed behaviour, the recommended next development slice is
 Dual Insulation shell migration plus a visual-only dual-layer preview sourced
 from its existing ordered calculation results. COR remains a later controlled
 migration that must preserve its accepted preview geometry exactly.
+
+## 2026-08-15 post-v0.5.0 module refinement in progress
+
+The user accepted continuation into the deferred Braid/Copper work and the
+Dual shell migration. These changes are present in the working tree but are
+**not committed, pushed, packaged, or released**:
+
+- shared semantic result, recommendation, warning, and error colours are now
+  fixed engineering/status colours. The user's accent remains limited to
+  interaction, selection and focus, so a red accent cannot make a valid result
+  look like a fault;
+- the shared wide-window preview divider is wider, visibly hover-reactive,
+  uses the horizontal-resize cursor, and applies corrected width maths so the
+  right-hand dock actually resizes;
+- Braid Coverage and Buncher Lay are separate navigation modules, view models,
+  pages and previews. The Buncher selector lists lay length only; machine and
+  Gear A/Gear B remain results;
+- Braid wire selection now comes from the complete retained Copper table via
+  `BraidWireCatalogue`. It admits only parsed loose/multi-wire constructions
+  with 1 to 10 ends and an individual strand diameter no greater than 0.25 mm,
+  keeps the recorded supplier/material finish, includes available 0.15 mm
+  rows, and filters the wire choices after the selected end count changes;
+- Braid's recommended carrier uses
+  `BraidCarrierRecommender` rule `braid-carrier-recommendation/v1`. It first
+  prefers an option that attains the actual requested coverage at its target
+  pitch; if both attain it, it prefers lower total braid-wire usage for the
+  entered length; a calculated tie prefers 16 carriers. If neither attains the
+  target, the closer achieved coverage wins. The retained 55 mm calculation is
+  deliberately excluded from this recommendation and remains a separate
+  labelled reference check;
+- the recommended 16/24 result receives a fixed green, text-labelled treatment.
+  Each carrier now has a dominant Target Braid Result card whose pitch, braid
+  angle, and wire-per-bobbin settings are three equal columns; the 55 mm
+  coverage, perpendicular workbook angle, and base fill sit in a separate
+  Reference Check card, with total strands as a smaller visible supporting
+  result;
+- the Braid preview has Simple/Detailed modes. Detailed mode draws clipped,
+  alternating over/under carrier bundles around a cylindrical cable envelope
+  using stable material colours rather than the app accent. Buncher owns its
+  own simpler lay preview;
+- Dual Insulation now uses `ModuleWorkspaceShell` with a sticky header,
+  always-visible guidance, resizable/compact preview dock and a new visual-only
+  `DualLivePreview`. It draws the selected conductor, first layer and second
+  layer in physical order, supports Simple/Detailed conductor views, and reads
+  only existing selected rows/results. No dual costing formula, start-up rule,
+  saved schema, quotation, or Contract Review payload has changed;
+- future technical datasheet generation is now explicitly in `docs/SCOPE.md` as
+  a separate versioned Reporting output with editable A4 preview, construction
+  visuals, source provenance and approval state. It must never invent a missing
+  technical claim or calculate inside the report template.
+
+Verification on this working tree: x64 Release build completed with zero
+warnings and zero errors. The complete Release suite has 145 passing tests, the
+same 2 approval-gated workbook fixtures intentionally skipped, and no failures.
+The added tests cover the Copper braid-wire filter and the carrier
+recommendation's separation from the 55 mm reference result. A direct local
+launch reached `MainWindow activated` in the startup log, but the automation
+window inventory did not expose that development window, so installed visual
+acceptance of the resized docks, detailed Braid weave and Dual preview is still
+required before release.
+
+Recommended next action: visually inspect this exact working build, refine the
+Braid weave/Dual preview only where the rendered output demonstrates a defect,
+then run the normal private-data and public-review release gates. Do not publish
+or change the version until the user explicitly asks for a release.
+
+## 2026-08-15 version 0.5.1 publication authorised
+
+The user explicitly authorised publishing the post-v0.5.0 module refinement as
+the next installed update. `Directory.Build.props` is now version `0.5.1`, and
+`CHANGELOG.md` records the semantic recommendation treatment, separated target
+and 55 mm reference cards, independent Braid/Buncher modules, retained-Copper
+braid-wire catalogue, detailed Braid preview, shared Dual workspace/preview and
+future technical-datasheet boundary.
+
+The existing manually dispatched Stable/Beta release workflow remains
+unchanged. After the source commit reaches `main`, run **Build and publish
+release** from GitHub Actions with Stable selected. That hosted job performs the
+Windows build, full tests, privacy audit, Velopack packaging, checksum creation
+and public GitHub Release upload. At this handoff point the version metadata is
+prepared but has not yet been published; complete those gates and record the
+final commit, workflow run, public release and anonymous asset verification
+below before calling v0.5.1 released.
+
+The local v0.5.1 release gate subsequently completed successfully. It ran the
+full 145-pass/2-intentional-skip suite, self-contained publish, private-data and
+required-asset audits, Velopack 1.2.0 packaging, feed generation and checksums.
+The generated one-file installer is 100,893,024 bytes with SHA-256
+`3DA5E77605B200DF6A116120889374982CBE0577F32B07F97A6C5C30045C5633`.
+This is local build evidence only until the matching commit is accepted by
+GitHub and the manually launched hosted workflow publishes the public assets.

@@ -202,12 +202,12 @@ public sealed partial class ModuleWorkspaceShell : UserControl
         if (_isDockedRight)
         {
             BottomPreviewRow.Height = new GridLength(0d);
-            SplitterColumn.Width = new GridLength(10d);
+            SplitterColumn.Width = new GridLength(16d);
             var maximumWidth = Math.Max(
                 MinimumPreviewWidth,
                 Math.Min(
                     MaximumPreviewWidth,
-                    availableWidth - MinimumWorkspaceWidth - 10d));
+                    availableWidth - MinimumWorkspaceWidth - 16d));
             _lastRightDockWidth = Math.Clamp(
                 _lastRightDockWidth,
                 MinimumPreviewWidth,
@@ -218,7 +218,8 @@ public sealed partial class ModuleWorkspaceShell : UserControl
             Grid.SetColumnSpan(PreviewPanel, 1);
             PreviewPanel.Margin = new Thickness(0, 12, 24, 48);
             ResizeHandle.Visibility = Visibility.Visible;
-            DockModeText.Text = "Resizable right-hand dock · drag the divider";
+            DockModeText.Text =
+                $"Resizable right-hand dock · {_lastRightDockWidth:0} px wide";
             return;
         }
 
@@ -250,7 +251,7 @@ public sealed partial class ModuleWorkspaceShell : UserControl
         _isResizeActive = true;
         _resizePointerId = e.Pointer.PointerId;
         _resizeStartX = point.Position.X;
-        _resizeStartWidth = PreviewColumn.ActualWidth;
+        _resizeStartWidth = PreviewColumn.Width.Value;
         SetResizeAffordance(active: true);
         resizeHandle.CapturePointer(e.Pointer);
         e.Handled = true;
@@ -272,12 +273,14 @@ public sealed partial class ModuleWorkspaceShell : UserControl
             MinimumPreviewWidth,
             Math.Min(
                 MaximumPreviewWidth,
-                AdaptiveWorkspace.ActualWidth - MinimumWorkspaceWidth - 10d));
+                AdaptiveWorkspace.ActualWidth - MinimumWorkspaceWidth - 16d));
         _lastRightDockWidth = Math.Clamp(
             _resizeStartWidth - (point.Position.X - _resizeStartX),
             MinimumPreviewWidth,
             maximumWidth);
         PreviewColumn.Width = new GridLength(_lastRightDockWidth);
+        DockModeText.Text =
+            $"Resizable right-hand dock · {_lastRightDockWidth:0} px wide";
         e.Handled = true;
     }
 
@@ -339,9 +342,10 @@ public sealed partial class ModuleWorkspaceShell : UserControl
             return;
         }
 
-        ResizeIndicator.Width = active ? 4d : 2d;
+        ResizeIndicator.Width = active ? 8d : 4d;
+        ResizeIndicator.Opacity = active ? 1d : 0.48d;
         ResizeIndicator.Background = active
-            ? (Brush)Microsoft.UI.Xaml.Application.Current.Resources["AccentFillColorDefaultBrush"]
+            ? (Brush)Microsoft.UI.Xaml.Application.Current.Resources["ModuleResultBorderBrush"]
             : _idleResizeBrush;
     }
 }

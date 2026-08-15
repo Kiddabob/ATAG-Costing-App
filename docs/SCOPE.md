@@ -94,6 +94,24 @@ Templates choose which fields and calculation steps to display. Print preview,
 page breaks, headers, footers, revision identifiers, and PDF output belong to the
 reporting module rather than the costing UI.
 
+#### Future technical datasheets
+
+Datasheet generation is an explicit future Reporting module, separate from the
+customer quotation and Contract Review. A datasheet must be built from the same
+approved, versioned costing/construction result and may include:
+
+- construction order, materials, conductor details, dimensions and tolerances;
+- approved electrical, mechanical, temperature and performance values where a
+  retained source exists;
+- the shared construction cross-section and side-profile visualisation;
+- customer wording, product identifiers, revision, author and approval state;
+- editable page preview followed by controlled A4 PDF output and an audit trail
+  that identifies every retained source and manual override.
+
+The datasheet renderer must never infer or silently fill an unapproved technical
+claim. Missing values remain visibly incomplete until supplied or approved, and
+report templates contain no costing or engineering calculations.
+
 ### Administration and settings
 
 Controls storage, reference-data import/export, report templates, calculation-rule

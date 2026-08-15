@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="ATAG.Costing.WinUI.DualLivePreview"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="14">
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="2">
+                <TextBlock FontWeight="SemiBold" Text="Construction detail" />
+                <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Detailed mode uses the selected Copper construction for the conductor centre." TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch
+                x:Name="DetailedToggle"
+                Grid.Column="1"
+                Header="Detail"
+                OffContent="Simple"
+                OnContent="Detailed"
+                Toggled="DetailedToggle_Toggled" />
+        </Grid>
+
+        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="Scaled cross-section" />
+                <Canvas
+                    x:Name="CrossSectionCanvas"
+                    Height="260"
+                    HorizontalAlignment="Stretch"
+                    SizeChanged="PreviewCanvas_SizeChanged" />
+                <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Diameter and radial-wall labels use the visible Dual inputs." TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="Inside-to-outside side profile" />
+                <Canvas
+                    x:Name="SideProfileCanvas"
+                    Height="190"
+                    HorizontalAlignment="Stretch"
+                    SizeChanged="PreviewCanvas_SizeChanged" />
+                <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Copper, first insulation and second insulation are stepped so their physical order remains visible." TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

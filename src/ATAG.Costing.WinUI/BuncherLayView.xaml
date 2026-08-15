@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="ATAG.Costing.WinUI.BuncherLayView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ATAG.Costing.WinUI">
+
+    <local:ModuleWorkspaceShell
+        IsPreviewEnabled="False"
+        PreviewOffMessage="Turn on LIVE Preview to inspect the selected lay direction and repeat. The retained machine and gear result remains visible while it is off."
+        PreviewSubtitle="The selected workbook lay drives this visual-only repeat."
+        PreviewTitle="LIVE Buncher Preview">
+        <local:ModuleWorkspaceShell.HeaderContent>
+            <Border Margin="32,8,32,6" Style="{StaticResource ModuleHeaderCardStyle}">
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource SectionLabelStyle}" Text="BUNCHER LAY MODULE" />
+                        <TextBlock FontSize="26" FontWeight="SemiBold" Text="Choose a target lay and reveal its exact machine setting." TextWrapping="Wrap" />
+                        <TextBlock MaxWidth="850" Style="{StaticResource ModuleSupportingTextStyle}" Text="Buncher lay is kept separate from braid coverage. The selected lay is the input; machine and gears are exact retained workbook-table outputs." />
+                    </StackPanel>
+                    <InfoBar
+                        Grid.Column="1"
+                        MaxWidth="390"
+                        VerticalAlignment="Center"
+                        Message="{Binding StatusDisplay}"
+                        Severity="Success"
+                        Style="{StaticResource ModuleStatusInfoBarStyle}"
+                        Title="Buncher table" />
+                </Grid>
+            </Border>
+        </local:ModuleWorkspaceShell.HeaderContent>
+
+        <local:ModuleWorkspaceShell.PreviewGuidanceContent>
+            <InfoBar
+                Message="The preview is a visual check only. The labelled machine and gear pair is the authoritative retained-table result."
+                Severity="Informational"
+                Style="{StaticResource ModuleStatusInfoBarStyle}"
+                Title="Preview boundary" />
+        </local:ModuleWorkspaceShell.PreviewGuidanceContent>
+
+        <local:ModuleWorkspaceShell.PreviewContent>
+            <local:BuncherLivePreview />
+        </local:ModuleWorkspaceShell.PreviewContent>
+
+        <local:ModuleWorkspaceShell.WorkspaceContent>
+            <StackPanel
+                MaxWidth="1180"
+                Margin="32,12,24,48"
+                HorizontalAlignment="Center"
+                Spacing="20">
+                <Border Style="{StaticResource ModuleSectionCardStyle}">
+                    <StackPanel Spacing="16">
+                        <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="1 · Target lay" />
+                        <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Choose the required lay length. The list deliberately shows the lay only so the machine result is not mistaken for part of the input." />
+                        <ComboBox
+                            DisplayMemberPath="LayDisplay"
+                            Header="Target lay length"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding LayChoices}"
+                            SelectedItem="{Binding SelectedChoice, Mode=TwoWay}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource ModuleSectionCardStyle}">
+                    <StackPanel Spacing="16">
+                        <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="2 · Exact retained result" />
+                        <Grid ColumnSpacing="18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource ModulePrimaryResultCardStyle}">
+                                <StackPanel Spacing="5">
+                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="MACHINE" />
+                                    <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding MachineDisplay}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource ModulePrimaryResultCardStyle}">
+                                <StackPanel Spacing="5">
+                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="REQUIRED GEARS" />
+                                    <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding GearsDisplay}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <InfoBar
+                            Message="{Binding TraceDisplay}"
+                            Severity="Success"
+                            Style="{StaticResource ModuleStatusInfoBarStyle}"
+                            Title="Exact workbook-table path" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </local:ModuleWorkspaceShell.WorkspaceContent>
+    </local:ModuleWorkspaceShell>
+</UserControl>

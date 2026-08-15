@@ -49,6 +49,96 @@ public sealed record BraidCoverageResult(
     BraidCarrierResult TwentyFourCarrier,
     IReadOnlyList<CalculationStep> Steps);
 
+public sealed record BraidCarrierRecommendation(
+    int CarrierCount,
+    double SixteenCarrierCoverageFraction,
+    double TwentyFourCarrierCoverageFraction,
+    double SixteenCarrierTotalWireMetres,
+    double TwentyFourCarrierTotalWireMetres,
+    string Reason);
+
+/// <summary>
+/// Selects the carrier arrangement that best satisfies the requested braid.
+/// The fixed 55 mm workbook comparison is deliberately not used for this
+/// decision: it remains an independently labelled reference result.
+/// </summary>
+public static class BraidCarrierRecommender
+{
+    public const string RuleVersion = "braid-carrier-recommendation/v1";
+    private const double ComparisonTolerance = 0.0000001d;
+
+    public static BraidCarrierRecommendation Select(
+        BraidCoverageResult result,
+        double targetCoverageFraction)
+    {
+        if (!double.IsFinite(targetCoverageFraction) ||
+            targetCoverageFraction <= 0d ||
+            targetCoverageFraction >= 1d)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(targetCoverageFraction),
+                "Target coverage must be greater than 0% and less than 100%.");
+        }
+
+        var sixteenCoverage = CoverageAtRecommendedPitch(
+            result.SixteenCarrier,
+            result.MeanOutsideDiameterMillimetres);
+        var twentyFourCoverage = CoverageAtRecommendedPitch(
+            result.TwentyFourCarrier,
+            result.MeanOutsideDiameterMillimetres);
+        var sixteenMeetsTarget = sixteenCoverage + ComparisonTolerance >= targetCoverageFraction;
+        var twentyFourMeetsTarget = twentyFourCoverage + ComparisonTolerance >= targetCoverageFraction;
+        var sixteenWire = TotalWireMetres(result.SixteenCarrier);
+        var twentyFourWire = TotalWireMetres(result.TwentyFourCarrier);
+
+        int carrierCount;
+        string reason;
+        if (sixteenMeetsTarget != twentyFourMeetsTarget)
+        {
+            carrierCount = sixteenMeetsTarget ? 16 : 24;
+            reason = "It meets the target coverage while the other retained carrier option does not.";
+        }
+        else if (!sixteenMeetsTarget)
+        {
+            carrierCount = sixteenCoverage + ComparisonTolerance >= twentyFourCoverage ? 16 : 24;
+            reason = "Neither retained carrier option reaches the target; this option gets closest.";
+        }
+        else if (Math.Abs(sixteenWire - twentyFourWire) > ComparisonTolerance)
+        {
+            carrierCount = sixteenWire < twentyFourWire ? 16 : 24;
+            reason = "Both options meet the target; this option uses less total braid wire for the entered length.";
+        }
+        else
+        {
+            carrierCount = 16;
+            reason = "Both options meet the target with equivalent calculated braid-wire usage; the lower carrier count is the tie-break.";
+        }
+
+        return new(
+            carrierCount,
+            sixteenCoverage,
+            twentyFourCoverage,
+            sixteenWire,
+            twentyFourWire,
+            reason);
+    }
+
+    private static double CoverageAtRecommendedPitch(
+        BraidCarrierResult carrier,
+        double meanOutsideDiameterMillimetres)
+    {
+        var fill = carrier.BaseFillFraction * Math.Sqrt(
+            1d + Math.Pow(
+                Math.PI * meanOutsideDiameterMillimetres /
+                carrier.RecommendedPitchMillimetres,
+                2d));
+        return Math.Clamp(fill * (2d - fill), 0d, 1d);
+    }
+
+    private static double TotalWireMetres(BraidCarrierResult carrier) =>
+        carrier.TotalBraidStrands * carrier.StrandLengthPerBobbinMetres;
+}
+
 /// <summary>
 /// Reference tables transcribed from the workbook's Braid Coverage Calculator.
 /// They are kept in the domain layer so every interface uses one versioned source.
@@ -59,7 +149,7 @@ public static class BraidReferenceTables
         Enumerable.Range(1, 10).ToArray();
 
     public static IReadOnlyList<double> EffectiveWireDiameterOptionsMillimetres { get; } =
-        [0.1d, 0.2d];
+        [0.1d, 0.15d, 0.2d];
 
     public static IReadOnlyList<BraidCoreLayout> CoreLayouts { get; } =
     [
@@ -396,12 +486,13 @@ public static class BraidCoverageCalculator
                 "Choose between 1 and 10 ends per carrier.");
         }
 
-        if (!BraidReferenceTables.EffectiveWireDiameterOptionsMillimetres.Contains(
-                inputs.EffectiveWireDiameterMillimetres))
+        if (!double.IsFinite(inputs.EffectiveWireDiameterMillimetres) ||
+            inputs.EffectiveWireDiameterMillimetres <= 0d ||
+            inputs.EffectiveWireDiameterMillimetres > 0.25d)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(inputs),
-                "Choose an effective wire diameter of 0.1 mm or 0.2 mm.");
+                "Choose a retained braid-wire diameter greater than zero and no more than 0.25 mm.");
         }
 
         if (!double.IsFinite(inputs.CableLengthMetres) || inputs.CableLengthMetres <= 0d)

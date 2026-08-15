@@ -11,6 +11,24 @@
             Severity="Informational"
             Title="Visual check, not a hidden formula" />
 
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="2">
+                <TextBlock FontWeight="SemiBold" Text="Preview detail" />
+                <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Detailed mode separates the retained ends within each carrier bundle and shows the alternating over-under weave." TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch
+                x:Name="DetailedPreviewToggle"
+                Grid.Column="1"
+                Header="Detailed"
+                OffContent="Simple"
+                OnContent="Detailed"
+                Toggled="DetailedPreviewToggle_Toggled" />
+        </Grid>
+
         <Border Style="{StaticResource ModuleBackgroundCardStyle}">
             <StackPanel Spacing="8">
                 <Grid ColumnSpacing="12">
@@ -21,7 +39,7 @@
                     <TextBlock FontWeight="SemiBold" Text="16-carrier braid" />
                     <TextBlock
                         Grid.Column="1"
-                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Foreground="{StaticResource ModuleResultBorderBrush}"
                         Text="{Binding SixteenCarrierPitchDisplay}" />
                 </Grid>
                 <Canvas
@@ -48,7 +66,7 @@
                     <TextBlock FontWeight="SemiBold" Text="24-carrier braid" />
                     <TextBlock
                         Grid.Column="1"
-                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Foreground="{StaticResource ModuleResultBorderBrush}"
                         Text="{Binding TwentyFourCarrierPitchDisplay}" />
                 </Grid>
                 <Canvas
@@ -65,34 +83,10 @@
             </StackPanel>
         </Border>
 
-        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
-            <StackPanel Spacing="8">
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock FontWeight="SemiBold" Text="Buncher lay" />
-                    <TextBlock
-                        Grid.Column="1"
-                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                        Text="{Binding BuncherGearsDisplay}" />
-                </Grid>
-                <Canvas
-                    x:Name="BuncherCanvas"
-                    Height="118"
-                    HorizontalAlignment="Stretch"
-                    SizeChanged="PreviewCanvas_SizeChanged" />
-                <TextBlock
-                    Style="{StaticResource ModuleSupportingTextStyle}"
-                    Text="{Binding BuncherTraceDisplay}" />
-            </StackPanel>
-        </Border>
-
         <TextBlock
             FontSize="11"
             Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-            Text="Schematic strand paths are intentionally subordinate to the labelled pitch, coverage and gear results."
+            Text="The preview is a scaled visual check. The labelled pitch, coverage and strand-length values remain authoritative."
             TextWrapping="Wrap" />
     </StackPanel>
 </UserControl>

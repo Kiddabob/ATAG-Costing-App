@@ -1,5 +1,36 @@
 # Costing App release notes
 
+## 0.5.1 - 2026-08-15
+
+- Makes the Braid Coverage recommendation immediately recognisable with a
+  fixed semantic success treatment that stays distinct from the user's chosen
+  interaction accent, including when that accent is red.
+- Gives each 16- and 24-carrier target-braid result three equally weighted
+  headline values for pitch, braid angle, and wire per bobbin, while keeping
+  supporting values visible at a quieter visual weight.
+- Moves the workbook's fixed 55 mm pitch comparison into a separate labelled
+  reference card so it cannot be mistaken for the requested target-braid
+  result or influence the recommendation.
+- Adds the versioned carrier recommendation rule: first prefer an option that
+  reaches target coverage at its calculated target pitch, then the closest
+  achieved coverage, then the lower total braid-wire requirement. The 55 mm
+  reference result is deliberately excluded from this rule.
+- Separates Braid Coverage and Buncher Lay into independent engineering
+  modules, each with its own LIVE Preview, navigation entry, calculation
+  boundary, and collapsed trace.
+- Adds a retained-Copper braid-wire selector for loose and multi-wire records
+  with one to ten ends and a recorded wire diameter no greater than 0.25 mm,
+  preserving supplier and conductor-finish details.
+- Adds a resizable Simple/Detailed Braid LIVE Preview with stable material
+  colours and an interlaced over-under carrier rendering that remains visual
+  evidence only and never becomes a second calculation engine.
+- Brings Dual Insulation onto the shared responsive module shell and adds its
+  own optional LIVE construction preview while retaining the existing dual
+  costing formulas, startup rules, and saved-document schema.
+- Records the future controlled technical-datasheet output boundary in the
+  Reporting scope, including source provenance, approval, editable A4 preview,
+  and a rule that unavailable engineering values are never invented.
+
 ## 0.5.0 - 2026-08-15
 
 - Adds a reusable engineering-module workspace with a non-scrolling header,

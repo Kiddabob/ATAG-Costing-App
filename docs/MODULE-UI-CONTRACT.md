@@ -22,10 +22,11 @@ LIVE Preview is off by default. Module geometry consumes already-calculated resu
 
 The reusable resources in `App.xaml` establish the hierarchy:
 
-- `ModuleHeaderCardStyle` identifies the current module with a restrained accent edge;
+- `ModuleHeaderCardStyle` identifies the current module with a restrained, stable engineering-blue edge;
 - `ModuleSectionCardStyle` contains a complete workflow stage;
 - `ModuleBackgroundCardStyle` holds supporting inputs, source values and explanations;
-- `ModulePrimaryResultCardStyle` highlights authoritative outputs with a subtle app-accent tint and clear border;
+- `ModulePrimaryResultCardStyle` highlights authoritative outputs with the stable engineering-result palette and clear border;
+- the user-selected accent is reserved for focus, selection, active navigation and user-invoked actions; it must not communicate success, warning, error, approval or calculated authority;
 - `ModuleMetricLabelStyle` and `ModuleMetricValueStyle` keep values scannable;
 - `ModuleStatusInfoBarStyle` uses WinUI's accessible Information, Success, Warning and Error semantics.
 

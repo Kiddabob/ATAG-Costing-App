@@ -275,6 +275,11 @@
                         <FontIcon Glyph="&#xE9D2;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="Buncher lay" Tag="buncher">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7C3;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="Reports" Tag="reports">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8A5;" />
@@ -735,6 +740,14 @@
                         </StackPanel>
                     </ScrollViewer>
 
+                    <local:BraidCalculatorView
+                        x:Name="BraidCalculatorModuleView"
+                        Visibility="Collapsed" />
+
+                    <local:BuncherLayView
+                        x:Name="BuncherLayModuleView"
+                        Visibility="Collapsed" />
+
                     <ScrollViewer
                         x:Name="ModulePlaceholderView"
                         Visibility="Collapsed">
@@ -774,31 +787,48 @@
                         </Grid>
                     </ScrollViewer>
 
-                    <ScrollViewer
+                    <local:ModuleWorkspaceShell
                         x:Name="DualConstructionView"
+                        IsPreviewEnabled="False"
+                        PreviewOffMessage="Turn on LIVE Preview to inspect the scaled conductor, first insulation and second insulation while this costing page scrolls."
+                        PreviewSubtitle="The cross-section and side profile follow the visible Dual inputs."
+                        PreviewTitle="LIVE Dual Preview"
                         Visibility="Collapsed">
-                        <StackPanel Margin="32,16,32,48" Spacing="20">
-                            <Border
-                                Padding="24"
-                                Background="{StaticResource AtagNavyBrush}"
-                                CornerRadius="16">
-                                <StackPanel Spacing="8">
-                                    <TextBlock
-                                        Foreground="{StaticResource AtagCyanBrush}"
-                                        Style="{StaticResource SectionLabelStyle}"
-                                        Text="DUAL INSULATED CONSTRUCTION" />
-                                    <TextBlock
-                                        FontSize="28"
-                                        FontWeight="SemiBold"
-                                        Foreground="White"
-                                        Text="Build the cable from the copper outwards"
-                                        TextWrapping="Wrap" />
-                                    <TextBlock
-                                        Foreground="#D9E7F2"
-                                        Text="Cost both insulation layers in one guided, traceable workspace while retaining their different production scopes."
-                                        TextWrapping="Wrap" />
-                                </StackPanel>
+                        <local:ModuleWorkspaceShell.HeaderContent>
+                            <Border Margin="32,8,32,6" Style="{StaticResource ModuleHeaderCardStyle}">
+                                <Grid ColumnSpacing="18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Style="{StaticResource SectionLabelStyle}" Text="DUAL INSULATED CONSTRUCTION" />
+                                        <TextBlock FontSize="26" FontWeight="SemiBold" Text="Build the cable from the copper outwards" TextWrapping="Wrap" />
+                                        <TextBlock MaxWidth="880" Style="{StaticResource ModuleSupportingTextStyle}" Text="Cost both insulation layers in one guided, traceable workspace while retaining their different production scopes." />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" MinWidth="220" VerticalAlignment="Center" Spacing="3">
+                                        <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="RECOMMENDED QUOTE" />
+                                        <TextBlock FontSize="24" FontWeight="SemiBold" Text="{Binding RecommendedQuoteDisplay}" />
+                                        <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="{Binding RevisionStatusDisplay}" />
+                                    </StackPanel>
+                                </Grid>
                             </Border>
+                        </local:ModuleWorkspaceShell.HeaderContent>
+
+                        <local:ModuleWorkspaceShell.PreviewGuidanceContent>
+                            <InfoBar
+                                Style="{StaticResource ModuleStatusInfoBarStyle}"
+                                Message="Dimensions and costing remain authoritative. The preview is a scaled visual check of the selected retained materials and inside-to-outside order."
+                                Severity="Informational"
+                                Title="Visual check" />
+                        </local:ModuleWorkspaceShell.PreviewGuidanceContent>
+
+                        <local:ModuleWorkspaceShell.PreviewContent>
+                            <local:DualLivePreview />
+                        </local:ModuleWorkspaceShell.PreviewContent>
+
+                        <local:ModuleWorkspaceShell.WorkspaceContent>
+                        <StackPanel MaxWidth="1540" Margin="32,16,24,48" HorizontalAlignment="Center" Spacing="20">
 
                             <InfoBar
                                 IsClosable="False"
@@ -1510,14 +1540,9 @@
                                 Severity="Informational"
                                 Title="Documents staged explicitly" />
 
-                            <InfoBar
-                                IsClosable="False"
-                                IsOpen="True"
-                                Message="The optional scaled dual cross-section and side-profile renderer remains a later visual slice. It will consume this saved ordered construction and stay off by default."
-                                Severity="Informational"
-                                Title="Live cable view staged" />
                         </StackPanel>
-                    </ScrollViewer>
+                        </local:ModuleWorkspaceShell.WorkspaceContent>
+                    </local:ModuleWorkspaceShell>
 
                     <Grid
                         x:Name="CostingWorkspaceView"
@@ -5043,10 +5068,6 @@
                                 TextWrapping="Wrap" />
                         </StackPanel>
                     </ScrollViewer>
-
-                    <local:BraidCalculatorView
-                        x:Name="BraidCalculatorModuleView"
-                        Visibility="Collapsed" />
 
                     <ScrollViewer
                         x:Name="SettingsView"

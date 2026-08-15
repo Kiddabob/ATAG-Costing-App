@@ -28,7 +28,7 @@
 
     <local:ModuleWorkspaceShell
         IsPreviewEnabled="False"
-        PreviewOffMessage="Turn on LIVE Preview to compare the 16- and 24-carrier braid paths and the selected buncher lay. The labelled calculations remain available while it is off."
+        PreviewOffMessage="Turn on LIVE Preview to compare the 16- and 24-carrier braid paths. The labelled calculations remain available while it is off."
         PreviewSubtitle="Coverage and lay geometry update from the visible Braid inputs."
         PreviewTitle="LIVE Braid Preview">
         <local:ModuleWorkspaceShell.HeaderContent>
@@ -41,7 +41,7 @@
                     <StackPanel Spacing="4">
                         <TextBlock Style="{StaticResource SectionLabelStyle}" Text="BRAID COVERAGE MODULE" />
                         <TextBlock FontSize="26" FontWeight="SemiBold" Text="Set the cable, compare the carriers, and see every formula." TextWrapping="Wrap" />
-                        <TextBlock MaxWidth="850" Style="{StaticResource ModuleSupportingTextStyle}" Text="The core lay-up factors, braid formula and buncher gears come from the workbook calculator. Results update immediately as an input changes." />
+                        <TextBlock MaxWidth="850" Style="{StaticResource ModuleSupportingTextStyle}" Text="The core lay-up factors and braid formula come from the workbook calculator. Braid wire comes from the retained Copper table and results update immediately as an input changes." />
                     </StackPanel>
                     <InfoBar
                         Grid.Column="1"
@@ -79,23 +79,41 @@
                             <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="1 · Braid inputs" />
                             <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Enter the physical cable and braid requirements. These supporting inputs stay neutral so the calculated machine results remain the visual focus." />
                         </StackPanel>
-                        <Grid ColumnSpacing="14" RowSpacing="12">
+                        <Border
+                            BorderBrush="{StaticResource ModuleResultBorderBrush}"
+                            BorderThickness="2"
+                            Style="{StaticResource ModuleBackgroundCardStyle}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="TARGET BRAID DEFINITION" />
+                                <Grid ColumnSpacing="14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <NumberBox Header="Target coverage (%)" Maximum="99.99" Minimum="0.01" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding TargetCoveragePercent, Mode=TwoWay}" />
+                                    <NumberBox Grid.Column="1" Header="Single core OD (mm)" Minimum="0.001" SmallChange="0.1" SpinButtonPlacementMode="Compact" Value="{Binding CoreOutsideDiameterMillimetres, Mode=TwoWay}" />
+                                    <ComboBox Grid.Column="2" DisplayMemberPath="Display" Header="Number of cores and lay-up" HorizontalAlignment="Stretch" ItemsSource="{Binding CoreLayouts}" SelectedItem="{Binding SelectedCoreLayout, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        <Grid ColumnSpacing="14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="2*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <NumberBox Header="Target coverage (%)" Maximum="99.99" Minimum="0.01" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding TargetCoveragePercent, Mode=TwoWay}" />
-                            <NumberBox Grid.Column="1" Header="Single core OD (mm)" Minimum="0.001" SmallChange="0.1" SpinButtonPlacementMode="Compact" Value="{Binding CoreOutsideDiameterMillimetres, Mode=TwoWay}" />
-                            <ComboBox Grid.Column="2" DisplayMemberPath="Display" Header="Number of cores and lay-up" HorizontalAlignment="Stretch" ItemsSource="{Binding CoreLayouts}" SelectedItem="{Binding SelectedCoreLayout, Mode=TwoWay}" />
-                            <ComboBox Grid.Row="1" Header="Ends per carrier" HorizontalAlignment="Stretch" ItemsSource="{Binding EndsPerCarrierOptions}" SelectedItem="{Binding SelectedEndsPerCarrier, Mode=TwoWay}" />
-                            <ComboBox Grid.Row="1" Grid.Column="1" Header="Effective wire diameter (mm)" HorizontalAlignment="Stretch" ItemsSource="{Binding EffectiveWireDiameterOptions}" SelectedItem="{Binding SelectedEffectiveWireDiameterMillimetres, Mode=TwoWay}" />
-                            <NumberBox Grid.Row="1" Grid.Column="2" Header="Target cable length (m)" Minimum="0.001" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding CableLengthMetres, Mode=TwoWay}" />
+                            <ComboBox Header="Ends per carrier" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableEndCounts}" SelectedItem="{Binding SelectedEndCount, Mode=TwoWay}" />
+                            <ComboBox Grid.Column="1" DisplayMemberPath="Display" Header="Retained Copper braid wire" HorizontalAlignment="Stretch" ItemsSource="{Binding BraidWireOptions}" SelectedItem="{Binding SelectedBraidWire, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="2" Header="Target cable length (m)" Minimum="0.001" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding CableLengthMetres, Mode=TwoWay}" />
                         </Grid>
+                        <InfoBar
+                            IsOpen="True"
+                            Message="{Binding BraidWireSourceStatus}"
+                            Severity="Informational"
+                            Style="{StaticResource ModuleStatusInfoBarStyle}"
+                            Title="Copper-backed braid wire" />
+                        <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="{Binding SelectedWireDetail}" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 
@@ -103,7 +121,7 @@
                     <StackPanel Spacing="14">
                         <StackPanel Spacing="4">
                             <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="2 · Coverage calculation flow" />
-                            <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="The selected cable envelope and target fill feed both machine configurations in parallel. Equal accent treatment means neither option is presented as a recommendation without an approved rule." />
+                            <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="The selected cable envelope and target fill feed both machine configurations in parallel. Stable result styling means neither option is presented as a recommendation without an approved rule." />
                         </StackPanel>
 
                         <Border Style="{StaticResource ModuleBackgroundCardStyle}">
@@ -128,60 +146,147 @@
                             </Grid>
                         </Border>
 
-                        <FontIcon HorizontalAlignment="Center" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Glyph="&#xE70D;" />
+                        <FontIcon HorizontalAlignment="Center" Foreground="{StaticResource ModuleFlowConnectorBrush}" Glyph="&#xE70D;" />
+
+                        <InfoBar
+                            IsOpen="True"
+                            Message="{Binding RecommendationDisplay}"
+                            Severity="Success"
+                            Style="{StaticResource ModuleStatusInfoBarStyle}"
+                            Title="Recommended carrier" />
 
                         <Grid ColumnSpacing="18">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ModulePrimaryResultCardStyle}">
-                                <StackPanel Spacing="8">
-                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="16-CARRIER RESULT" />
-                                    <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding SixteenCarrierPitchDisplay}" />
-                                    <TextBlock Text="{Binding SixteenCarrierStrandsDisplay}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding SixteenCarrierAnglesDisplay}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding SixteenCarrierCoverageDisplay}" />
-                                    <TextBlock Text="{Binding SixteenCarrierLengthDisplay}" />
+                            <Border x:Name="SixteenCarrierResultCard" Style="{StaticResource ModuleBackgroundCardStyle}">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="16-carrier braid" />
+                                        <Border x:Name="SixteenRecommendationBadge" Grid.Column="1" Padding="10,5" Background="{StaticResource ModuleRecommendedBrush}" CornerRadius="12" Visibility="Collapsed">
+                                            <TextBlock Foreground="White" FontWeight="SemiBold" Text="RECOMMENDED" />
+                                        </Border>
+                                    </Grid>
+                                    <Border Style="{StaticResource ModulePrimaryResultCardStyle}">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="TARGET BRAID RESULT" />
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="3">
+                                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="REQUIRED PITCH" />
+                                                    <TextBlock Foreground="White" FontSize="22" FontWeight="SemiBold" Text="{Binding SixteenCarrierPitchDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="3">
+                                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="BRAID ANGLE" />
+                                                    <TextBlock Foreground="White" FontSize="22" FontWeight="SemiBold" Text="{Binding SixteenCarrierLongitudinalAngleDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Spacing="3">
+                                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="WIRE / BOBBIN" />
+                                                    <TextBlock Foreground="White" FontSize="18" FontWeight="SemiBold" Text="{Binding SixteenCarrierLengthDisplay}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="REFERENCE CHECK · 55 mm PITCH" />
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="COVERAGE" />
+                                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SixteenCarrierReferenceCoverageDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="PERPENDICULAR ANGLE" />
+                                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SixteenCarrierPerpendicularAngleDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Spacing="2">
+                                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="BASE FILL" />
+                                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding SixteenCarrierBaseFillDisplay}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="{Binding SixteenCarrierTotalStrandsDisplay}" />
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="1" Style="{StaticResource ModulePrimaryResultCardStyle}">
-                                <StackPanel Spacing="8">
-                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="24-CARRIER RESULT" />
-                                    <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding TwentyFourCarrierPitchDisplay}" />
-                                    <TextBlock Text="{Binding TwentyFourCarrierStrandsDisplay}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding TwentyFourCarrierAnglesDisplay}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding TwentyFourCarrierCoverageDisplay}" />
-                                    <TextBlock Text="{Binding TwentyFourCarrierLengthDisplay}" />
+                            <Border x:Name="TwentyFourCarrierResultCard" Grid.Column="1" Style="{StaticResource ModuleBackgroundCardStyle}">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="24-carrier braid" />
+                                        <Border x:Name="TwentyFourRecommendationBadge" Grid.Column="1" Padding="10,5" Background="{StaticResource ModuleRecommendedBrush}" CornerRadius="12" Visibility="Collapsed">
+                                            <TextBlock Foreground="White" FontWeight="SemiBold" Text="RECOMMENDED" />
+                                        </Border>
+                                    </Grid>
+                                    <Border Style="{StaticResource ModulePrimaryResultCardStyle}">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="TARGET BRAID RESULT" />
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="3">
+                                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="REQUIRED PITCH" />
+                                                    <TextBlock Foreground="White" FontSize="22" FontWeight="SemiBold" Text="{Binding TwentyFourCarrierPitchDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="3">
+                                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="BRAID ANGLE" />
+                                                    <TextBlock Foreground="White" FontSize="22" FontWeight="SemiBold" Text="{Binding TwentyFourCarrierLongitudinalAngleDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Spacing="3">
+                                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="WIRE / BOBBIN" />
+                                                    <TextBlock Foreground="White" FontSize="18" FontWeight="SemiBold" Text="{Binding TwentyFourCarrierLengthDisplay}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="REFERENCE CHECK · 55 mm PITCH" />
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="COVERAGE" />
+                                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding TwentyFourCarrierReferenceCoverageDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="PERPENDICULAR ANGLE" />
+                                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding TwentyFourCarrierPerpendicularAngleDisplay}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Spacing="2">
+                                                    <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="BASE FILL" />
+                                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding TwentyFourCarrierBaseFillDisplay}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                    <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="{Binding TwentyFourCarrierTotalStrandsDisplay}" />
                                 </StackPanel>
                             </Border>
                         </Grid>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource ModuleSectionCardStyle}">
-                    <StackPanel Spacing="14">
-                        <StackPanel Spacing="4">
-                            <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="3 · Buncher lay selector" />
-                            <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Choose an available target lay. The exact workbook table match supplies the buncher and gear pair." />
-                        </StackPanel>
-                        <Grid ColumnSpacing="18">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <ComboBox DisplayMemberPath="Display" Header="Target lay length" HorizontalAlignment="Stretch" ItemsSource="{Binding BuncherLaySettings}" SelectedItem="{Binding SelectedBuncherLaySetting, Mode=TwoWay}" />
-                            <StackPanel Grid.Column="1" Spacing="4">
-                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="MACHINE" />
-                                <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding BuncherSizeDisplay}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="2" Spacing="4">
-                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="REQUIRED GEARS" />
-                                <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding BuncherGearsDisplay}" />
-                            </StackPanel>
-                        </Grid>
-                        <InfoBar Style="{StaticResource ModuleStatusInfoBarStyle}" Message="{Binding BuncherTraceDisplay}" Severity="Success" Title="Exact retained-table match" />
                     </StackPanel>
                 </Border>
 

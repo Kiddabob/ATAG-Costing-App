@@ -25,7 +25,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition x:Name="SplitterColumn" Width="10" />
+                <ColumnDefinition x:Name="SplitterColumn" Width="16" />
                 <ColumnDefinition x:Name="PreviewColumn" Width="480" />
             </Grid.ColumnDefinitions>
 
@@ -43,7 +43,11 @@
                 x:Name="ResizeHandle"
                 Grid.Row="0"
                 Grid.Column="1"
-                Background="Transparent"
+                HorizontalContentAlignment="Stretch"
+                IsTabStop="False"
+                ToolTipService.ToolTip="Drag to resize LIVE Preview"
+                VerticalContentAlignment="Stretch"
+                Background="#01FFFFFF"
                 PointerCanceled="ResizeHandle_PointerCanceled"
                 PointerEntered="ResizeHandle_PointerEntered"
                 PointerExited="ResizeHandle_PointerExited"
@@ -52,10 +56,11 @@
                 PointerReleased="ResizeHandle_PointerReleased">
                 <Border
                     x:Name="ResizeIndicator"
-                    Width="2"
+                    Width="4"
                     HorizontalAlignment="Center"
-                    Background="{ThemeResource CardStrokeColorDefaultBrush}"
-                    CornerRadius="2" />
+                    Background="{StaticResource ModuleResultBorderBrush}"
+                    CornerRadius="3"
+                    Opacity="0.48" />
             </local:HorizontalResizeGrip>
 
             <Border

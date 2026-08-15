@@ -74,6 +74,7 @@ public sealed partial class MainPage : Page
     public DualInsulationCostingViewModel DualCostingViewModel { get; }
     public ProductionSpeedLibraryViewModel ProductionSpeedViewModel { get; }
     public BraidCoverageViewModel BraidViewModel { get; }
+    public BuncherLayViewModel BuncherViewModel { get; }
 
     public MainPage()
     {
@@ -120,7 +121,9 @@ public sealed partial class MainPage : Page
                 isEditingEnabled: false)
             : new ProductionSpeedLibraryViewModel(
                 new JsonProductionSpeedLibraryStore());
-        BraidViewModel = new BraidCoverageViewModel();
+        BraidViewModel = new BraidCoverageViewModel(
+            _centralDataService.Load());
+        BuncherViewModel = new BuncherLayViewModel();
         InitializeComponent();
         InitializeAppUpdateDisplay();
         AppNavigation.PaneTitle = AppRuntimeMode.IsOrganisationBranded
@@ -142,6 +145,7 @@ public sealed partial class MainPage : Page
         MaterialDataView.DataContext = CostingViewModel;
         ProductionSpeedDataView.DataContext = ProductionSpeedViewModel;
         BraidCalculatorModuleView.DataContext = BraidViewModel;
+        BuncherLayModuleView.DataContext = BuncherViewModel;
         if (AppRuntimeMode.IsPublicReview)
         {
             ConfigurePublicReviewMode();
@@ -1745,9 +1749,12 @@ public sealed partial class MainPage : Page
             missingAreas);
     }
 
-    private void RefreshDualCentralData() =>
-        DualCostingViewModel.RefreshCentralData(
-            _centralDataService.Load());
+    private void RefreshDualCentralData()
+    {
+        var state = _centralDataService.Load();
+        DualCostingViewModel.RefreshCentralData(state);
+        BraidViewModel.RefreshCentralData(state);
+    }
 
     private void UpdateCorePrintPreviewVisibility()
     {
@@ -2798,6 +2805,7 @@ public sealed partial class MainPage : Page
         MaterialDataView.Visibility = Visibility.Collapsed;
         ProductionSpeedDataView.Visibility = Visibility.Collapsed;
         BraidCalculatorModuleView.Visibility = Visibility.Collapsed;
+        BuncherLayModuleView.Visibility = Visibility.Collapsed;
 
         switch (section)
         {
@@ -2865,8 +2873,15 @@ public sealed partial class MainPage : Page
             case "braid":
                 ViewModel.SetSection(
                     "Braid calculator",
-                    "Compare carrier counts, pitch, coverage and buncher settings with a full calculation trace.");
+                    "Compare carrier counts, pitch and coverage with retained Copper wire and a full calculation trace.");
                 BraidCalculatorModuleView.Visibility = Visibility.Visible;
+                break;
+
+            case "buncher":
+                ViewModel.SetSection(
+                    "Buncher lay",
+                    "Choose an available target lay and reveal the exact retained machine and gear pair.");
+                BuncherLayModuleView.Visibility = Visibility.Visible;
                 break;
 
             case "reports":

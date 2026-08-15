@@ -70,8 +70,9 @@ working costing first.
 
 1. Change `CostingAppVersion` in `Directory.Build.props` and update
    `CHANGELOG.md`.
-2. Run `tools/Build-Release.ps1` on Windows, or run the **Build and publish
-   release** GitHub Actions workflow.
+2. Run `tools/Build-Release.ps1` on Windows, then run the existing
+   **Build and publish release** GitHub Actions workflow manually. Select
+   whether the release is Stable or Beta/pre-release in that workflow.
 3. Confirm the safety audit, tests, installer launch, and update behaviour from
    an installed older version.
 4. Publish every file from `artifacts/release/releases`; users only need the

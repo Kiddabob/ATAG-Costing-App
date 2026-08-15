@@ -31,6 +31,7 @@ public sealed class BraidCoverageCalculatorTests
             new BraidCoreLayout(45, "2-8-14-21", 8d),
             BraidReferenceTables.CoreLayouts[^1]);
         Assert.Equal(Enumerable.Range(1, 10), BraidReferenceTables.EndsPerCarrierOptions);
+        Assert.Contains(0.15d, BraidReferenceTables.EffectiveWireDiameterOptionsMillimetres);
         Assert.Equal(18, BraidReferenceTables.BuncherLaySettings.Count);
         Assert.Contains(
             new BuncherLaySetting(19.43d, 35, 50, "Small"),
@@ -64,6 +65,36 @@ public sealed class BraidCoverageCalculatorTests
 
         Assert.Throws<ArgumentOutOfRangeException>(
             () => BraidCoverageCalculator.Calculate(inputs));
+    }
+
+    [Fact]
+    public void Calculate_AcceptsRetainedWireDiameterUpToQuarterMillimetre()
+    {
+        var result = BraidCoverageCalculator.Calculate(
+            ReferenceInputs() with
+            {
+                EffectiveWireDiameterMillimetres = 0.15d,
+            });
+
+        Assert.Equal(0.15d, result.SixteenCarrier.BaseFillFraction *
+            (2d * Math.PI * result.MeanOutsideDiameterMillimetres) /
+            result.SixteenCarrier.TotalBraidStrands, 10);
+    }
+
+    [Fact]
+    public void Recommendation_UsesTargetResultAndKeepsReferencePitchIndependent()
+    {
+        var result = BraidCoverageCalculator.Calculate(ReferenceInputs());
+
+        var recommendation = BraidCarrierRecommender.Select(result, 0.8d);
+
+        Assert.Equal(16, recommendation.CarrierCount);
+        Assert.Equal(0.8d, recommendation.SixteenCarrierCoverageFraction, 10);
+        Assert.Equal(0.8d, recommendation.TwentyFourCarrierCoverageFraction, 10);
+        Assert.Contains("tie-break", recommendation.Reason);
+        Assert.NotEqual(
+            result.SixteenCarrier.CoverageAtReferencePitchFraction,
+            recommendation.SixteenCarrierCoverageFraction);
     }
 
     private static BraidCoverageInputs ReferenceInputs() =>

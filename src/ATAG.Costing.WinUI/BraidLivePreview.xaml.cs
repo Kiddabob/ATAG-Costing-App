@@ -11,7 +11,7 @@ using Windows.UI;
 namespace ATAG.Costing.WinUI;
 
 /// <summary>
-/// Visual-only braid and buncher preview. Calculation values continue to come
+/// Visual-only braid preview. Calculation values continue to come
 /// exclusively from <see cref="BraidCoverageViewModel"/>.
 /// </summary>
 public sealed partial class BraidLivePreview : UserControl
@@ -69,6 +69,10 @@ public sealed partial class BraidLivePreview : UserControl
         object sender,
         SizeChangedEventArgs e) => RenderAll();
 
+    private void DetailedPreviewToggle_Toggled(
+        object sender,
+        RoutedEventArgs e) => RenderAll();
+
     private void RenderAll()
     {
         if (!IsLoaded || ViewModel is null)
@@ -78,7 +82,6 @@ public sealed partial class BraidLivePreview : UserControl
 
         DrawCoveragePreview(SixteenCarrierCanvas, carrierCount: 16);
         DrawCoveragePreview(TwentyFourCarrierCanvas, carrierCount: 24);
-        DrawBuncherPreview(BuncherCanvas);
     }
 
     private void DrawCoveragePreview(Canvas canvas, int carrierCount)
@@ -88,35 +91,39 @@ public sealed partial class BraidLivePreview : UserControl
         canvas.Children.Clear();
 
         var bodyLeft = 12d;
-        var bodyTop = 24d;
+        var bodyTop = 20d;
         var bodyWidth = width - 24d;
-        var bodyHeight = height - 48d;
+        var bodyHeight = height - 44d;
         var bodyBottom = bodyTop + bodyHeight;
+        var detailed = DetailedPreviewToggle?.IsOn == true;
+        var endCount = Math.Max(ViewModel!.SelectedEndsPerCarrier, 1);
         var strandThickness = Math.Clamp(
-            1.25d +
-            (ViewModel!.SelectedEffectiveWireDiameterMillimetres /
-             Math.Max(ViewModel.CoreOutsideDiameterMillimetres, 0.001d)) * 45d,
-            1.5d,
-            4.5d);
-        var coverage = Math.Clamp(
-            ViewModel.TargetCoveragePercent / 100d,
-            0.05d,
-            0.99d);
-        var densitySpacing = Math.Clamp(
-            30d - (coverage * 20d) - (carrierCount == 24 ? 3d : 0d),
-            7d,
-            24d);
+            (ViewModel.SelectedEffectiveWireDiameterMillimetres /
+             Math.Max(ViewModel.CoreOutsideDiameterMillimetres, 0.001d)) * bodyHeight,
+            detailed ? 0.75d : 1.6d,
+            detailed ? 2.2d : 5.4d);
+        var pitch = CarrierPitch(carrierCount);
+        var visualPitch = Math.Clamp(
+            pitch / Math.Max(ViewModel.CoreOutsideDiameterMillimetres, 0.001d) *
+            bodyHeight * 0.72d,
+            34d,
+            170d);
 
-        var cableBrush = new SolidColorBrush(Color.FromArgb(42, 67, 184, 212));
+        var cableBrush = new LinearGradientBrush
+        {
+            StartPoint = new Point(0.5d, 0d),
+            EndPoint = new Point(0.5d, 1d),
+            GradientStops =
+            {
+                new GradientStop { Color = Color.FromArgb(255, 35, 48, 58), Offset = 0d },
+                new GradientStop { Color = Color.FromArgb(255, 76, 91, 102), Offset = 0.45d },
+                new GradientStop { Color = Color.FromArgb(255, 26, 36, 44), Offset = 1d },
+            }
+        };
         var outlineBrush = ResourceBrush(
             "TextFillColorSecondaryBrush",
             Colors.Gray);
-        var forwardBrush = ResourceBrush(
-            "AccentFillColorDefaultBrush",
-            Colors.Coral);
-        var reverseBrush = ResourceBrush(
-            "AtagCyanBrush",
-            Colors.DeepSkyBlue);
+        var (wireLight, wireMid, wireDark) = WirePalette();
 
         var cableBody = new Rectangle
         {
@@ -145,30 +152,18 @@ public sealed partial class BraidLivePreview : UserControl
         Canvas.SetTop(weaveLayer, bodyTop);
         canvas.Children.Add(weaveLayer);
 
-        var diagonalRun = Math.Max(bodyHeight * 1.15d, 54d);
-        for (var x = -diagonalRun; x <= bodyWidth + diagonalRun; x += densitySpacing)
-        {
-            weaveLayer.Children.Add(new Line
-            {
-                X1 = x,
-                Y1 = 0d,
-                X2 = x + diagonalRun,
-                Y2 = bodyHeight,
-                Stroke = forwardBrush,
-                StrokeThickness = strandThickness,
-                Opacity = 0.82d
-            });
-            weaveLayer.Children.Add(new Line
-            {
-                X1 = x + diagonalRun,
-                Y1 = 0d,
-                X2 = x,
-                Y2 = bodyHeight,
-                Stroke = reverseBrush,
-                StrokeThickness = strandThickness,
-                Opacity = 0.72d
-            });
-        }
+        DrawInterlacedWeave(
+            weaveLayer,
+            bodyWidth,
+            bodyHeight,
+            visualPitch,
+            carrierCount,
+            endCount,
+            detailed,
+            strandThickness,
+            wireLight,
+            wireMid,
+            wireDark);
 
         AddEndFace(canvas, bodyLeft, bodyTop, bodyHeight, outlineBrush);
         AddEndFace(
@@ -189,75 +184,182 @@ public sealed partial class BraidLivePreview : UserControl
         canvas.Children.Add(caption);
     }
 
-    private void DrawBuncherPreview(Canvas canvas)
+    private void DrawInterlacedWeave(
+        Canvas layer,
+        double width,
+        double height,
+        double pitch,
+        int carrierCount,
+        int endsPerCarrier,
+        bool detailed,
+        double strandThickness,
+        Color clockwiseColour,
+        Color counterClockwiseColour,
+        Color edgeColour)
     {
-        var width = Math.Max(canvas.ActualWidth, 300d);
-        var height = Math.Max(canvas.ActualHeight, 108d);
-        canvas.Children.Clear();
-
-        var bodyLeft = 12d;
-        var bodyTop = 24d;
-        var bodyWidth = width - 24d;
-        var bodyHeight = height - 48d;
-        var outlineBrush = ResourceBrush(
-            "TextFillColorSecondaryBrush",
-            Colors.Gray);
-        var accentBrush = ResourceBrush(
-            "AccentFillColorDefaultBrush",
-            Colors.Coral);
-        var mutedBrush = new SolidColorBrush(Color.FromArgb(34, 127, 127, 127));
-
-        var body = new Rectangle
+        // A braid alternates which carrier direction is uppermost. Rendering the
+        // complete clockwise set and then the complete counter-clockwise set
+        // makes one direction look pasted over the other. These clipped bands
+        // alternate the drawing order so each family visibly passes over and
+        // under the other while retaining the same pitch geometry.
+        var bandWidth = Math.Clamp(pitch / 4d, 7d, 24d);
+        var bandCount = Math.Max((int)Math.Ceiling(width / bandWidth), 1);
+        for (var bandIndex = 0; bandIndex < bandCount; bandIndex++)
         {
-            Width = bodyWidth,
-            Height = bodyHeight,
-            RadiusX = bodyHeight / 2d,
-            RadiusY = bodyHeight / 2d,
-            Fill = mutedBrush,
-            Stroke = outlineBrush,
-            StrokeThickness = 1.5d
-        };
-        Canvas.SetLeft(body, bodyLeft);
-        Canvas.SetTop(body, bodyTop);
-        canvas.Children.Add(body);
-
-        var selectedLay = ViewModel?.SelectedBuncherLaySetting?.LayLengthMillimetres ?? 20d;
-        var visualSpacing = Math.Clamp(selectedLay * 2.2d, 24d, 86d);
-        var layLayer = new Canvas
-        {
-            Width = bodyWidth,
-            Height = bodyHeight,
-            Clip = new RectangleGeometry
+            var bandLeft = bandIndex * bandWidth;
+            var clippedWidth = Math.Min(bandWidth + 0.8d, width - bandLeft);
+            var band = new Canvas
             {
-                Rect = new Rect(0d, 0d, bodyWidth, bodyHeight)
+                Width = width,
+                Height = height,
+                Clip = new RectangleGeometry
+                {
+                    Rect = new Rect(bandLeft, 0d, clippedWidth, height)
+                }
+            };
+            layer.Children.Add(band);
+
+            var clockwiseOnTop = bandIndex % 2 == 0;
+            if (clockwiseOnTop)
+            {
+                DrawCarrierDirection(band, -1d, counterClockwiseColour);
+                DrawCarrierDirection(band, 1d, clockwiseColour);
             }
-        };
-        Canvas.SetLeft(layLayer, bodyLeft);
-        Canvas.SetTop(layLayer, bodyTop);
-        canvas.Children.Add(layLayer);
-        for (var x = -bodyHeight; x < bodyWidth; x += visualSpacing)
-        {
-            layLayer.Children.Add(new Line
+            else
             {
-                X1 = x,
-                Y1 = 0d,
-                X2 = x + bodyHeight,
-                Y2 = bodyHeight,
-                Stroke = accentBrush,
-                StrokeThickness = 2.5d,
-                Opacity = 0.86d
-            });
+                DrawCarrierDirection(band, 1d, clockwiseColour);
+                DrawCarrierDirection(band, -1d, counterClockwiseColour);
+            }
         }
 
-        var caption = new TextBlock
+        void DrawCarrierDirection(Canvas target, double direction, Color colour) =>
+            DrawHelicalCarrierSet(
+                target,
+                width,
+                height,
+                pitch,
+                carrierCount / 2,
+                endsPerCarrier,
+                direction,
+                detailed,
+                strandThickness,
+                colour,
+                edgeColour);
+    }
+
+    private void DrawHelicalCarrierSet(
+        Canvas layer,
+        double width,
+        double height,
+        double pitch,
+        int carriersPerDirection,
+        int endsPerCarrier,
+        double direction,
+        bool detailed,
+        double strandThickness,
+        Color faceColour,
+        Color edgeColour)
+    {
+        var visibleCarriers = Math.Clamp(carriersPerDirection, 4, 12);
+        var phaseStep = Math.PI * 2d / visibleCarriers;
+        var renderEnds = detailed ? Math.Clamp(endsPerCarrier, 1, 10) : 1;
+        var bundleWidth = detailed
+            ? strandThickness * Math.Max(renderEnds - 1, 0) * 0.72d
+            : Math.Clamp(strandThickness * Math.Sqrt(endsPerCarrier) * 1.65d, 2.4d, 9d);
+
+        for (var carrier = 0; carrier < visibleCarriers; carrier++)
         {
-            FontSize = 11d,
-            Foreground = outlineBrush,
-            Text = $"{selectedLay:0.##} mm target lay · {ViewModel?.BuncherSizeDisplay}"
+            var phase = carrier * phaseStep;
+            for (var end = 0; end < renderEnds; end++)
+            {
+                var endOffset = renderEnds == 1
+                    ? 0d
+                    : (end - ((renderEnds - 1d) / 2d)) * strandThickness * 0.72d;
+                var shadow = BuildHelix(
+                    width,
+                    height,
+                    pitch,
+                    phase,
+                    direction,
+                    endOffset + 0.65d);
+                shadow.Stroke = new SolidColorBrush(edgeColour);
+                shadow.StrokeThickness = detailed
+                    ? strandThickness + 0.65d
+                    : bundleWidth + 1.1d;
+                shadow.Opacity = 0.72d;
+                layer.Children.Add(shadow);
+
+                var strand = BuildHelix(
+                    width,
+                    height,
+                    pitch,
+                    phase,
+                    direction,
+                    endOffset);
+                strand.Stroke = new SolidColorBrush(faceColour);
+                strand.StrokeThickness = detailed
+                    ? strandThickness
+                    : bundleWidth;
+                strand.Opacity = carrier % 2 == 0 ? 0.98d : 0.86d;
+                layer.Children.Add(strand);
+            }
+        }
+    }
+
+    private static Polyline BuildHelix(
+        double width,
+        double height,
+        double pitch,
+        double phase,
+        double direction,
+        double verticalOffset)
+    {
+        var line = new Polyline
+        {
+            StrokeLineJoin = PenLineJoin.Round,
+            StrokeStartLineCap = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
         };
-        Canvas.SetLeft(caption, bodyLeft + 8d);
-        Canvas.SetTop(caption, bodyTop + bodyHeight + 7d);
-        canvas.Children.Add(caption);
+        var centre = height / 2d;
+        var amplitude = Math.Max((height / 2d) - 4d, 4d);
+        var sampleCount = Math.Max((int)Math.Ceiling(width / 3d), 80);
+        for (var index = 0; index <= sampleCount; index++)
+        {
+            var x = width * index / sampleCount;
+            var angle = direction * ((Math.PI * 2d * x / pitch) + phase);
+            var y = centre + (Math.Sin(angle) * amplitude) + verticalOffset;
+            line.Points.Add(new Point(x, y));
+        }
+
+        return line;
+    }
+
+    private double CarrierPitch(int carrierCount)
+    {
+        var display = carrierCount == 16
+            ? ViewModel?.SixteenCarrierPitchDisplay
+            : ViewModel?.TwentyFourCarrierPitchDisplay;
+        var token = display?.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault();
+        return double.TryParse(token, out var pitch) && pitch > 0d
+            ? pitch
+            : 55d;
+    }
+
+    private (Color Light, Color Mid, Color Dark) WirePalette()
+    {
+        var material = ViewModel?.SelectedBraidWire?.Copper.MaterialTypeCode;
+        return string.Equals(material, "PCW", StringComparison.OrdinalIgnoreCase)
+            ? (Color.FromArgb(255, 238, 154, 78),
+               Color.FromArgb(255, 196, 103, 40),
+               Color.FromArgb(255, 99, 50, 23))
+            : string.Equals(material, "TI", StringComparison.OrdinalIgnoreCase)
+                ? (Color.FromArgb(255, 205, 220, 230),
+                   Color.FromArgb(255, 130, 151, 166),
+                   Color.FromArgb(255, 66, 82, 94))
+                : (Color.FromArgb(255, 239, 243, 245),
+                   Color.FromArgb(255, 184, 198, 207),
+                   Color.FromArgb(255, 91, 106, 116));
     }
 
     private static void AddEndFace(
