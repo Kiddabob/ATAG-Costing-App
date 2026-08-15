@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="ATAG.Costing.WinUI.BraidLivePreview"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="14">
+        <InfoBar
+            Style="{StaticResource ModuleStatusInfoBarStyle}"
+            Message="The diagrams consume the visible module inputs and results. They do not calculate or replace the workbook-derived values."
+            Severity="Informational"
+            Title="Visual check, not a hidden formula" />
+
+        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+            <StackPanel Spacing="8">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock FontWeight="SemiBold" Text="16-carrier braid" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Text="{Binding SixteenCarrierPitchDisplay}" />
+                </Grid>
+                <Canvas
+                    x:Name="SixteenCarrierCanvas"
+                    Height="132"
+                    HorizontalAlignment="Stretch"
+                    SizeChanged="PreviewCanvas_SizeChanged" />
+                <TextBlock
+                    Style="{StaticResource ModuleSupportingTextStyle}"
+                    Text="{Binding SixteenCarrierStrandsDisplay}" />
+                <TextBlock
+                    Style="{StaticResource ModuleSupportingTextStyle}"
+                    Text="{Binding SixteenCarrierCoverageDisplay}" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+            <StackPanel Spacing="8">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock FontWeight="SemiBold" Text="24-carrier braid" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Text="{Binding TwentyFourCarrierPitchDisplay}" />
+                </Grid>
+                <Canvas
+                    x:Name="TwentyFourCarrierCanvas"
+                    Height="132"
+                    HorizontalAlignment="Stretch"
+                    SizeChanged="PreviewCanvas_SizeChanged" />
+                <TextBlock
+                    Style="{StaticResource ModuleSupportingTextStyle}"
+                    Text="{Binding TwentyFourCarrierStrandsDisplay}" />
+                <TextBlock
+                    Style="{StaticResource ModuleSupportingTextStyle}"
+                    Text="{Binding TwentyFourCarrierCoverageDisplay}" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+            <StackPanel Spacing="8">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock FontWeight="SemiBold" Text="Buncher lay" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Text="{Binding BuncherGearsDisplay}" />
+                </Grid>
+                <Canvas
+                    x:Name="BuncherCanvas"
+                    Height="118"
+                    HorizontalAlignment="Stretch"
+                    SizeChanged="PreviewCanvas_SizeChanged" />
+                <TextBlock
+                    Style="{StaticResource ModuleSupportingTextStyle}"
+                    Text="{Binding BuncherTraceDisplay}" />
+            </StackPanel>
+        </Border>
+
+        <TextBlock
+            FontSize="11"
+            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+            Text="Schematic strand paths are intentionally subordinate to the labelled pitch, coverage and gear results."
+            TextWrapping="Wrap" />
+    </StackPanel>
+</UserControl>

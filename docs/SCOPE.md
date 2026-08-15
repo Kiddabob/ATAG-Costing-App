@@ -423,6 +423,23 @@ wording, the shared Dual/Flat/D-shape renderer, Flat/D-shape calculation
 engines, scenario comparison, and archive remain future work. See
 `CABLE-CONSTRUCTION-AND-VISUALISATION.md`.
 
+### Shared module presentation infrastructure
+
+New engineering and costing modules use the shared module workspace and visual
+hierarchy defined in `MODULE-UI-CONTRACT.md`. The shell keeps current status and
+actions above the scrolling editor, supplies an optional responsive LIVE
+Preview, keeps guidance visible while preview geometry is disabled, and
+detaches expensive preview content while it is off. Supporting values remain
+visually quiet; authoritative outputs receive restrained accent emphasis; and
+Information, Success, Warning, and Error states always include labels or icons
+as well as colour.
+
+Preview geometry consumes already-calculated inputs and results. It cannot
+calculate, correct, or replace a Domain/Application result. Braid Coverage is
+the first reference implementation. COR and Dual Insulation move onto this
+shared shell only through later controlled refactors that preserve their
+accepted calculations, saves, revisions, and detailed conductor geometry.
+
 ### 4. Quotes, contract review, and printing
 
 - Versioned quote and contract-review models.

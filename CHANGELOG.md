@@ -1,5 +1,29 @@
 # Costing App release notes
 
+## 0.5.0 - 2026-08-15
+
+- Adds a reusable engineering-module workspace with a non-scrolling header,
+  scrollable editor, always-available preview guidance, and an optional LIVE
+  Preview that moves from a resizable right dock to a compact bottom dock as
+  the app window narrows.
+- Adds shared module styles for quiet source data, clear calculation flow,
+  accent-backed authoritative results, and labelled Information, Success,
+  Warning, and Error states so colour supports meaning without becoming the
+  only way to understand it.
+- Uses the Braid Coverage calculator as the first reference module, including
+  responsive schematic 16-carrier, 24-carrier, and buncher-lay previews that
+  are detached while switched off and consume existing results without
+  becoming a second calculation engine.
+- Keeps the two valid braid-carrier results at equal visual weight until an
+  approved recommendation rule exists, and keeps the complete workbook-derived
+  calculation trace available but collapsed by default.
+- Documents the module contract that future costing and engineering modules
+  must follow, including preview boundaries, accessibility, compact-window
+  behaviour, calculation ownership, and the later controlled COR/Dual
+  migration path.
+- Makes no braid formula, costing formula, saved-document schema,
+  database-link, production-speed, or reporting change.
+
 ## 0.4.1 - 2026-08-13
 
 - Keeps every wrapped update bullet inside one aligned text column beside its

@@ -3077,3 +3077,44 @@ the deferred braid/copper UX requirements or the shared costing-page refactor.
 The next task should begin only when the user explicitly asks for it. Installed
 visual acceptance of the corrected card wrapping can be performed by updating
 v0.4.0 to v0.4.1.
+
+## 2026-08-14 shared module shell and LIVE Preview v0.5.0 candidate
+
+The user explicitly started the future-proofing slice recorded above. A shared
+`ModuleWorkspaceShell` now provides every future engineering/costing module
+with a sticky header, scrolling body, guidance that remains visible while LIVE
+Preview is off, deferred preview construction, a hover-reactive horizontal
+resize divider on wide windows, and an automatic bottom dock on compact
+windows. Shared `App.xaml` resources distinguish neutral source/supporting
+data, authoritative accent-backed results, and labelled WinUI semantic states.
+Colour is supportive rather than the sole carrier of meaning.
+
+`BraidCalculatorView` is the first reference consumer. It groups physical
+inputs before a visible calculation-flow connector, gives the equally valid
+16- and 24-carrier outputs equal weight, keeps its complete trace collapsed by
+default, and supplies schematic carrier/buncher diagrams through
+`BraidLivePreview`. The preview listens to the existing view model but performs
+no engineering or business calculation. Preview content is removed from the
+visual tree while disabled. The accepted COR preview and all saved-costing,
+revision, formula, data-link, production-speed, quotation, and reporting
+behaviour are unchanged in this slice.
+
+The governing contract is `docs/MODULE-UI-CONTRACT.md`; `docs/SCOPE.md` now
+links it. The next recommended development slice after installed v0.5.0 visual
+acceptance is to migrate Dual Insulation onto the shell and add a dual-layer
+preview from its existing ordered construction/result model. Migrate COR only
+after that shell behaviour is accepted, preserving its accepted conductor and
+print geometry exactly. Do not copy layout XAML into new modules or let preview
+geometry become a second source of calculated truth.
+
+Local release verification completed on 15 August 2026. The x64 Release
+solution and isolated public-review configuration both compile with 0 warnings
+and 0 errors. 142 tests pass, 2 approval-gated workbook fixtures remain
+intentionally skipped, and none fail. The authoritative release builder passed
+its required-asset, embedded-icon, private-file, publish, checksum, and Velopack
+gates. It created an unsigned 100,878,227-byte installer with SHA-256
+`421901a7dcd8d8e31cddaa5088cf5fc89ee12f411a249392d4d360c58443b18f`
+and a 96,285,075-byte full updater package with SHA-256
+`775c67ab5677e70239f3dc05fef8872d3ba129cb0917ef27d9e10cdfcd49f331`.
+Commit/push, GitHub Actions publication, anonymous asset/feed verification, and
+installed visual acceptance are still required before calling v0.5.0 public.
