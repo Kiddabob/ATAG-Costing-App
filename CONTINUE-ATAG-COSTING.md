@@ -3235,3 +3235,30 @@ The generated one-file installer is 100,893,024 bytes with SHA-256
 `3DA5E77605B200DF6A116120889374982CBE0577F32B07F97A6C5C30045C5633`.
 This is local build evidence only until the matching commit is accepted by
 GitHub and the manually launched hosted workflow publishes the public assets.
+
+### Public v0.5.1 verification completed - 15 August 2026
+
+Version 0.5.1 is now published as a stable public update at exact commit/tag
+`6880c7f2981d97a408d4bd9011def71c3de0d093`. GitHub Actions run
+`31880437184` completed successfully, including restore, the full test/audit
+and packaging gate, release publication and retained installer evidence.
+Release:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.5.1`.
+
+The Release is neither draft nor prerelease and contains all seven expected
+assets. The public installer is 100,893,034 bytes with SHA-256
+`8ec9d23df0e15ee8e90d2fd27762be00961621311048cef7ca5dd7e0ad710a93`.
+The public full updater package is 96,299,882 bytes with SHA-256
+`01a8bbc18e52856d974ce92bff1f82fddd43a32e95f5a95a22753ca6404c99b9`.
+An unauthenticated byte-range request succeeded for every installer, updater,
+portable, feed and checksum asset. `releases.win.json` reports version 0.5.1
+with the same updater size and hash, so installed clients can discover this
+release without a GitHub login. The installer remains unsigned.
+
+Publication is accepted. Installed visual acceptance is still required for
+the semantic result hierarchy, separated target/reference Braid cards,
+recommended-carrier treatment, Copper braid-wire choices, resizable detailed
+Braid preview, independent Buncher module and the Dual shared-shell preview.
+Base any further visual refinement on that installed build; do not change the
+accepted costing rules, saved-document schemas, or preview-as-evidence
+boundary while doing so.
