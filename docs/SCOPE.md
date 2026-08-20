@@ -80,6 +80,24 @@ lay-up/OD-factor table, 1-to-10 ends per carrier, formula trace, and exact
 Buncher Lay machine/gear selection. Reverse calculation and insertion into a
 saved costing remain later slices over the same domain module.
 
+### Coil calculator
+
+An independent geometry-only production-planning calculator for Round, Flat,
+and D-shaped cable. Round cable uses its diameter for both radial thickness and
+no-gap axial pitch. Flat and D-shaped cable use height radially and width as the
+axial pitch. The first approved rule, `coil-cable-length/v1`, calculates a
+single-layer helix and rounds up to complete 360° turns so both tails remain
+parallel. It exposes required bar diameter, complete turns, actual wound axial
+length, any turn-rounding overrun, cable per coil, total cable, and a full trace.
+
+Tails are separate finished lengths. Strip length 1/2 are optional additions,
+not values silently included within a tail. The source workbook's undefined
++5/-5 tolerance is not migrated until its physical meaning is approved. This
+module contains no pricing. Coiling machine time, labour, and commercial cost
+belong later in the fully dynamic cable-costing workflow after the easy-build
+preset costing pages, consuming this same physical result rather than copying
+its formula.
+
 ### Reports
 
 Separate templates over the same saved costing revision:
@@ -457,6 +475,30 @@ calculate, correct, or replace a Domain/Application result. Braid Coverage is
 the first reference implementation. COR and Dual Insulation move onto this
 shared shell only through later controlled refactors that preserve their
 accepted calculations, saves, revisions, and detailed conductor geometry.
+
+When a module has no useful approved diagram, the shell must remove the preview
+dock entirely instead of presenting an empty or permanently paused rail. The
+Coil calculator is the first consumer of this no-preview shell mode while the
+shared accelerated-renderer optimisation remains pending.
+
+The next preview/interaction slice is performance-first. Measure the current
+UI-thread, layout, binding, allocation and preview-invalidation costs before
+choosing a replacement renderer. The target is one shared cable-scene/result
+contract that every costing construction can consume, with on-demand rendering,
+cached/reused resources, bounded redraw frequency, no work while hidden, and no
+business calculation in the renderer. Evaluate a lightweight
+hardware-accelerated Win2D/Direct3D or Windows Composition surface with a tested
+software/WARP fallback for unsupported, remote, or device-lost environments.
+This is hardware-accelerated **rendering**, not video decoding. Preserve a
+simple/off mode and define measurable responsiveness, idle-CPU, memory, and
+older-laptop acceptance targets before migration.
+
+The separate `Coil Calc.xlsm` / `Coils` worksheet was audited on 20 August 2026.
+It is not yet approved for migration because its cable-length formula uses cable
+width where the sheet's own bar-diameter formula establishes cable height as the
+radial dimension. `COIL-CALCULATOR-AUDIT.md` records the evidence and the four
+business decisions required before a `coil-cable-length/v1` Domain rule and
+shared-shell page can be added.
 
 ### 4. Quotes, contract review, and printing
 

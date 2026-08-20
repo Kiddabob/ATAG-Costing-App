@@ -18,6 +18,33 @@ The shell provides:
 
 LIVE Preview is off by default. Module geometry consumes already-calculated results and visible physical inputs. It must never become a second calculation engine or silently correct a business result.
 
+If no useful visual has been approved, set the shared shell's preview as
+unavailable so the entire dock, divider, toggle and compact preview row are
+removed. Do not reserve an empty rail merely for visual consistency. The Coil
+calculator is the first reference consumer of this no-preview mode.
+
+## Performance contract
+
+The current XAML preview implementations are an accepted functional baseline,
+not a permanent rendering requirement. Before adding more construction
+previews, profile navigation, input recalculation, layout, binding, allocation,
+geometry creation and invalidation on both a development PC and representative
+older integrated-graphics laptop hardware.
+
+The shared preview successor should use one immutable cable-scene/result model
+and one reusable renderer across costing pages. It should render only when its
+inputs, size, camera or mode change; cache reusable meshes/paths, brushes and
+materials; cap interactive redraws; suspend completely while hidden; and avoid
+large per-strand XAML visual trees. Evaluate a hardware-accelerated
+Win2D/Direct3D or Windows Composition surface with device-loss recovery and a
+tested software/WARP fallback. Retain **Off** and lightweight **Simple** modes
+even when the accelerated renderer is available.
+
+Do not call this hardware decoding: the requirement is hardware-accelerated
+rendering. GPU use cannot compensate for excessive UI-thread object creation,
+layout passes, bindings or calculation churn, so measurement and those CPU-side
+repairs come before a renderer rewrite.
+
 ## Shared visual hierarchy
 
 The reusable resources in `App.xaml` establish the hierarchy:
@@ -58,3 +85,4 @@ Before a new module is considered structurally ready:
 8. Keep calculation rules in Domain/Application services and expose a complete trace.
 9. Test the module at wide and compact window widths.
 10. Verify System, Light and Dark modes plus at least one custom app accent.
+11. Remove the entire preview dock when the module has no approved visual.

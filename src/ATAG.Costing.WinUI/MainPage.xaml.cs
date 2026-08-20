@@ -75,6 +75,7 @@ public sealed partial class MainPage : Page
     public ProductionSpeedLibraryViewModel ProductionSpeedViewModel { get; }
     public BraidCoverageViewModel BraidViewModel { get; }
     public BuncherLayViewModel BuncherViewModel { get; }
+    public CoilCalculatorViewModel CoilViewModel { get; }
 
     public MainPage()
     {
@@ -124,6 +125,7 @@ public sealed partial class MainPage : Page
         BraidViewModel = new BraidCoverageViewModel(
             _centralDataService.Load());
         BuncherViewModel = new BuncherLayViewModel();
+        CoilViewModel = new CoilCalculatorViewModel();
         InitializeComponent();
         InitializeAppUpdateDisplay();
         AppNavigation.PaneTitle = AppRuntimeMode.IsOrganisationBranded
@@ -146,6 +148,7 @@ public sealed partial class MainPage : Page
         ProductionSpeedDataView.DataContext = ProductionSpeedViewModel;
         BraidCalculatorModuleView.DataContext = BraidViewModel;
         BuncherLayModuleView.DataContext = BuncherViewModel;
+        CoilCalculatorModuleView.DataContext = CoilViewModel;
         if (AppRuntimeMode.IsPublicReview)
         {
             ConfigurePublicReviewMode();
@@ -2806,6 +2809,7 @@ public sealed partial class MainPage : Page
         ProductionSpeedDataView.Visibility = Visibility.Collapsed;
         BraidCalculatorModuleView.Visibility = Visibility.Collapsed;
         BuncherLayModuleView.Visibility = Visibility.Collapsed;
+        CoilCalculatorModuleView.Visibility = Visibility.Collapsed;
 
         switch (section)
         {
@@ -2882,6 +2886,13 @@ public sealed partial class MainPage : Page
                     "Buncher lay",
                     "Choose an available target lay and reveal the exact retained machine and gear pair.");
                 BuncherLayModuleView.Visibility = Visibility.Visible;
+                break;
+
+            case "coil":
+                ViewModel.SetSection(
+                    "Coil calculator",
+                    "Plan round, flat or D-shaped cable coils using complete turns, parallel tails and a full geometry trace.");
+                CoilCalculatorModuleView.Visibility = Visibility.Visible;
                 break;
 
             case "reports":

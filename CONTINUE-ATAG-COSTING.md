@@ -1,6 +1,11 @@
 # Continue ATAG Costing development on another PC
 
-**Handoff updated:** 9 August 2026, after the auditable missing-field derivation,
+**Handoff updated:** 20 August 2026. The current public baseline is v0.5.1. A
+performance-first shared-preview goal and the approval-gated `Coils` worksheet
+audit are recorded in the latest section and linked documents below. Historical
+implementation context follows.
+
+**Earlier handoff summary:** 9 August 2026, after the auditable missing-field derivation,
 per-table link-status, and compact conductor-preview follow-up. Central-data workflow windows now use the
 app's WinUI title bar and owner-only stacking above ATAG, connection actions
 appear before the data previews, Remove link always begins with an explicit
@@ -3262,3 +3267,112 @@ Braid preview, independent Buncher module and the Dual shared-shell preview.
 Base any further visual refinement on that installed build; do not change the
 accepted costing rules, saved-document schemas, or preview-as-evidence
 boundary while doing so.
+
+## 2026-08-20 performance-first preview goal and Coil calculator audit gate
+
+The user reported severe interaction lag even on a Ryzen 9 9950X3D / RTX 5080
+PC and requires the application to remain usable on older laptops. Treat this
+as an explicit optimisation programme before expanding LIVE Preview further.
+Profile the existing UI-thread, binding, layout, allocation, calculation and
+preview invalidation paths first. Then evaluate one reusable cable-scene/result
+contract rendered on demand through a lightweight hardware-accelerated
+Win2D/Direct3D or Windows Composition surface, with device-loss handling and a
+tested software/WARP fallback. Keep preview Off/Simple modes, detach hidden
+content, cap redraws, cache reusable geometry/material resources, and never move
+Domain calculations into the renderer. This is hardware-accelerated rendering,
+not video decoding. The detailed scope and contract are in `docs/SCOPE.md` and
+`docs/MODULE-UI-CONTRACT.md`.
+
+The requested short `Coil Calc.xlsm` / `Coils` audit is complete, but the sheet
+is not an approved implementation source. The visible `A15` cable-length formula
+uses `E7-E5` as its mean path diameter, while `A19` establishes cable height
+`E4` as the radial dimension by calculating the bar as `E7-(2*E4)`. With the
+sheet's sample, the workbook returns 1,286.920 mm per coil; the internally
+consistent circular-centreline result is 1,027.398 mm and the single-layer
+helical result is 1,031.755 mm. The workbook is therefore about 25.26% high in
+this case and must not be copied into Domain.
+
+`docs/COIL-CALCULATOR-AUDIT.md` records the immutable workbook hash, exact
+formulae, the unused strip/tolerance fields, missing invalid-input behaviour,
+and the separate commercial-area markup/gross-margin problem. Await business
+confirmation of radial/axial orientation, circular versus helical length,
+strip/tolerance meaning, and fractional-turn policy. After approval, implement
+only the physical planning rule as a pure traced Domain service and a
+`ModuleWorkspaceShell` page; keep the ambiguous costing scratch area out and
+route future commercial values through the existing costing engine.
+
+Environment verification on this PC required restoring the solution's existing
+declared NuGet dependencies; no package versions were changed. Because the
+current sandbox blocks NuGet's vulnerability-feed request, the final restore
+disabled that network-only audit for verification. The subsequent x64 Debug
+build succeeded with zero warnings and zero errors. The unchanged test suite
+has 145 passing tests, the same 2 intentional approval-gated workbook skips,
+and no failures. No app calculation or UI source was changed, no version was
+bumped, and nothing was committed, pushed, packaged, or released in this slice.
+
+## 2026-08-20 approved Coil planning module implemented locally
+
+The user resolved the `Coils` audit gate. The workbook dimensions had most
+likely been entered back to front: for Flat cable, height is the radial cable
+dimension used to derive the bar, while width is the no-gap axial width of one
+wrap. The new shape selector makes this explicit. Round uses diameter for both
+radial thickness and axial pitch; Flat and D-shape use height radially and width
+axially.
+
+`coil-cable-length/v1` is now a pure Domain rule. It derives bar diameter and
+cable centreline, calculates a single-layer helix with full-precision `Math.PI`,
+and rounds up to complete 360° turns so both tails leave parallel. The result
+shows actual wound axial length and any complete-turn overrun. Tail 1/2 are
+separate finished lengths; optional Strip 1/2 values are added only when
+entered. The undefined workbook +5/-5 tolerance is deliberately absent pending
+an approved physical meaning. Eight Domain tests cover Flat, Round, D-shape,
+the user's 10 mm / 2.5 mm / 5 mm bar example, strip additions, impossible bars,
+negative end lengths, and unsupported shape values.
+
+`CoilCalculatorView` is a new navigation module over `ModuleWorkspaceShell`.
+It has four visible stages, authoritative bar/turn/per-coil/total results,
+supporting helix evidence, validation, and a collapsed 13-step trace. It has no
+preview and exercises the shell's new `IsPreviewAvailable=false` mode, which
+removes the entire dock/divider/toggle instead of reserving an empty rail. No
+pricing, markup, margin, plug, machine, or labour value from the workbook was
+copied.
+
+Future coiling machine time and cost belong in the fully dynamic cable-costing
+workflow after the easy-build preset costing pages. They must consume this
+physical result. The performance-first shared renderer remains a separate next
+programme and must not be bypassed by adding a page-specific coil preview.
+
+At this point the source version remains 0.5.1 with an Unreleased changelog
+section. No commit, push, package, GitHub workflow or release is authorised by
+this task. Build/test and final visual verification are recorded after they
+complete.
+
+Final local verification completed on 20 August 2026. The x64 Debug solution
+build has zero warnings and zero errors. The full suite has 153 passing tests,
+the same 2 intentional approval-gated workbook skips, and no failures. The
+native app launched without an unhandled exception. Dark-theme visual checks
+covered the blank validation state, populated Flat sample, complete-turn
+warning, results and no-preview layout at maximised width and at 1000 × 900.
+The compact input/result cards remained readable. The inspected sample showed
+an 8 mm bar, 19 full turns, 91.2 mm actual wound width and the expected 1.2 mm
+overrun. No package or release gate was run because publication was not asked
+for.
+
+## 2026-08-20 version 0.6.0 Coil publication authorised
+
+The user explicitly authorised publishing the completed Coil planning module
+from the shared removable-drive working tree before beginning the Braid
+performance programme. Because this is a new user-facing engineering module,
+the single authoritative app version is now `0.6.0`, and the former Unreleased
+notes are the dated 0.6.0 changelog section.
+
+The other-laptop work was re-read and independently verified on this PC before
+staging. After restoring only the solution's already-declared package versions,
+the x64 Debug build completed with zero warnings and zero errors. The full suite
+again has 153 passing tests, the same 2 intentionally skipped approval-gated
+workbook fixtures, and no failures. Publish only the reviewed Coil/domain,
+shared-shell, navigation, scope, audit, test, version, changelog, and handoff
+files; do not mix the subsequent Braid optimisation into the 0.6.0 source
+commit. Run the existing manual Stable release workflow and record the exact
+commit, run, public assets, feed, and anonymous verification before calling
+0.6.0 released.

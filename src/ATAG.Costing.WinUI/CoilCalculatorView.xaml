@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="ATAG.Costing.WinUI.CoilCalculatorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ATAG.Costing.WinUI">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="CoilCalculationStepTemplate">
+            <Border Margin="0,0,0,8" Style="{StaticResource ModuleBackgroundCardStyle}">
+                <StackPanel Spacing="5">
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Label}" TextWrapping="Wrap" />
+                        <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Result}" TextAlignment="Right" />
+                    </Grid>
+                    <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="{Binding BusinessMeaning}" TextWrapping="Wrap" />
+                    <TextBlock FontFamily="Consolas" FontSize="12" Text="{Binding Formula}" TextWrapping="Wrap" />
+                    <TextBlock FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{Binding SubstitutedFormula}" TextWrapping="Wrap" />
+                    <TextBlock Foreground="{ThemeResource SystemFillColorCautionBrush}" Text="{Binding Warning}" TextWrapping="Wrap" />
+                    <TextBlock FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text="{Binding RoundingRule}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <local:ModuleWorkspaceShell IsPreviewAvailable="False">
+        <local:ModuleWorkspaceShell.HeaderContent>
+            <Border Margin="32,8,32,6" Style="{StaticResource ModuleHeaderCardStyle}">
+                <StackPanel Spacing="10">
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource SectionLabelStyle}" Text="COIL PLANNING MODULE" />
+                        <TextBlock FontSize="26" FontWeight="SemiBold" Text="Plan a finished coil with complete turns and parallel tails." TextWrapping="Wrap" />
+                        <TextBlock MaxWidth="920" Style="{StaticResource ModuleSupportingTextStyle}" Text="Choose the cable shape, enter the physical coil, then read the required bar, full-turn count and cable length. Pricing is deliberately kept out of this engineering module." TextWrapping="Wrap" />
+                    </StackPanel>
+                    <InfoBar
+                        IsOpen="True"
+                        Message="{Binding CalculationStatus}"
+                        Severity="{Binding CalculationStatusSeverity}"
+                        Style="{StaticResource ModuleStatusInfoBarStyle}"
+                        Title="{Binding CalculationStatusTitle}" />
+                </StackPanel>
+            </Border>
+        </local:ModuleWorkspaceShell.HeaderContent>
+
+        <local:ModuleWorkspaceShell.WorkspaceContent>
+            <StackPanel
+                MaxWidth="1260"
+                Margin="32,12,32,48"
+                HorizontalAlignment="Center"
+                Spacing="20">
+                <Border Style="{StaticResource ModuleSectionCardStyle}">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="1 · Cable shape and orientation" />
+                            <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="The selected cross-section decides which cable dimension sits radially and which becomes the no-gap pitch between windings." TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ComboBox
+                            DisplayMemberPath="Name"
+                            Header="Cable shape"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding ShapeOptions}"
+                            SelectedItem="{Binding SelectedShape, Mode=TwoWay}" />
+                        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="SELECTED ORIENTATION" />
+                                <TextBlock Text="{Binding ShapeDescription}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <NumberBox
+                                AcceptsExpression="True"
+                                Header="{Binding CableHeightHeader}"
+                                Minimum="0.001"
+                                SmallChange="0.1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding CableHeightMillimetres, Mode=TwoWay}" />
+                            <NumberBox
+                                Grid.Column="1"
+                                AcceptsExpression="True"
+                                Header="{Binding CableWidthHeader}"
+                                IsEnabled="{Binding IsCableWidthEnabled}"
+                                Minimum="0.001"
+                                SmallChange="0.1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding CableWidthMillimetres, Mode=TwoWay}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource ModuleSectionCardStyle}">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="2 · Finished coil" />
+                            <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Outside diameter includes one cable height on each side. Axial length is the minimum wound width; complete turns may make the actual width slightly longer." TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <NumberBox
+                                AcceptsExpression="True"
+                                Header="Finished coil outside diameter (mm)"
+                                Minimum="0.001"
+                                SmallChange="1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding FinishedCoilOutsideDiameterMillimetres, Mode=TwoWay}" />
+                            <NumberBox
+                                Grid.Column="1"
+                                AcceptsExpression="True"
+                                Header="Required axial length (mm)"
+                                Minimum="0.001"
+                                SmallChange="1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding RequiredAxialLengthMillimetres, Mode=TwoWay}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource ModuleSectionCardStyle}">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="3 · Ends and quantity" />
+                            <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Tails are their own finished lengths. Optional strip lengths are added separately when entered; they are never silently included inside a tail." TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Grid ColumnSpacing="16" RowSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <NumberBox Header="Tail 1 (mm)" Minimum="0" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding TailOneMillimetres, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="1" Header="Tail 2 (mm)" Minimum="0" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding TailTwoMillimetres, Mode=TwoWay}" />
+                            <NumberBox Grid.Row="1" Header="Strip length 1 (mm) · optional" Minimum="0" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding StripOneMillimetres, Mode=TwoWay}" />
+                            <NumberBox Grid.Row="1" Grid.Column="1" Header="Strip length 2 (mm) · optional" Minimum="0" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding StripTwoMillimetres, Mode=TwoWay}" />
+                            <NumberBox Grid.Row="2" Grid.ColumnSpan="2" Header="Number of coils" Minimum="1" SmallChange="1" SpinButtonPlacementMode="Compact" Value="{Binding CoilQuantity, Mode=TwoWay}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <FontIcon HorizontalAlignment="Center" Foreground="{StaticResource ModuleFlowConnectorBrush}" Glyph="&#xE70D;" />
+
+                <Border Style="{StaticResource ModuleSectionCardStyle}">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Style="{StaticResource ModuleSectionTitleStyle}" Text="4 · Production coil plan" />
+                            <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="These are the authoritative physical outputs. Every turn completes 360° so both tails leave the winding parallel." TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource ModulePrimaryResultCardStyle}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="REQUIRED BAR DIAMETER" />
+                                    <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding RequiredBarDiameterDisplay}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource ModulePrimaryResultCardStyle}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="COMPLETE TURNS" />
+                                    <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding CompleteTurnsDisplay}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource ModulePrimaryResultCardStyle}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="CABLE PER COIL" />
+                                    <TextBlock Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding CablePerCoilDisplay}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <Border Style="{StaticResource ModulePrimaryResultCardStyle}">
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Foreground="{StaticResource ModuleResultSecondaryTextBrush}" Style="{StaticResource ModuleMetricLabelStyle}" Text="TOTAL CABLE REQUIRED" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource ModuleMetricValueStyle}" Text="{Binding TotalCableDisplay}" />
+                            </Grid>
+                        </Border>
+                        <InfoBar IsOpen="True" Message="{Binding AxialFitDisplay}" Severity="{Binding AxialFitSeverity}" Style="{StaticResource ModuleStatusInfoBarStyle}" Title="Complete-turn fit" />
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="3">
+                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="ACTUAL WOUND WIDTH" />
+                                <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding ActualWoundWidthDisplay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="3">
+                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="MEAN PATH DIAMETER" />
+                                <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding MeanPathDiameterDisplay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="3">
+                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="HELIX PER TURN" />
+                                <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding HelicalTurnLengthDisplay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Spacing="3">
+                                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="TAILS + STRIPS" />
+                                <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding EndsAndStripsDisplay}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Expander Header="Full coil calculation trace" IsExpanded="False">
+                    <StackPanel Margin="0,14,0,0" Spacing="4">
+                        <TextBlock Margin="0,0,0,8" Style="{StaticResource ModuleSupportingTextStyle}" Text="Every orientation choice, diameter, complete-turn rounding step, helix calculation, tail/strip addition, unit and substituted value is shown below." TextWrapping="Wrap" />
+                        <ItemsRepeater ItemTemplate="{StaticResource CoilCalculationStepTemplate}" ItemsSource="{Binding CalculationSteps}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout MinColumnSpacing="10" MinItemWidth="400" MinRowSpacing="4" ItemsJustification="SpaceBetween" ItemsStretch="Fill" Orientation="Horizontal" />
+                            </ItemsRepeater.Layout>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </local:ModuleWorkspaceShell.WorkspaceContent>
+    </local:ModuleWorkspaceShell>
+</UserControl>

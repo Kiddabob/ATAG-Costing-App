@@ -1,5 +1,23 @@
 # Costing App release notes
 
+## 0.6.0 - 2026-08-20
+
+- Adds a geometry-only Coil calculator for Round, Flat, and D-shaped cable,
+  with explicit radial/axial orientation and no pricing or costing assumptions.
+- Uses complete 360° single-layer helical turns so both tails leave parallel,
+  rounds the turn count up, and visibly reports any added axial winding length.
+- Keeps tails as separate finished lengths and adds optional strip lengths only
+  when entered, then reports required bar diameter, turns, cable per coil, and
+  total cable with a complete substituted calculation trace.
+- Corrects the source workbook's width/height conflict instead of copying its
+  materially overstated sample result, and uses `PI()`/full precision rather
+  than the workbook's hard-coded `3.14`.
+- Allows shared-shell modules without a useful preview to remove the entire
+  preview dock from layout, avoiding an empty rail and unnecessary preview UI.
+- Records coiling machine time and price as later work for the fully dynamic
+  costing workflow after the easy-build preset costing pages; no pricing is
+  included in this engineering module.
+
 ## 0.5.1 - 2026-08-15
 
 - Makes the Braid Coverage recommendation immediately recognisable with a

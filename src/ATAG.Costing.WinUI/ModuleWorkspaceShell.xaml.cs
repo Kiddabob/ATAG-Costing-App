@@ -83,6 +83,13 @@ public sealed partial class ModuleWorkspaceShell : UserControl
             typeof(ModuleWorkspaceShell),
             new PropertyMetadata(false, OnIsPreviewEnabledChanged));
 
+    public static readonly DependencyProperty IsPreviewAvailableProperty =
+        DependencyProperty.Register(
+            nameof(IsPreviewAvailable),
+            typeof(bool),
+            typeof(ModuleWorkspaceShell),
+            new PropertyMetadata(true, OnIsPreviewAvailableChanged));
+
     public ModuleWorkspaceShell()
     {
         InitializeComponent();
@@ -143,6 +150,12 @@ public sealed partial class ModuleWorkspaceShell : UserControl
         set => SetValue(IsPreviewEnabledProperty, value);
     }
 
+    public bool IsPreviewAvailable
+    {
+        get => (bool)GetValue(IsPreviewAvailableProperty);
+        set => SetValue(IsPreviewAvailableProperty, value);
+    }
+
     private static void OnIsPreviewEnabledChanged(
         DependencyObject dependencyObject,
         DependencyPropertyChangedEventArgs eventArgs)
@@ -163,6 +176,25 @@ public sealed partial class ModuleWorkspaceShell : UserControl
         shell.UpdateDockLayout(shell.ActualWidth, shell.ActualHeight);
     }
 
+    private static void OnIsPreviewAvailableChanged(
+        DependencyObject dependencyObject,
+        DependencyPropertyChangedEventArgs eventArgs)
+    {
+        if (dependencyObject is not ModuleWorkspaceShell shell ||
+            shell.PreviewPanel is null)
+        {
+            return;
+        }
+
+        if (eventArgs.NewValue is false)
+        {
+            shell.IsPreviewEnabled = false;
+        }
+
+        shell.UpdatePreviewVisibility();
+        shell.UpdateDockLayout(shell.ActualWidth, shell.ActualHeight);
+    }
+
     private void PreviewToggle_Toggled(object sender, RoutedEventArgs e)
     {
         IsPreviewEnabled = PreviewToggle.IsOn;
@@ -174,6 +206,14 @@ public sealed partial class ModuleWorkspaceShell : UserControl
     {
         if (PreviewContentPresenter is null || PreviewOffInfoBar is null)
         {
+            return;
+        }
+
+        if (!IsPreviewAvailable)
+        {
+            PreviewContentPresenter.Content = null;
+            PreviewContentPresenter.Visibility = Visibility.Collapsed;
+            PreviewOffInfoBar.Visibility = Visibility.Collapsed;
             return;
         }
 
@@ -197,6 +237,19 @@ public sealed partial class ModuleWorkspaceShell : UserControl
         {
             return;
         }
+
+        if (!IsPreviewAvailable)
+        {
+            EndResizeWithoutPointer();
+            BottomPreviewRow.Height = new GridLength(0d);
+            SplitterColumn.Width = new GridLength(0d);
+            PreviewColumn.Width = new GridLength(0d);
+            ResizeHandle.Visibility = Visibility.Collapsed;
+            PreviewPanel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        PreviewPanel.Visibility = Visibility.Visible;
 
         _isDockedRight = availableWidth >= RightDockThreshold;
         if (_isDockedRight)

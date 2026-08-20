@@ -280,6 +280,11 @@
                         <FontIcon Glyph="&#xE7C3;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="Coil calculator" Tag="coil">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7AD;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="Reports" Tag="reports">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8A5;" />
@@ -746,6 +751,10 @@
 
                     <local:BuncherLayView
                         x:Name="BuncherLayModuleView"
+                        Visibility="Collapsed" />
+
+                    <local:CoilCalculatorView
+                        x:Name="CoilCalculatorModuleView"
                         Visibility="Collapsed" />
 
                     <ScrollViewer
