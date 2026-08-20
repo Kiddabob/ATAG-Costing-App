@@ -3426,3 +3426,16 @@ Unreleased notes remain local after `v0.6.0`; do not version, package, push, or
 publish them until the optimised Braid page has an installed visual acceptance
 pass. The attempted desktop-control launch resolved to an unrelated executable,
 so it was excluded from evidence and no visual acceptance is claimed here.
+
+## 2026-08-20 version 0.6.1 Braid optimisation publication authorised
+
+The user explicitly authorised pushing the bounded Braid renderer as the next
+update. This is patch release `0.6.1`; its only application change is the local
+performance slice recorded above. The prior visual-control attempt remains
+excluded, but the user chose to proceed from the zero-warning/error x64 build,
+159 passing tests, 2 intentional approval-gated skips, deterministic scene
+tests, and explicit Simple/Detailed allocation budgets. Keep the release source
+limited to commits `634245efbcf02edd5bb722da994e8a79781e0b0d`,
+`a27c57e`, and this version/handoff commit. Run the existing Stable release
+workflow after pushing `main`, then record the exact source commit, Actions
+result, public assets, updater feed, hashes, and anonymous verification here.

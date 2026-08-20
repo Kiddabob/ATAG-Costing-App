@@ -1,6 +1,6 @@
 # Costing App release notes
 
-## Unreleased
+## 0.6.1 - 2026-08-20
 
 - Prevents Braid input changes from rebuilding the LIVE Preview once for every
   individual display property by publishing one coherent preview revision only
