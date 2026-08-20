@@ -130,6 +130,15 @@ public partial class BraidCoverageViewModel : ObservableObject
     [ObservableProperty]
     public partial string RecommendationDisplay { get; set; } = "—";
 
+    [ObservableProperty]
+    public partial long PreviewRevision { get; set; }
+
+    public double MeanOutsideDiameterMillimetres { get; private set; }
+
+    public double SixteenCarrierPitchMillimetres { get; private set; }
+
+    public double TwentyFourCarrierPitchMillimetres { get; private set; }
+
     public BraidCoverageViewModel(CentralDataState centralDataState)
     {
         SelectedCoreLayout = CoreLayouts[0];
@@ -211,6 +220,8 @@ public partial class BraidCoverageViewModel : ObservableObject
                 ? $"{result.CoreLayout.CoreCount} core arrangement · OD factor ×{result.CoreLayout.OutsideDiameterMultiplier:0.###}"
                 : $"{result.CoreLayout.Layup} cores per layer · OD factor ×{result.CoreLayout.OutsideDiameterMultiplier:0.###}";
             MeanOutsideDiameterDisplay = $"{result.MeanOutsideDiameterMillimetres:0.000} mm";
+            MeanOutsideDiameterMillimetres =
+                result.MeanOutsideDiameterMillimetres;
             TargetFillDisplay = $"{result.TargetFillFraction:P2}";
             SetCarrierDisplays(result.SixteenCarrier, isSixteenCarrier: true);
             SetCarrierDisplays(result.TwentyFourCarrier, isSixteenCarrier: false);
@@ -232,6 +243,7 @@ public partial class BraidCoverageViewModel : ObservableObject
 
             CalculationStatus =
                 "Live · every result below is recalculated from the visible inputs.";
+            PreviewRevision++;
         }
         catch (ArgumentException exception)
         {
@@ -260,6 +272,8 @@ public partial class BraidCoverageViewModel : ObservableObject
 
         if (isSixteenCarrier)
         {
+            SixteenCarrierPitchMillimetres =
+                carrier.RecommendedPitchMillimetres;
             SixteenCarrierPitchDisplay = pitch;
             SixteenCarrierAnglesDisplay = angles;
             SixteenCarrierCoverageDisplay = coverage;
@@ -273,6 +287,8 @@ public partial class BraidCoverageViewModel : ObservableObject
         }
         else
         {
+            TwentyFourCarrierPitchMillimetres =
+                carrier.RecommendedPitchMillimetres;
             TwentyFourCarrierPitchDisplay = pitch;
             TwentyFourCarrierAnglesDisplay = angles;
             TwentyFourCarrierCoverageDisplay = coverage;
@@ -322,6 +338,7 @@ public partial class BraidCoverageViewModel : ObservableObject
         CalculationStatus = message;
         CoreLayoutDetail = SelectedCoreLayout?.Display ?? "No core layout selected";
         MeanOutsideDiameterDisplay = "—";
+        MeanOutsideDiameterMillimetres = 0d;
         TargetFillDisplay = "—";
         SixteenCarrierPitchDisplay = "—";
         SixteenCarrierAnglesDisplay = "—";
@@ -333,6 +350,8 @@ public partial class BraidCoverageViewModel : ObservableObject
         TwentyFourCarrierCoverageDisplay = "—";
         TwentyFourCarrierLengthDisplay = "—";
         TwentyFourCarrierStrandsDisplay = "—";
+        SixteenCarrierPitchMillimetres = 0d;
+        TwentyFourCarrierPitchMillimetres = 0d;
         SixteenCarrierLongitudinalAngleDisplay = "—";
         SixteenCarrierPerpendicularAngleDisplay = "—";
         SixteenCarrierReferenceCoverageDisplay = "—";
@@ -346,5 +365,6 @@ public partial class BraidCoverageViewModel : ObservableObject
         IsSixteenCarrierRecommended = false;
         RecommendationDisplay = "—";
         CalculationSteps.Clear();
+        PreviewRevision++;
     }
 }

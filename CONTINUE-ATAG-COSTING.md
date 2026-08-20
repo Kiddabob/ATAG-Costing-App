@@ -3376,3 +3376,52 @@ files; do not mix the subsequent Braid optimisation into the 0.6.0 source
 commit. Run the existing manual Stable release workflow and record the exact
 commit, run, public assets, feed, and anonymous verification before calling
 0.6.0 released.
+
+## 2026-08-20 public v0.6.0 verified and Braid freeze removed locally
+
+The isolated Coil commit `1b486c934e63534cb9158447f8959d8f07e4d3ca`
+is on `main` and is the source for the public Stable `v0.6.0` release. GitHub
+Actions run `32420850518` (job `96592340905`) completed successfully. The
+public release is
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.6.0`; it contains
+`Costing-App-Setup.exe` (100,907,734 bytes, SHA-256
+`26f4a1da70df04029ba4008b03b7728a54eb454afaf99e6e5a27fd2758319224`),
+`Costing.App-0.6.0-full.nupkg` (96,314,582 bytes, SHA-256
+`f85b9c5de5624f6bedcaafa7e4fdc2a962fa8e046f86c1a71f45698fb940f364`),
+and `Costing.App-win-Portable.zip` (96,260,017 bytes, SHA-256
+`7521fcf30c7bd30fc31563dc48261faafdaa96fcf96fac513adffff8c2fca447`).
+Anonymous feed and hash retrieval reported the same package version, size, and
+digest. The large setup download probe itself was inconclusive, so do not cite
+that probe as a complete anonymous installer download.
+
+The Braid freeze was in presentation work, not the workbook-derived formulas.
+Every observable result raised `PropertyChanged`; each notification queued a
+complete redraw of both carrier options. The renderer then rebuilt both weave
+directions inside many clipped vertical bands, allocating thousands of XAML
+polylines and hundreds of thousands of sampled points per ordinary frame.
+Detailed mode could multiply that work again. A fast calculation therefore
+produced an unbounded WinUI-thread drawing queue.
+
+The local Unreleased optimisation replaces that path with
+`braid-preview-layout/v1`, a pure immutable scene created once for the final
+coherent calculation revision. Each carrier is sampled once and the WinUI view
+reuses it through six weave paths per canvas. Input, resize, and detail changes
+are combined by a 50 ms trailing dispatcher timer; the preview listens only to
+`PreviewRevision`, which advances once after all result properties are ready.
+The shared shell continues to detach and unload the preview while it is off.
+
+Scene budgets are enforced in application tests: 48-128 samples per curve,
+4-12 visible carriers per direction, and 1-10 detailed ends. The 24-carrier
+Simple test stays at or below 5,000 sampled points and the maximum Detailed
+test stays at or below 50,000. Determinism, finite geometry, and invalid carrier
+counts are covered too. Final local verification: x64 Debug builds with zero
+warnings/errors; Domain 65, Application 92, and parity 2 tests pass, while the
+same 2 approval-gated workbook fixtures remain intentionally skipped. Total:
+159 passed, 2 skipped, 0 failed.
+
+No Braid formula, carrier recommendation, costing, document schema, database
+link, production-speed rule, or report changed. The optimisation and its
+Unreleased notes remain local after `v0.6.0`; do not version, package, push, or
+publish them until the optimised Braid page has an installed visual acceptance
+pass. The attempted desktop-control launch resolved to an unrelated executable,
+so it was excluded from evidence and no visual acceptance is claimed here.

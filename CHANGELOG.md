@@ -1,5 +1,22 @@
 # Costing App release notes
 
+## Unreleased
+
+- Prevents Braid input changes from rebuilding the LIVE Preview once for every
+  individual display property by publishing one coherent preview revision only
+  after the complete calculation result is ready.
+- Coalesces rapid input, resize, and Simple/Detailed changes into one trailing
+  preview frame instead of queuing an unbounded sequence on the WinUI thread.
+- Replaces the clipped-band renderer, which could create thousands of XAML
+  polylines and hundreds of thousands of sampled points per frame, with one
+  bounded immutable scene whose carrier geometry is reused by six weave paths
+  per preview.
+- Caps preview sampling and detailed strand geometry with regression-tested
+  scene budgets while retaining the visual-only calculation boundary and
+  detaching the preview completely while it is switched off.
+- Makes no Braid formula, carrier recommendation, costing, saved-document,
+  database-link, production-speed, or reporting change.
+
 ## 0.6.0 - 2026-08-20
 
 - Adds a geometry-only Coil calculator for Round, Flat, and D-shaped cable,
