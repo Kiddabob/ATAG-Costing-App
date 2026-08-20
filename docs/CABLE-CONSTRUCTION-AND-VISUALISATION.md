@@ -270,6 +270,19 @@ typed conductor, insulation, add-on-module, trace, production, and saved-revisio
 boundaries. Their geometry and costing rules must be implemented and tested
 before the Home tiles stop being labelled planned.
 
+## Future interactive 3D mode
+
+The live construction may later be inspected through an opt-in orbitable 3D
+mode. It uses the same inside-to-outside construction order and authoritative
+dimensions as the 2D preview; rotation, zoom, shading and level of detail are
+presentation state only. COR is the first integration candidate after a
+development-only renderer proof. Dual and optional modules follow only when
+their existing calculations and saved-document behaviour are unchanged.
+
+The architecture, performance budgets, software fallback and staged acceptance
+plan are recorded in
+[`INTERACTIVE-3D-PREVIEW-FEASIBILITY.md`](INTERACTIVE-3D-PREVIEW-FEASIBILITY.md).
+
 ## Persistence and acceptance
 
 Schema version 3 now stores:

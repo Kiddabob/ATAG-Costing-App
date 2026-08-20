@@ -45,6 +45,17 @@ rendering. GPU use cannot compensate for excessive UI-thread object creation,
 layout passes, bindings or calculation churn, so measurement and those CPU-side
 repairs come before a renderer rewrite.
 
+### Interactive 3D successor
+
+Interactive, rotatable 3D is an optional future preview mode inside this same
+shell. It must consume the same immutable scene as the bounded 2D modes, remain
+Off by default, preserve an immediate Simple fallback and never own an
+engineering or costing formula. Use a single shared WinUI 3 Direct3D surface,
+render on change rather than continuously, lower detail while the camera moves,
+and recover cleanly from device loss or software fallback. The measured
+prototype and acceptance gates are recorded in
+[`INTERACTIVE-3D-PREVIEW-FEASIBILITY.md`](INTERACTIVE-3D-PREVIEW-FEASIBILITY.md).
+
 ## Shared visual hierarchy
 
 The reusable resources in `App.xaml` establish the hierarchy:

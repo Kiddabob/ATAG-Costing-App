@@ -3439,3 +3439,39 @@ limited to commits `634245efbcf02edd5bb722da994e8a79781e0b0d`,
 `a27c57e`, and this version/handoff commit. Run the existing Stable release
 workflow after pushing `main`, then record the exact source commit, Actions
 result, public assets, updater feed, hashes, and anonymous verification here.
+
+## 2026-08-20 public v0.6.1 verified and interactive 3D path documented
+
+The bounded Braid renderer is public as Stable `v0.6.1`. Source commit
+`4f46108ba7fdfe6e6e2d98967453a600db7a3c90` is on `main`; successful GitHub
+Actions run `32425596936` produced
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.6.1`.
+
+Principal anonymous assets and checksums are:
+
+- `Costing-App-Setup.exe` - 100,911,571 bytes - SHA-256
+  `b02e43cc36fc7cccc47b6fc3f9e4e2a449fa9128600c7c7ca5bea44b2ddc8836`;
+- `Costing.App-0.6.1-full.nupkg` - 96,318,419 bytes - SHA-256
+  `8d5b3ba915a0b9269d06e84130d7dcf4453b4eea4dd8ba38a017a53e9c9f6026`;
+- `Costing.App-win-Portable.zip` - 96,263,969 bytes - SHA-256
+  `966ce20dcccb4bf374ea0c95a3337c6f20f307faf591a6d68a875a00ea236d3a`.
+
+The public release API, updater feeds and installer metadata were retrieved
+without a GitHub login. Release acceptance remains based on the zero-warning /
+zero-error x64 Debug build, 159 passing tests, 2 intentional approval-gated
+workbook skips, deterministic scene tests and explicit allocation budgets.
+
+Interactive, rotatable 3D LIVE Preview is feasible but is not implemented in
+v0.6.1. The recommended direction is one reusable Direct3D 11 renderer in a WinUI
+3 `SwapChainPanel`, exposed to the C# app through a small C++/WinRT component.
+It consumes a versioned immutable `cable-scene/v1`; Domain/Application results
+remain authoritative. Keep Off and 2D Simple modes, render on change only,
+lower detail during orbit, enforce explicit geometry/memory budgets, support
+WARP and device-loss recovery, and detach while hidden.
+
+The next development slice is an isolated canned COR proof: orbit, pan, zoom,
+DPI/resize, hardware/WARP, device loss, zero-idle-redraw and teardown measured
+on both development and representative low-spec Windows 11 hardware. Do not
+connect live costing state until that gate passes. Full reasoning and staged
+COR, Dual/module, Flat/D and document-snapshot integration are in
+`docs/INTERACTIVE-3D-PREVIEW-FEASIBILITY.md`.
