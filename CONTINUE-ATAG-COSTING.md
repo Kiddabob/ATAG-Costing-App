@@ -3402,7 +3402,8 @@ polylines and hundreds of thousands of sampled points per ordinary frame.
 Detailed mode could multiply that work again. A fast calculation therefore
 produced an unbounded WinUI-thread drawing queue.
 
-The local Unreleased optimisation replaces that path with
+The local Unreleased optimisation is source commit
+`634245efbcf02edd5bb722da994e8a79781e0b0d`. It replaces that path with
 `braid-preview-layout/v1`, a pure immutable scene created once for the final
 coherent calculation revision. Each carrier is sampled once and the WinUI view
 reuses it through six weave paths per canvas. Input, resize, and detail changes
