@@ -56,6 +56,26 @@ and recover cleanly from device loss or software fallback. The measured
 prototype and acceptance gates are recorded in
 [`INTERACTIVE-3D-PREVIEW-FEASIBILITY.md`](INTERACTIVE-3D-PREVIEW-FEASIBILITY.md).
 
+### Detachable preview and module tools
+
+The shell must expose consistent **Pop out** and **Return to workspace** actions
+for the shared LIVE Preview. The external preview is a movable, resizable,
+maximisable app-owned tool window that may be placed on any connected display.
+It follows the user's explicit app-wide preview selection or can pin one target.
+There is one selected scene, one camera state and at most one attached live
+renderer; a pop-out must not duplicate calculation or rendering work.
+
+Modules may use the same secondary-window infrastructure to open as side tools.
+A costing-linked module window edits the same document/session through shared
+Application commands. A standalone scratch module is clearly labelled and
+must use an explicit **Apply to costing** action. Closing a tool window changes
+presentation only and never silently deletes module state.
+
+Owned tool windows stay above Costing App but are not globally always-on-top.
+Remember size, state and display as presentation-only LocalAppData, validate
+restored placement against connected displays, and return an off-screen window
+to a visible work area. All tools must remain fully usable when redocked.
+
 ## Shared visual hierarchy
 
 The reusable resources in `App.xaml` establish the hierarchy:
@@ -97,3 +117,5 @@ Before a new module is considered structurally ready:
 9. Test the module at wide and compact window widths.
 10. Verify System, Light and Dark modes plus at least one custom app accent.
 11. Remove the entire preview dock when the module has no approved visual.
+12. Verify dock, pop-out, redock, pin/follow and multi-monitor recovery where
+    the module exposes a preview or detachable tool view.

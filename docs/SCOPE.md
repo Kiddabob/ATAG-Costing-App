@@ -493,6 +493,21 @@ This is hardware-accelerated **rendering**, not video decoding. Preserve a
 simple/off mode and define measurable responsiveness, idle-CPU, memory, and
 older-laptop acceptance targets before migration.
 
+The shared LIVE Preview is also a detachable app-wide tool. It can remain in
+the responsive workspace dock or move into one freely resizable/maximisable
+Costing App-owned window on any connected display. The pop-out follows the
+construction or module that the user explicitly selects in the main app, with
+an optional pin that holds one target. Only one live renderer host is attached;
+docking and popping out transfer the same scene/session rather than creating a
+second calculation or render loop.
+
+Engineering modules can likewise open as secondary side-tool windows. Linked
+tools edit the active costing through the same Application commands and
+revision boundary; standalone scratch tools require an explicit **Apply to
+costing** step. Window size, state and display are private presentation settings
+in LocalAppData and are restored only after validating that the display still
+exists. Closing or redocking a window must not discard module state.
+
 The separate `Coil Calc.xlsm` / `Coils` worksheet was audited on 20 August 2026.
 It is not yet approved for migration because its cable-length formula uses cable
 width where the sheet's own bar-diameter formula establishes cable height as the

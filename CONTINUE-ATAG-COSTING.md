@@ -3475,3 +3475,29 @@ on both development and representative low-spec Windows 11 hardware. Do not
 connect live costing state until that gate passes. Full reasoning and staged
 COR, Dual/module, Flat/D and document-snapshot integration are in
 `docs/INTERACTIVE-3D-PREVIEW-FEASIBILITY.md`.
+
+## 2026-08-21 shared external preview and module-tool requirement
+
+The interactive-preview programme now includes a single app-wide preview
+session that can be docked right, docked below or popped out into a movable,
+resizable and maximisable Costing App-owned window on any connected display.
+The external window follows the user's explicit selection in the main app or
+pins one construction/module. There must be one scene, one camera and at most
+one attached live renderer; pop-out transfers the host and must not create a
+second calculation or render loop.
+
+Engineering modules may also open outside a costing page as side-tool windows.
+A linked tool edits the same document/module session through shared Application
+commands, validation and revision state. A standalone scratch tool is clearly
+labelled and affects a costing only through **Apply to costing**. Closing or
+redocking presentation never discards module state.
+
+Use WinUI 3 secondary `Window`/`AppWindow` instances owned by the main Costing
+App window, so tools remain above this app without being globally topmost.
+Remember placement in LocalAppData only, open on the main display initially,
+and clamp restored positions to a connected display after monitor changes. The
+measured Phase 2 prototype must cover dock/pop-out transfer, pin/follow,
+multi-monitor/DPI movement, monitor removal, minimise/restore, shutdown and
+zero duplicate/idle rendering. The full contract is now in
+`docs/INTERACTIVE-3D-PREVIEW-FEASIBILITY.md`, `docs/MODULE-UI-CONTRACT.md` and
+`docs/SCOPE.md`.

@@ -41,6 +41,56 @@ The renderer should pause high detail while the camera is moving and restore
 the requested level only after interaction settles. A user must always be able
 to return to Simple or Off without losing costing state.
 
+## Docking, external preview and module tool windows
+
+The LIVE Preview is one app-wide capability, not a separate preview owned by
+each page. A shared `PreviewSessionCoordinator` should hold the selected
+document/session identifier, preview target, immutable scene revision, camera,
+detail mode and follow/pin state. Costing pages and module windows publish an
+explicit selected construction or module result to that coordinator.
+
+The user can display the same preview session in one of three placements:
+
+- **Docked right** on a sufficiently wide workspace;
+- **Docked below** on a compact workspace;
+- **Pop-out window** that is freely movable, resizable and maximisable on any
+  connected display.
+
+Only one live renderer host is attached at a time. Popping out detaches the
+swap chain from the in-page host and attaches the shared renderer to the
+external preview window; the old position shows a clear **Return preview here**
+action rather than running a second scene or render loop. Closing the preview
+window redocks it without losing its target, camera or mode.
+
+The external window follows the main app's explicit preview selection by
+default. **Pin this preview** holds the current construction while the user
+edits or inspects other parts of the costing, and **Follow selection** resumes
+app-wide following. Mere pointer hover must not change the selected preview.
+The title and accessible description always identify the source costing,
+module and revision so a detached view cannot be mistaken for another result.
+
+Engineering modules may also be opened as secondary tool windows from either
+the module directory or their position in a costing. A tool window is another
+view over the same Application-layer document/module session, not a copied
+calculator or a second saved document. Edits made in a linked tool window use
+the same commands, validation, revision and undo boundary as the main
+workspace. A module opened as a standalone scratch tool owns an explicitly
+labelled draft and changes the costing only through an **Apply to costing**
+action.
+
+Tool windows are owned by the Costing App main window so they remain above that
+app, but they are not globally always-on-top over unrelated applications. They
+close with the main application. Closing or redocking a tool view does not
+discard its module state. Each tool window has its own XAML view instance; no
+XAML element is parented into two windows.
+
+Use WinUI 3 secondary `Window`/`AppWindow` instances and keep strong references
+to every open window. First use opens on the main app's current display. Later
+uses restore the user's last size, state and display from LocalAppData, while
+validating the placement against connected `DisplayArea` work areas so a
+removed monitor cannot strand a window off-screen. Window placement is private
+presentation state and contains no database link or costing data.
+
 ## Shared scene boundary
 
 Create one immutable `cable-scene/v1` model in Application code. It should be
@@ -71,7 +121,8 @@ Recommended layers:
 2. pure scene builder and bounded scene tests;
 3. small C++/WinRT renderer component using Direct3D 11;
 4. WinUI 3 `SwapChainPanel` host inside `ModuleWorkspaceShell`;
-5. XAML overlay for labels, mode controls, status and accessible alternatives.
+5. shared preview-session and secondary-window coordinators;
+6. XAML overlay for labels, mode controls, status and accessible alternatives.
 
 Use one graphics device and one active preview surface, not a device or render
 loop per module. Cache reusable tube, strand, ring and wrap meshes. Rebuild
@@ -117,8 +168,10 @@ hardware. Do not connect live costing state yet.
 ### Phase 2 - shared host and scene
 
 Introduce `cable-scene/v1`, a renderer-agnostic host contract and the shared
-mode/camera controls. Preserve the existing 2D modes as fallbacks and add
-automated scene budgets and finite-geometry tests.
+mode/camera controls. Add dock/pop-out transfer, follow/pin selection and
+display-safe window placement without allowing two live surfaces. Preserve the
+existing 2D modes as fallbacks and add automated scene budgets and
+finite-geometry tests.
 
 ### Phase 3 - COR
 
@@ -147,6 +200,10 @@ The prototype can proceed into COR integration only when all of these are
 demonstrated:
 
 - stable launch, detach, reattach and app shutdown;
+- one renderer transfers between docked and pop-out hosts without duplicate
+  redraws or stale selection;
+- preview and module tool windows restore safely across multiple displays and
+  recover onto an available display after monitor removal;
 - camera interaction remains responsive on representative low-spec hardware;
 - idle preview performs no continuous redraw;
 - bounded Simple and Detailed scenes remain within recorded budgets;
@@ -164,3 +221,5 @@ demonstrated:
 - [Direct3D 11 WARP device](https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-devices-create-warp)
 - [Handling device-lost scenarios](https://learn.microsoft.com/en-us/windows/uwp/gaming/handling-device-lost-scenarios)
 - [ID3D11Device::GetDeviceRemovedReason](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-getdeviceremovedreason)
+- [Show multiple windows for an app](https://learn.microsoft.com/en-us/windows/apps/develop/ui/multiple-windows)
+- [AppWindow](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.windowing.appwindow)
