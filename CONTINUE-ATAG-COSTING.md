@@ -3501,3 +3501,58 @@ multi-monitor/DPI movement, monitor removal, minimise/restore, shutdown and
 zero duplicate/idle rendering. The full contract is now in
 `docs/INTERACTIVE-3D-PREVIEW-FEASIBILITY.md`, `docs/MODULE-UI-CONTRACT.md` and
 `docs/SCOPE.md`.
+
+## 2026-08-21 local pre-push Braid acceptance run
+
+The user requested a local run before any push. The x64 Debug solution rebuilt
+with zero warnings and zero errors; the full suite has 159 passing tests, the
+same 2 intentional approval-gated workbook skips, and no failures. The first
+native run reached Home, Coil, Buncher and Braid, then exposed a presentation-
+only WinUI exception while assigning `Path.Data` in `BraidLivePreview`.
+
+The shadow stroke and face stroke for a braid family were sharing one
+`PathGeometry`. WinUI cannot attach that dependency object to both visual paths.
+The local fix creates a separate geometry instance for each path while reusing
+the same bounded immutable curve data. No Braid formula, recommendation, scene
+budget, costing, saved-document, database-link or reporting rule changed. The
+corrected source rebuilt cleanly and the same 159/2 test result passed.
+
+The corrected local executable has been reopened through the project-scoped
+portable launcher. The per-user ATAG/blank chooser preference was restored to
+its original enabled value after a one-launch bypass used for verification.
+The app is intentionally left open for the user to exercise Braid inputs and
+Detailed mode. A successful visual interaction pass and absence of a new log
+exception are still required before this fix may be committed or pushed. The
+desktop-control registry still misattributes this Costing window to an old
+unrelated app path, so no automated screenshot is accepted as evidence.
+
+## 2026-08-21 3D and detachable Preview Dock status clarified
+
+A current source audit confirms that neither interactive/rotatable 3D nor the
+detachable Preview Dock window is implemented. The application still has the
+bounded 2D XAML previews hosted in the shared module shell. There is no
+`SwapChainPanel`, Direct3D renderer component, `PreviewSessionCoordinator`,
+preview-host transfer/redock flow or separate preview `Window` in `src`.
+
+The existing `ResultWindow` must not be cited as the Preview Dock implementation.
+It is the movable/resizable always-on-top single-core costing-result view only;
+it does not contain the cable scene or LIVE Preview renderer. Other existing
+secondary windows serve central-data, update-notes and launch-choice workflows
+and do not satisfy the external-preview contract.
+
+Commit `37478dd` is the initial 3D feasibility/architecture documentation.
+Commit `a84cf5d` extends that documentation for one app-wide preview session,
+pop-out/redock and linked or standalone module-tool windows. Those commits do
+not ship either feature. Continue in the recorded order:
+
+1. build and measure the isolated canned COR Direct3D proof on development and
+   representative lower-spec Windows 11 hardware;
+2. introduce `cable-scene/v1` and a single transferable preview host with
+   right/below/pop-out placement, follow/pin and safe multi-monitor recovery;
+3. integrate accepted COR geometry, then Dual and physical modules without
+   allowing presentation code to infer engineering or costing values.
+
+The independent `BraidLivePreview` geometry-instance correction remains
+uncommitted. Its automated build/test evidence is clean, but the user-observed
+interaction and no-new-log acceptance gate recorded immediately above has not
+been marked complete. Keep that source edit out of a documentation-only push.
