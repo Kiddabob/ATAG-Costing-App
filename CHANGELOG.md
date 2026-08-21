@@ -1,5 +1,15 @@
 # Costing App release notes
 
+## 0.6.2 - 2026-08-21
+
+- Fixes a Braid LIVE Preview crash caused by sharing one WinUI geometry object
+  between the shadow and face paths for a carrier family.
+- Gives each visual path its own geometry instance while continuing to reuse
+  the same bounded, immutable curve data and scene budgets introduced in
+  version 0.6.1.
+- Makes no Braid input, formula, carrier result or recommendation, costing,
+  saved-document, retained-data, production-speed, or reporting change.
+
 ## 0.6.1 - 2026-08-20
 
 - Prevents Braid input changes from rebuilding the LIVE Preview once for every

@@ -3569,3 +3569,20 @@ The correction gives the shadow and face `Path` controls separate
 It remains presentation-only and changes no Braid input, formula, carrier
 result or recommendation, scene budget, costing, retained-data link, saved
 document, production-speed rule or report.
+
+## 2026-08-21 version 0.6.2 Braid preview fix publication authorised
+
+The current handovers and GitHub history were reconciled before release work.
+Coil is already public as `v0.6.0`, the bounded Braid renderer is already public
+as `v0.6.1`, and the user-accepted geometry-ownership correction is source
+commit `f625c5daf8db1773a591e2c7bde9d7797122c297` on `origin/main`. The working
+tree was clean when this release slice began.
+
+The user has now explicitly asked for that update to be pushed to GitHub. Treat
+it as patch version `0.6.2`: update only the authoritative version, changelog,
+and handoff records around the already-reviewed five-line presentation fix.
+The interactive 3D renderer and detachable Preview Dock remain architecture
+only and must not be described as implemented or included as a feature of this
+release. Run the existing release gates, publish through the Stable workflow,
+and append the exact source commit, Actions run, public assets, updater-feed
+and anonymous verification before calling `v0.6.2` complete.
