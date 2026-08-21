@@ -267,15 +267,14 @@ public sealed partial class BraidLivePreview : UserControl
             return;
         }
 
-        var geometry = CreateGeometry(curves);
         target.Children.Add(CreatePath(
-            geometry,
+            CreateGeometry(curves),
             edgeColour,
             shadowThickness,
             opacity: 0.72d,
             verticalOffset: 0.65d));
         target.Children.Add(CreatePath(
-            geometry,
+            CreateGeometry(curves),
             faceColour,
             faceThickness,
             opacity: 0.94d,

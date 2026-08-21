@@ -3556,3 +3556,16 @@ The independent `BraidLivePreview` geometry-instance correction remains
 uncommitted. Its automated build/test evidence is clean, but the user-observed
 interaction and no-new-log acceptance gate recorded immediately above has not
 been marked complete. Keep that source edit out of a documentation-only push.
+
+## 2026-08-21 Braid geometry correction accepted for push
+
+The user then tested the corrected Braid update and explicitly confirmed that
+it works. This clears the user-observed interaction gate recorded above. Commit
+the small `BraidLivePreview.xaml.cs` dependency-object correction separately
+with this acceptance record and include it in the authorised push.
+
+The correction gives the shadow and face `Path` controls separate
+`PathGeometry` instances derived from the same bounded immutable curve list.
+It remains presentation-only and changes no Braid input, formula, carrier
+result or recommendation, scene budget, costing, retained-data link, saved
+document, production-speed rule or report.
