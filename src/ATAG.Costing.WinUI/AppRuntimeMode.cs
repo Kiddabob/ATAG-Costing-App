@@ -36,7 +36,24 @@ internal static class AppRuntimeMode
 
     public static bool ShouldOfferLaunchModeChoice =>
         !IsPublicReview &&
+        !SkipLaunchModeChoiceForDevelopment &&
         LocalLaunchModeChoiceService.IsEnabledForCurrentWindowsUser();
+
+    private static bool SkipLaunchModeChoiceForDevelopment
+    {
+        get
+        {
+#if DEBUG
+            return string.Equals(
+                Environment.GetEnvironmentVariable(
+                    "ATAG_COSTING_SKIP_LAUNCH_MODE_CHOICE"),
+                "1",
+                StringComparison.Ordinal);
+#else
+            return false;
+#endif
+        }
+    }
 
     public static bool IsOrganisationBranded =>
         !IsPublicReview &&

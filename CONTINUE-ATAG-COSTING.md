@@ -1,9 +1,13 @@
 # Continue ATAG Costing development on another PC
 
-**Handoff updated:** 20 August 2026. The current public baseline is v0.5.1. A
-performance-first shared-preview goal and the approval-gated `Coils` worksheet
-audit are recorded in the latest section and linked documents below. Historical
-implementation context follows.
+**Handoff updated:** 23 August 2026. The current public baseline is v0.6.2 and
+the local `feature/interactive-3d-v1` branch is the v0.7.0 release candidate.
+The accepted Direct3D proof now consumes the active COR construction through
+one shared LIVE Preview session, with Simple, Detailed, and Interactive 3D
+modes moving between the responsive dock and an owned pop-out window. The
+performance-first multi-module preview roadmap and the approval-gated `Coils`
+worksheet audit remain recorded in the latest sections and linked documents
+below. Historical implementation context follows.
 
 **Earlier handoff summary:** 9 August 2026, after the auditable missing-field derivation,
 per-table link-status, and compact conductor-preview follow-up. Central-data workflow windows now use the
@@ -3586,3 +3590,110 @@ only and must not be described as implemented or included as a feature of this
 release. Run the existing release gates, publish through the Stable workflow,
 and append the exact source commit, Actions run, public assets, updater-feed
 and anonymous verification before calling `v0.6.2` complete.
+
+## 2026-08-21 local interactive 3D V1 Phase 1 proof started
+
+The public application remains `v0.6.2`. Local branch
+`feature/interactive-3d-v1` was created from release commit
+`733013f72ca9a2140a7dcf10dd8a8324a072df0d`; a remote refresh was unavailable
+on this PC because Git's Schannel credential acquisition returned
+`SEC_E_NO_CREDENTIALS`. The public authoritative source remains the later merge
+commit `c1066431a680efb74d3f1c067bbada4e29696fee`, so this local proof must be
+reconciled before any eventual PR. Do not push or release it as-is.
+
+Phase 1 is implemented as a Debug-only in-app development proof. Settings now
+exposes **Open 3D V1 proof**, which overlays the existing main window with one
+Vortice Direct3D 11 `SwapChainPanel`. The renderer contains only a canned COR
+scene with one 24-segment insulation tube and seven 24-segment copper
+cylinders. It supports orbit, pan, wheel zoom, reset, resize/DPI surface
+recreation, hardware-first creation with WARP fallback, explicit WARP
+recreation, simulated device recovery, event-driven redraw, visible frame/
+allocation/memory counters and clean teardown. There is no timer or idle render
+loop. Debug-only HLSL and Vortice package references are excluded from Release
+compile and publish output.
+
+The proof reads no live costing, database, retained-table, saved-document or
+module state. It does not introduce `cable-scene/v1`, replace Simple/Detailed
+2D, or implement the shared detachable Preview Dock. A temporary secondary
+`Window` host was removed after it exited through a native XAML lifecycle
+failure even with rendering disabled; detachable windows are explicitly Phase
+2 and must not be used to bypass this renderer proof.
+
+The final Debug build and the Release-isolation build compile with zero errors.
+Domain has 65 passing tests, Application has 92, and workbook parity has 2
+passing tests plus the same 2 intentional approval-gated skips: 159 passed,
+2 skipped, 0 failed overall. The current session could not complete a final
+desktop launch because GUI-launch approval became unavailable. Therefore
+visual stability, orbit/pan/zoom/reset, resize/DPI, unchanged idle frame count,
+hardware and forced-WARP recovery, close/reopen teardown, development metrics
+and representative low-spec Windows 11 acceptance are still mandatory. Only
+after those checks pass may work proceed to Phase 2 or live COR integration.
+
+## 2026-08-22 interactive 3D blue-only surface correction
+
+The first desktop launch exposed a real layout defect: the native swap-chain
+surface was effectively receiving the wrong layout row and the user saw only
+its blue clear/insulation colour instead of a usable cable scene. The proof host
+now gives the banner an `Auto` row, the renderer region the remaining `Star`
+height, and the surface and footer their own non-overlapping `Star`/`Auto` rows.
+The swap chain also applies the inverse DPI composition transform so a physical-
+pixel back buffer is not clipped as though each pixel were one WinUI DIP.
+
+The corrected exact Debug build was launched locally and visually captured on
+the hardware D3D11 path at a 3840 x 1787 render surface. The scene visibly shows
+the blue insulation body, seven copper strands, dark technical background and
+directional/cel-shaded material separation; the captured status reported zero
+per-render managed allocations and about 24.8 MB managed memory. A fresh rebuild
+completed with zero warnings and zero errors, and the exact executable was
+restarted successfully with no renderer failure in the startup log.
+
+This clears only the blue-only/layout defect and the first hardware visual
+smoke check. User acceptance, forced-WARP, resize/DPI interaction, device-loss
+recovery, close/reopen/idle-frame checks and lower-spec laptop measurements are
+still open. The work remains local on `feature/interactive-3d-v1`; do not push
+or describe it as a published costing feature.
+
+## 2026-08-23 shared COR LIVE Preview v0.7.0 release candidate
+
+The user accepted the corrected 3D result in both the in-app dock and its
+pop-out window and explicitly requested that it become the proper LIVE Preview
+and be pushed as an update. The development proof has therefore been promoted
+into the normal Release build as the first production COR slice. The Vortice
+Direct3D 11 renderer and HLSL shader are now normal publish assets rather than
+Debug-only files.
+
+`LivePreviewSession` is the single app-owned source for preview mode, current
+COR scene and camera. Simple, Detailed strands, and Interactive 3D use that
+session in the responsive right/bottom dock. **Open in window** transfers the
+preview to an owned, resizable WinUI window on the main app's display; it is not
+globally always-on-top. Only one 3D renderer exists at a time. Returning or
+closing releases the detached renderer and restores the dock without resetting
+the camera or active construction.
+
+The first detached 2D implementation visually drifted from the dock and could
+collapse into single-letter columns at an impractically narrow width. The
+release candidate removes that duplicate 2D renderer: the pop-out now hosts the
+dock's exact accepted cross-section and side-profile XAML controls, then puts
+those same controls back on redock. The window enforces a 760 x 520 px minimum.
+This makes Simple and Detailed parity structural rather than relying on two
+rendering implementations remaining coincidentally similar.
+
+The exact WinUI executable initialized and rendered on both hardware Direct3D
+11 and a forced WARP software fallback. The latest x64 Debug rebuild after the
+2D transfer/minimum-size correction completed with zero warnings and zero
+errors. The full local v0.7.0 release gate then passed on 23 August 2026: 159
+tests passed, the same two explicitly approval-gated workbook parity fixtures
+were skipped, zero tests failed, the publish safety and embedded-asset checks
+passed, and Velopack created the installer, full package and portable archive.
+Representative lower-spec laptop measurement remains follow-up acceptance
+work, not a blocker for the user-accepted first COR slice. Further strand
+topology, material, lighting and construction-layer polish is later visual
+work and must not delay this release. No costing formula, waste/start-up rule,
+retained data, database link, saved document, production speed or reporting
+behaviour changed.
+
+Before calling v0.7.0 public, reconcile this branch with authoritative
+`origin/main`, publish through a reviewed PR and the Stable release workflow,
+then append the exact merge commit, Actions run, public asset digests,
+anonymous installer result and updater-feed result here and in
+`..\ATAG-Costing-App-Codex-Handoff.md`.

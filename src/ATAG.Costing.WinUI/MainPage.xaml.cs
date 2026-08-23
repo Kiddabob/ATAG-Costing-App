@@ -57,9 +57,14 @@ public sealed partial class MainPage : Page
         new VelopackAppUpdateService();
     private readonly CentralDataService _centralDataService;
     private readonly IReadOnlyDictionary<CentralDataSourceKind, ICentralDataDatabaseNavigator> _databaseNavigators;
+    private readonly LivePreviewSession _livePreviewSession = new();
     private ResultWindow? _resultWindow;
+    private LivePreview3DHost? _dockedLivePreview3DHost;
+    private LivePreviewWindow? _livePreviewWindow;
     private bool _isPreviewDockedRight;
     private bool _isPreviewResizeActive;
+    private bool _isPreviewSceneUpdateQueued;
+    private bool _suppressPreviewRedock;
     private uint _previewResizePointerId;
     private double _previewResizeStartX;
     private double _previewResizeStartWidth = 600d;
@@ -149,6 +154,8 @@ public sealed partial class MainPage : Page
         BraidCalculatorModuleView.DataContext = BraidViewModel;
         BuncherLayModuleView.DataContext = BuncherViewModel;
         CoilCalculatorModuleView.DataContext = CoilViewModel;
+        _livePreviewSession.Scene = CreateSingleCore3DScene();
+        _livePreviewSession.ModeChanged += LivePreviewSession_ModeChanged;
         if (AppRuntimeMode.IsPublicReview)
         {
             ConfigurePublicReviewMode();
@@ -193,6 +200,34 @@ public sealed partial class MainPage : Page
         {
             await CheckForAppUpdatesAsync(isAutomatic: true);
         }
+
+        RunLivePreview3DSmokeTestIfRequested();
+    }
+
+    private void RunLivePreview3DSmokeTestIfRequested()
+    {
+#if DEBUG
+        if (!string.Equals(
+                Environment.GetEnvironmentVariable(
+                    "ATAG_COSTING_3D_SMOKE_TEST"),
+                "1",
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            ShowSection("costing");
+            if (SingleCorePreviewToggle is not null)
+            {
+                SingleCorePreviewToggle.IsOn = true;
+            }
+
+            _livePreviewSession.Mode = LivePreviewMode.Interactive3D;
+            Program.Log("LIVE Preview 3D smoke surface activated.");
+        });
+#endif
     }
 
     private void InitializeAppUpdateDisplay()
@@ -895,8 +930,18 @@ public sealed partial class MainPage : Page
                 : "CardStrokeColorDefaultBrush");
     }
 
-    private void MainPage_Unloaded(object sender, RoutedEventArgs e) =>
+    private void MainPage_Unloaded(object sender, RoutedEventArgs e)
+    {
         _centralDataRefreshTimer.Stop();
+        _livePreviewSession.ModeChanged -= LivePreviewSession_ModeChanged;
+        ReleaseDockedLivePreview3DHost();
+        if (_livePreviewWindow is not null)
+        {
+            _suppressPreviewRedock = true;
+            _livePreviewWindow.Close();
+            _livePreviewWindow = null;
+        }
+    }
 
     private async void CentralDataRefreshTimer_Tick(
         object? sender,
@@ -1678,9 +1723,17 @@ public sealed partial class MainPage : Page
         {
             UpdateCorePrintPreviewVisibility();
             RenderSingleCorePreviewGeometry();
+            ApplySingleCorePreviewMode();
         }
         else
         {
+            if (_livePreviewWindow is not null)
+            {
+                _suppressPreviewRedock = true;
+                _livePreviewWindow.Close();
+            }
+
+            ReleaseDockedLivePreview3DHost();
             SingleCoreDetailedStrandPath.Data = null;
             SingleCoreRopeGroupOutlinePath.Data = null;
             SingleCoreSideStrandCanvas.Children.Clear();
@@ -1693,6 +1746,218 @@ public sealed partial class MainPage : Page
         object sender,
         RoutedEventArgs e) =>
         RenderSingleCorePreviewGeometry();
+
+    private void SingleCorePreviewModeComboBox_SelectionChanged(
+        object sender,
+        SelectionChangedEventArgs e)
+    {
+        if (sender is not ComboBox comboBox ||
+            comboBox.SelectedItem is not ComboBoxItem item ||
+            item.Tag is not string tag ||
+            !Enum.TryParse<LivePreviewMode>(tag, out var mode))
+        {
+            return;
+        }
+
+        _livePreviewSession.Mode = mode;
+    }
+
+    private void LivePreviewSession_ModeChanged(object? sender, EventArgs e)
+    {
+        if (SingleCorePreviewModeComboBox is not null &&
+            SingleCorePreviewModeComboBox.SelectedIndex !=
+            (int)_livePreviewSession.Mode)
+        {
+            SingleCorePreviewModeComboBox.SelectedIndex =
+                (int)_livePreviewSession.Mode;
+        }
+
+        ApplySingleCorePreviewMode();
+    }
+
+    private void ApplySingleCorePreviewMode()
+    {
+        if (SingleCoreCrossSectionCard is null ||
+            SingleCoreSideProfileCard is null ||
+            SingleCoreInteractive3DCard is null ||
+            SingleCorePreviewStrandDetailText is null ||
+            SingleCorePreviewDetachedInfoBar is null ||
+            SingleCorePreviewDetachButton is null)
+        {
+            return;
+        }
+
+        var previewIsOn = SingleCorePreviewToggle?.IsOn == true;
+        var isDetached = _livePreviewWindow is not null;
+        var isInteractive3D =
+            _livePreviewSession.Mode == LivePreviewMode.Interactive3D;
+        var isDetailed =
+            _livePreviewSession.Mode == LivePreviewMode.Detailed;
+
+        SingleCoreDetailedPreviewToggle.IsOn = isDetailed;
+        SingleCoreCrossSectionCard.Visibility =
+            previewIsOn && !isInteractive3D
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        SingleCoreSideProfileCard.Visibility =
+            previewIsOn && !isInteractive3D
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        SingleCorePreviewStrandDetailText.Visibility =
+            previewIsOn && !isDetached && isDetailed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        SingleCoreInteractive3DCard.Visibility =
+            previewIsOn && !isDetached && isInteractive3D
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        SingleCorePreviewDetachedInfoBar.IsOpen = previewIsOn && isDetached;
+        SingleCorePreviewDetachButton.Content = isDetached
+            ? "Return to dock"
+            : "Open in window";
+
+        if (previewIsOn && !isDetached && isInteractive3D)
+        {
+            EnsureDockedLivePreview3DHost();
+        }
+        else
+        {
+            ReleaseDockedLivePreview3DHost();
+        }
+
+        if (previewIsOn && !isInteractive3D)
+        {
+            RenderSingleCorePreviewGeometry();
+        }
+    }
+
+    private void SingleCorePreviewDetachButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_livePreviewWindow is not null)
+        {
+            _livePreviewWindow.Close();
+            return;
+        }
+
+        if (SingleCorePreviewToggle is { IsOn: false })
+        {
+            SingleCorePreviewToggle.IsOn = true;
+        }
+
+        ReleaseDockedLivePreview3DHost();
+        SingleCorePreviewModeStack.Children.Remove(
+            SingleCoreCrossSectionCard);
+        SingleCorePreviewModeStack.Children.Remove(
+            SingleCoreSideProfileCard);
+        try
+        {
+            _livePreviewWindow = new LivePreviewWindow(
+                _livePreviewSession,
+                ActualTheme,
+                SingleCoreCrossSectionCard,
+                SingleCoreSideProfileCard);
+            _livePreviewWindow.RedockRequested +=
+                LivePreviewWindow_RedockRequested;
+            _livePreviewWindow.Closed += LivePreviewWindow_Closed;
+            ApplySingleCorePreviewMode();
+            _livePreviewWindow.Activate();
+        }
+        catch (Exception exception)
+        {
+            Program.Log($"LIVE Preview pop-out failed: {exception}");
+            _livePreviewWindow = null;
+            RestoreSingleCorePreviewCardsToDock();
+            CostingViewModel.CalculationStatus =
+                "The LIVE Preview window could not be opened. " +
+                "The preview has been restored to the costing workspace.";
+            ApplySingleCorePreviewMode();
+        }
+    }
+
+    private void LivePreviewWindow_RedockRequested(
+        object? sender,
+        EventArgs e) =>
+        _livePreviewWindow?.Close();
+
+    private void LivePreviewWindow_Closed(object sender, WindowEventArgs args)
+    {
+        if (_livePreviewWindow is not null)
+        {
+            _livePreviewWindow.ReleaseSharedTwoDimensionalCards();
+            _livePreviewWindow.RedockRequested -=
+                LivePreviewWindow_RedockRequested;
+            _livePreviewWindow.Closed -= LivePreviewWindow_Closed;
+        }
+
+        RestoreSingleCorePreviewCardsToDock();
+
+        _livePreviewWindow = null;
+        var shouldRedock = !_suppressPreviewRedock;
+        _suppressPreviewRedock = false;
+        if (shouldRedock)
+        {
+            ApplySingleCorePreviewMode();
+        }
+    }
+
+    private void RestoreSingleCorePreviewCardsToDock()
+    {
+        if (SingleCoreCrossSectionCard.Parent is Panel crossSectionParent)
+        {
+            crossSectionParent.Children.Remove(SingleCoreCrossSectionCard);
+        }
+
+        if (SingleCoreSideProfileCard.Parent is Panel sideProfileParent)
+        {
+            sideProfileParent.Children.Remove(SingleCoreSideProfileCard);
+        }
+
+        if (SingleCorePreviewModeStack.Children.Contains(
+                SingleCoreCrossSectionCard))
+        {
+            return;
+        }
+
+        Grid.SetColumn(SingleCoreSideProfileCard, 0);
+        var threeDIndex = SingleCorePreviewModeStack.Children.IndexOf(
+            SingleCoreInteractive3DCard);
+        var insertionIndex = Math.Max(0, threeDIndex);
+        SingleCorePreviewModeStack.Children.Insert(
+            insertionIndex,
+            SingleCoreCrossSectionCard);
+        SingleCorePreviewModeStack.Children.Insert(
+            insertionIndex + 1,
+            SingleCoreSideProfileCard);
+    }
+
+    private void EnsureDockedLivePreview3DHost()
+    {
+        if (_dockedLivePreview3DHost is not null ||
+            SingleCoreInteractive3DHostContainer is null)
+        {
+            return;
+        }
+
+        _dockedLivePreview3DHost = new LivePreview3DHost(
+            _livePreviewSession);
+        SingleCoreInteractive3DHostContainer.Children.Add(
+            _dockedLivePreview3DHost);
+    }
+
+    private void ReleaseDockedLivePreview3DHost()
+    {
+        if (_dockedLivePreview3DHost is null)
+        {
+            return;
+        }
+
+        SingleCoreInteractive3DHostContainer?.Children.Remove(
+            _dockedLivePreview3DHost);
+        _dockedLivePreview3DHost.Dispose();
+        _dockedLivePreview3DHost = null;
+    }
 
     private void CostingViewModel_PropertyChanged(
         object? sender,
@@ -1718,19 +1983,88 @@ public sealed partial class MainPage : Page
             UpdateCorePrintPreviewVisibility();
         }
 
-        if (SingleCorePreviewToggle?.IsOn != true)
-        {
-            return;
-        }
-
         if (e.PropertyName is
             nameof(SingleCoreCostingViewModel.SelectedCopper) or
             nameof(SingleCoreCostingViewModel.PreviewConductorDiameterPixels) or
             nameof(SingleCoreCostingViewModel.PreviewSideConductorHeightPixels) or
-            nameof(SingleCoreCostingViewModel.PreviewConductorColourHex))
+            nameof(SingleCoreCostingViewModel.PreviewConductorColourHex) or
+            nameof(SingleCoreCostingViewModel.PreviewInsulationColourHex) or
+            nameof(SingleCoreCostingViewModel.PreviewDimensionsDisplay) or
+            nameof(SingleCoreCostingViewModel.PreviewMaterialDisplay) or
+            nameof(SingleCoreCostingViewModel.PreviewStrandDetailDisplay))
         {
-            RenderSingleCorePreviewGeometry();
+            QueueLivePreviewSceneUpdate();
+            if (SingleCorePreviewToggle?.IsOn == true &&
+                _livePreviewSession.Mode != LivePreviewMode.Interactive3D)
+            {
+                RenderSingleCorePreviewGeometry();
+            }
         }
+    }
+
+    private void QueueLivePreviewSceneUpdate()
+    {
+        if (_isPreviewSceneUpdateQueued)
+        {
+            return;
+        }
+
+        _isPreviewSceneUpdateQueued = true;
+        DispatcherQueue.TryEnqueue(
+            Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+            () =>
+            {
+                _isPreviewSceneUpdateQueued = false;
+                _livePreviewSession.Scene = CreateSingleCore3DScene();
+            });
+    }
+
+    private LivePreview3DScene CreateSingleCore3DScene()
+    {
+        const float insulationRadius = 1.10f;
+        const int maximumRenderedStrands = 512;
+        var conductorRadius = Math.Clamp(
+            (float)(CostingViewModel.PreviewConductorDiameterPixels /
+                    176d * insulationRadius),
+            0.035f,
+            insulationRadius);
+        var construction = CostingViewModel.SelectedCopper?.Construction;
+        IReadOnlyList<LivePreview3DStrand> strands = [];
+        var rendersDetailedStrands = false;
+        var detailBoundary = string.Empty;
+        if (construction is not null &&
+            construction.TotalStrandCount <= maximumRenderedStrands)
+        {
+            var layout = ConductorPreviewLayoutBuilder.Create(
+                construction,
+                centerX: 0d,
+                centerY: 0d,
+                envelopeRadius: conductorRadius * 0.985d);
+            strands = layout.Strands
+                .Select(strand => new LivePreview3DStrand(
+                    (float)strand.X,
+                    (float)strand.Y,
+                    Math.Max(0.006f, (float)strand.Radius)))
+                .ToArray();
+            rendersDetailedStrands = strands.Count > 0;
+        }
+        else if (construction is not null)
+        {
+            detailBoundary =
+                $" · bounded envelope for {construction.TotalStrandCount:N0} strands";
+        }
+
+        return new LivePreview3DScene(
+            InsulationRadius: insulationRadius,
+            ConductorRadius: conductorRadius,
+            InsulationColour: LivePreview3DScene.FromHex(
+                CostingViewModel.PreviewInsulationColourHex),
+            ConductorColour: LivePreview3DScene.FromHex(
+                CostingViewModel.PreviewConductorColourHex),
+            Strands: strands,
+            Description:
+                $"{CostingViewModel.PreviewDimensionsDisplay}{detailBoundary}",
+            IsDetailed: rendersDetailedStrands);
     }
 
     private void UpdateFirstRunSetupState()

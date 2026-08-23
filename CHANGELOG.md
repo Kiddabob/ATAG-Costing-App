@@ -1,5 +1,30 @@
 # Costing App release notes
 
+## 0.7.0 - 2026-08-23
+
+- Promotes the accepted interactive Direct3D 11 cable view into the single-core
+  LIVE Preview as a third mode alongside Simple and Detailed strands.
+- Uses one shared preview session and camera whether the preview is in the
+  resizable right/bottom dock or its owned, resizable pop-out window; switching
+  mode, orbiting, panning, zooming, resetting, detaching, and returning to the
+  dock keep the active construction in sync.
+- Makes the detached Simple and Detailed modes host the dock's exact existing
+  cross-section and side-profile controls, preventing a second renderer from
+  drifting away from the accepted 2D construction views.
+- Enforces a practical 760 x 520 px minimum pop-out size so controls, labels,
+  and both 2D preview cards cannot collapse into an unusable narrow layout.
+- Uses hardware Direct3D 11 first with a tested WARP software fallback,
+  event-driven redraw only, bounded COR geometry, resize/DPI surface
+  recreation, and deterministic renderer disposal when the surface is hidden
+  or closed.
+- Ships the renderer, shader, and required Vortice components in the normal
+  installer and updater rather than keeping them in a development-only proof.
+- Makes no costing formula, material usage, waste/start-up, retained-data,
+  database-link, saved-document, production-speed, or reporting change.
+- Leaves further 3D material, strand, lighting, and construction-layer polish
+  as an explicit later visual-improvement slice; Simple and Detailed remain
+  immediately available as the authoritative 2D fallbacks.
+
 ## 0.6.2 - 2026-08-21
 
 - Fixes a Braid LIVE Preview crash caused by sharing one WinUI geometry object

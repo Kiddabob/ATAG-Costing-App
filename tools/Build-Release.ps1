@@ -70,7 +70,8 @@ try {
     $requiredPublishedAssets = @(
         'Assets\AppIcon.ico',
         'Assets\Organisation\ATAGDesignLongLogoDarkText.png',
-        'Assets\Organisation\ATAGDesignLongLogoLightText.png'
+        'Assets\Organisation\ATAGDesignLongLogoLightText.png',
+        'Shaders\LivePreview3D.hlsl'
     )
     foreach ($relativeAssetPath in $requiredPublishedAssets) {
         $sourceAsset = Join-Path (Split-Path -Parent $project) $relativeAssetPath
