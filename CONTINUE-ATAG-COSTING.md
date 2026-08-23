@@ -3697,3 +3697,39 @@ Before calling v0.7.0 public, reconcile this branch with authoritative
 then append the exact merge commit, Actions run, public asset digests,
 anonymous installer result and updater-feed result here and in
 `..\ATAG-Costing-App-Codex-Handoff.md`.
+
+## 2026-08-23 shared COR LIVE Preview v0.7.0 published
+
+The release candidate was rebased onto authoritative public `main`, pushed as
+`feature/interactive-3d-v1`, reviewed in GitHub pull request #2, and merged at
+`99865a81aa571b55aeb689dd3d6b836052260359`. The reviewed head was
+`7abb72ca14cfec6fb5d0d0fc9aa20e26c3485834`; the PR reported the expected
+`main` base, exact feature head, 15 intended files, `MERGEABLE` and `CLEAN`
+before the merge API accepted that exact head SHA.
+
+Stable release Actions run 32615594077 completed successfully against the
+merge commit in 2 minutes 51 seconds. GitHub repeated restore, the complete
+build/test/audit/package gate, version extraction, public release publication
+and retained installer-evidence upload. The run has one non-blocking hosted-
+runner annotation that GitHub is forcing the current `actions/checkout@v4`,
+`actions/setup-dotnet@v4` and `actions/upload-artifact@v4` JavaScript actions
+from Node.js 20 to Node.js 24; it did not affect the successful release.
+
+Public stable release `v0.7.0` is not a draft or prerelease and targets the
+merge commit. It exposes all seven expected assets. GitHub reports these main
+payload digests and sizes:
+
+- `Costing-App-Setup.exe`: 101,401,784 bytes, SHA-256
+  `6d5dad5af21865833f2d252ab179017e4d0718c3f63ec5c20f94346ef410fbff`.
+- `Costing.App-0.7.0-full.nupkg`: 96,808,632 bytes, SHA-256
+  `dc379e484a1dc301101fc7137c37fafe9a35cfc57bb41f7e581128581952fec8`.
+- `Costing.App-win-Portable.zip`: 96,753,850 bytes, SHA-256
+  `32fe49aad6828645acaed19ec775b02ae99c07cb5bd8ec041e8dd25cd385a40f`.
+
+An unauthenticated HTTPS request returned HTTP 200 for the installer with the
+published 101,401,784-byte length. The public `SHA256SUMS.txt` was also readable
+without a GitHub login and lists both the installer and portable archive. The
+public Velopack `releases.win.json` resolves version 0.7.0 to the full-package
+size and SHA-256 above, includes the complete v0.7.0 notes, and therefore forms
+the expected anonymous stable updater payload. Release URL:
+`https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.7.0`.
