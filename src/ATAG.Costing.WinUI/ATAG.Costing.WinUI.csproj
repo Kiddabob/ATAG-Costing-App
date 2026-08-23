@@ -56,6 +56,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="Shaders\LivePreview3D.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -85,6 +89,8 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools.WinApp" Version="0.3.1" />
     <PackageReference Include="Velopack" Version="1.2.0" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ATAG.Costing.Application\ATAG.Costing.Application.csproj" />

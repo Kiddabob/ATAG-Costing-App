@@ -132,6 +132,11 @@ when the surface is detached or the device graph must be released.
 
 The swap-chain surface is opaque. Mica/Acrylic styling stays in the surrounding
 XAML dock rather than being expected to show through the DirectX content.
+Use a stable directional key light, soft fill and bounded view-dependent
+contour/rim treatment so neighbouring strands and concentric layers remain
+distinguishable from every useful camera angle. The default technical mode may
+quantise diffuse light into a small number of cel-shaded bands; it must not use
+expensive dynamic shadows or allow lighting to imply an engineering property.
 
 ## Performance and compatibility contract
 
@@ -165,6 +170,29 @@ rendering and clean surface teardown. Record frame time, UI-thread time,
 allocations and memory on both development and representative low-spec
 hardware. Do not connect live costing state yet.
 
+**Local implementation status - 23 August 2026:** the bounded Phase 1 renderer
+and first COR parts of Phases 2 and 3 are implemented on
+`feature/interactive-3d-v1` as the v0.7.0 release candidate. A Vortice
+Direct3D 11 `SwapChainPanel` renders the active COR insulation and conductor
+scene with orbit, pan, zoom, reset, resize/DPI surface recreation,
+hardware-first/WARP fallback, event-driven redraw and clean disposal. Hardware
+and forced-WARP initialization both passed in the exact WinUI executable.
+
+One app-owned `LivePreviewSession` now carries mode, COR scene and camera
+between the responsive dock and an owned, resizable, display-safe pop-out
+window without two active 3D surfaces. Simple and Detailed remain available and
+the pop-out literally transfers their accepted dock controls rather than
+maintaining a duplicate 2D renderer. The detached window has a 760 x 520 px
+minimum. The user accepted the current docked and detached 3D presentation for
+the first release; further visual polish remains planned.
+
+This is still only the first COR production slice, not completion of the whole
+roadmap. The renderer scene contract has not yet been generalized for Dual,
+dynamic Tape/Chalk/Foil/Braid/Lapscreen/Drain layers, Flat, D-shape, module-tool
+windows or deterministic document imagery. Representative low-spec laptop,
+monitor-removal recovery and broader lifecycle measurements remain required as
+follow-up acceptance evidence.
+
 ### Phase 2 - shared host and scene
 
 Introduce `cable-scene/v1`, a renderer-agnostic host contract and the shared
@@ -196,8 +224,9 @@ scene for datasheets or quotations. Interactive state is not embedded in PDF.
 
 ## Prototype exit gate
 
-The prototype can proceed into COR integration only when all of these are
-demonstrated:
+The complete prototype can proceed into COR integration only when all of these
+are demonstrated. Phase 1 proves the renderer and interaction subset first;
+the detach/reattach, shared-session and multi-display items belong to Phase 2:
 
 - stable launch, detach, reattach and app shutdown;
 - one renderer transfers between docked and pop-out hosts without duplicate

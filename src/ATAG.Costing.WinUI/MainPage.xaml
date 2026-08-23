@@ -3440,6 +3440,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Spacing="2">
                                             <TextBlock
@@ -3452,9 +3453,16 @@
                                                 Text="Resizable right-hand dock"
                                                 TextWrapping="Wrap" />
                                         </StackPanel>
+                                        <Button
+                                            x:Name="SingleCorePreviewDetachButton"
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Click="SingleCorePreviewDetachButton_Click"
+                                            Content="Open in window"
+                                            ToolTipService.ToolTip="Move this shared preview to a resizable window on the same display." />
                                         <ToggleSwitch
                                             x:Name="SingleCorePreviewToggle"
-                                            Grid.Column="1"
+                                            Grid.Column="2"
                                             VerticalAlignment="Center"
                                             OffContent="Off"
                                             OnContent="On"
@@ -3478,20 +3486,53 @@
                                         HorizontalScrollBarVisibility="Disabled"
                                         VerticalScrollBarVisibility="Auto"
                                         Visibility="Collapsed">
-                                        <StackPanel Spacing="14">
+                                        <StackPanel
+                                            x:Name="SingleCorePreviewModeStack"
+                                            Spacing="14">
+                                            <Grid ColumnSpacing="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="4">
+                                                    <TextBlock
+                                                        FontWeight="SemiBold"
+                                                        Text="Preview type" />
+                                                    <ComboBox
+                                                        x:Name="SingleCorePreviewModeComboBox"
+                                                        MinWidth="230"
+                                                        HorizontalAlignment="Stretch"
+                                                        SelectedIndex="0"
+                                                        SelectionChanged="SingleCorePreviewModeComboBox_SelectionChanged">
+                                                        <ComboBoxItem Content="Simple" Tag="Simple" />
+                                                        <ComboBoxItem Content="Detailed strands" Tag="Detailed" />
+                                                        <ComboBoxItem Content="Interactive 3D" Tag="Interactive3D" />
+                                                    </ComboBox>
+                                                </StackPanel>
+                                                <TextBlock
+                                                    Grid.Column="1"
+                                                    MaxWidth="250"
+                                                    VerticalAlignment="Bottom"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="3D: drag to orbit · Shift/right drag to pan · wheel to zoom"
+                                                    TextWrapping="Wrap" />
+                                            </Grid>
                                             <ToggleSwitch
                                                 x:Name="SingleCoreDetailedPreviewToggle"
                                                 Header="Conductor rendering"
                                                 OffContent="Simplified envelope"
                                                 OnContent="Detailed strands"
-                                                Toggled="SingleCoreDetailedPreviewToggle_Toggled" />
+                                                Toggled="SingleCoreDetailedPreviewToggle_Toggled"
+                                                Visibility="Collapsed" />
                                             <TextBlock
+                                                x:Name="SingleCorePreviewStrandDetailText"
                                                 FontSize="12"
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="{Binding PreviewStrandDetailDisplay}"
                                                 TextWrapping="Wrap" />
 
                                             <Border
+                                                x:Name="SingleCoreCrossSectionCard"
                                                 Padding="12"
                                                 Background="{ThemeResource ControlFillColorSecondaryBrush}"
                                                 CornerRadius="12">
@@ -3573,6 +3614,7 @@
                                             </Border>
 
                                             <Border
+                                                x:Name="SingleCoreSideProfileCard"
                                                 Padding="12"
                                                 Background="{ThemeResource ControlFillColorSecondaryBrush}"
                                                 CornerRadius="12">
@@ -3848,10 +3890,27 @@
                                                         TextWrapping="Wrap" />
                                                     </StackPanel>
                                                 </StackPanel>
+                                             </Border>
+
+                                            <Border
+                                                x:Name="SingleCoreInteractive3DCard"
+                                                MinHeight="360"
+                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                CornerRadius="12"
+                                                Visibility="Collapsed">
+                                                <Grid x:Name="SingleCoreInteractive3DHostContainer" />
                                             </Border>
 
-                                        </StackPanel>
-                                    </ScrollViewer>
+                                            <InfoBar
+                                                x:Name="SingleCorePreviewDetachedInfoBar"
+                                                IsClosable="False"
+                                                IsOpen="False"
+                                                Message="The shared LIVE Preview is open in its own resizable window. Changes made here continue to update it."
+                                                Severity="Informational"
+                                                Title="Preview detached" />
+
+                                         </StackPanel>
+                                     </ScrollViewer>
                                 </Grid>
                             </Border>
                         </Grid>
@@ -4609,7 +4668,7 @@
                                 </StackPanel>
                             </Border>
                         </StackPanel>
-                    </ScrollViewer>
+                                     </ScrollViewer>
 
                     <ScrollViewer
                         x:Name="MaterialDataView"

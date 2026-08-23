@@ -472,26 +472,28 @@ as well as colour.
 
 Preview geometry consumes already-calculated inputs and results. It cannot
 calculate, correct, or replace a Domain/Application result. Braid Coverage is
-the first reference implementation. COR and Dual Insulation move onto this
-shared shell only through later controlled refactors that preserve their
-accepted calculations, saves, revisions, and detailed conductor geometry.
+the first reference implementation. As of the 23 August 2026 v0.7.0 release
+candidate, COR is the first costing workspace on the shared preview session:
+Simple, Detailed strands, and Interactive 3D share one scene and the pop-out
+moves the exact accepted 2D controls instead of maintaining a second drawing.
+Dual Insulation still moves onto this shell only through a later controlled
+refactor that preserves its accepted calculations, saves, revisions, and
+detailed conductor geometry.
 
 When a module has no useful approved diagram, the shell must remove the preview
 dock entirely instead of presenting an empty or permanently paused rail. The
 Coil calculator is the first consumer of this no-preview shell mode while the
 shared accelerated-renderer optimisation remains pending.
 
-The next preview/interaction slice is performance-first. Measure the current
-UI-thread, layout, binding, allocation and preview-invalidation costs before
-choosing a replacement renderer. The target is one shared cable-scene/result
-contract that every costing construction can consume, with on-demand rendering,
-cached/reused resources, bounded redraw frequency, no work while hidden, and no
-business calculation in the renderer. Evaluate a lightweight
-hardware-accelerated Win2D/Direct3D or Windows Composition surface with a tested
-software/WARP fallback for unsupported, remote, or device-lost environments.
-This is hardware-accelerated **rendering**, not video decoding. Preserve a
-simple/off mode and define measurable responsiveness, idle-CPU, memory, and
-older-laptop acceptance targets before migration.
+The performance-first renderer slice is implemented for COR in the v0.7.0
+release candidate. It uses one Direct3D 11 scene/result contract, renders on
+demand, reuses device resources, performs no work while hidden, and performs no
+business calculation. Hardware rendering is preferred and a tested WARP
+software fallback covers unsupported, remote, and device-lost environments.
+This is hardware-accelerated **rendering**, not video decoding. Simple/off mode
+is retained. Lower-spec laptop measurement and migration of the remaining
+construction and engineering modules are still required before this can be
+called app-wide completion.
 
 The shared LIVE Preview is also a detachable app-wide tool. It can remain in
 the responsive workspace dock or move into one freely resizable/maximisable
