@@ -127,3 +127,29 @@ suitable PC. Local v0.8.0 package evidence is:
 
 GitHub merge, Actions and public updater evidence must be appended after they
 complete. The packages are not code-signed; this is unchanged from v0.7.0.
+
+## Public v0.8.0 release evidence
+
+- Pull request: `#4`, merged into `main`.
+- Merge/tag target: `f82cf6d27fb475a7c335b3841b8dab6e295b6b3f`.
+- Stable workflow: Actions run `33864222647` / run number `19`, successful in
+  3m 3s.
+- Public release: `v0.8.0`, latest, not draft, not prerelease, published
+  2026-09-04 10:41:44 UTC.
+- Public release assets: 7, including installer, full NuGet package, portable
+  ZIP, both Velopack feeds, `RELEASES`, and `SHA256SUMS.txt`.
+- Public installer: 101,411,942 bytes, SHA-256
+  `427AE5E128093CED212664566E37F58874123220E9236E2B61776BF9DC2D85A4`.
+- Public full package: 96,818,790 bytes, SHA-256
+  `CF488042989F2694D0D20966FA7291982C54913F388C0ED6A915A8D9C604192F`.
+- Public portable ZIP: 96,763,612 bytes, SHA-256
+  `63E17F423143B70BB2AEFCA6086F355BC45BFCFFB8644E9ABBE5FE5D8BFD48DB`.
+- Anonymous updater check: `releases.win.json` advertises `0.8.0`,
+  `Costing.App-0.8.0-full.nupkg`, and the same full-package SHA-256.
+
+The small size/hash differences between local and public payloads are expected
+because GitHub Actions rebuilt the packages rather than uploading the local
+build. The public hashes above are authoritative for users. The workflow's only
+annotation was a non-blocking Node.js-runtime deprecation warning for the v4
+GitHub Actions dependencies; the build, tests, packaging and publication all
+completed successfully.

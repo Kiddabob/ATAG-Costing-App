@@ -3894,3 +3894,28 @@ portable archive. Local payload hashes are recorded in
 still needs a true non-ATAG PC acceptance. At this point the candidate is ready
 for its release branch, reviewed GitHub merge and Stable workflow; public merge,
 Actions, asset and updater evidence must be appended afterward.
+
+## 2026-09-04 v0.8.0 published and USB main synchronized
+
+Release pull request [#4](https://github.com/Kiddabob/ATAG-Costing-App/pull/4)
+merged the verified candidate into `main` at
+`f82cf6d27fb475a7c335b3841b8dab6e295b6b3f`. Stable Actions run
+[#19](https://github.com/Kiddabob/ATAG-Costing-App/actions/runs/33864222647)
+completed successfully in 3m 3s. GitHub published
+[v0.8.0](https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.8.0)
+as the latest non-draft, non-prerelease release, targeted at that exact merge
+commit, with all seven expected public assets.
+
+The anonymous `releases.win.json` updater feed was fetched independently and
+advertises version `0.8.0`, file `Costing.App-0.8.0-full.nupkg`, and SHA-256
+`CF488042989F2694D0D20966FA7291982C54913F388C0ED6A915A8D9C604192F`,
+matching the GitHub release asset. The installed v0.7.0 app can therefore offer
+this release through its normal update check; it was deliberately not replaced
+manually during release verification. The public installer SHA-256 is
+`427AE5E128093CED212664566E37F58874123220E9236E2B61776BF9DC2D85A4`.
+
+The only Actions annotation was a non-blocking maintenance warning that
+`actions/checkout@v4`, `actions/setup-dotnet@v4`, and `actions/upload-artifact@v4`
+still declare the retired Node.js 20 runtime and were forced to Node.js 24 by
+GitHub. Track upgrades to those action majors when available; it did not affect
+the successful release.
