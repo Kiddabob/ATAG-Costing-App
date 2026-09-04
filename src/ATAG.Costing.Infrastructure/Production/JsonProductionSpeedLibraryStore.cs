@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ATAG.Costing.Application.Production;
+using ATAG.Costing.Infrastructure.Storage;
 
 namespace ATAG.Costing.Infrastructure.Production;
 
@@ -17,6 +18,7 @@ public sealed class JsonProductionSpeedLibraryStore : IProductionSpeedLibrarySto
 
     private readonly Lock _syncRoot = new();
     private readonly string _statePath;
+    private ProductionSpeedLibraryState? _baseline;
 
     public JsonProductionSpeedLibraryStore(string? statePath = null)
     {
@@ -31,6 +33,15 @@ public sealed class JsonProductionSpeedLibraryStore : IProductionSpeedLibrarySto
     {
         lock (_syncRoot)
         {
+            using var gate = SharedFileGate.Acquire(_statePath);
+            var state = LoadFromFile();
+            _baseline = state;
+            return state;
+        }
+    }
+
+    private ProductionSpeedLibraryState LoadFromFile()
+    {
             try
             {
                 if (!File.Exists(_statePath))
@@ -58,7 +69,6 @@ public sealed class JsonProductionSpeedLibraryStore : IProductionSpeedLibrarySto
             {
                 return ProductionSpeedLibraryDefaults.Empty();
             }
-        }
     }
 
     public void Save(ProductionSpeedLibraryState state)
@@ -67,18 +77,81 @@ public sealed class JsonProductionSpeedLibraryStore : IProductionSpeedLibrarySto
 
         lock (_syncRoot)
         {
-            var normalized = Normalize(state);
+            using var gate = SharedFileGate.Acquire(_statePath);
+            var requested = Normalize(state);
+            var current = LoadFromFile();
+            var normalized = Merge(
+                _baseline ?? current,
+                current,
+                requested);
             var directory = Path.GetDirectoryName(_statePath)
                 ?? throw new InvalidOperationException(
                     "The production-speed library path has no parent directory.");
             Directory.CreateDirectory(directory);
 
-            var temporaryPath = $"{_statePath}.tmp";
+            var temporaryPath = $"{_statePath}.{Guid.NewGuid():N}.tmp";
             var json = JsonSerializer.Serialize(normalized, SerializerOptions);
-            File.WriteAllText(temporaryPath, json);
-            File.Move(temporaryPath, _statePath, overwrite: true);
+            try
+            {
+                File.WriteAllText(temporaryPath, json);
+                File.Move(temporaryPath, _statePath, overwrite: true);
+                _baseline = normalized;
+            }
+            finally
+            {
+                if (File.Exists(temporaryPath))
+                {
+                    File.Delete(temporaryPath);
+                }
+            }
         }
     }
+
+    private static ProductionSpeedLibraryState Merge(
+        ProductionSpeedLibraryState baseline,
+        ProductionSpeedLibraryState current,
+        ProductionSpeedLibraryState requested)
+    {
+        var baselineById = baseline.Lines.ToDictionary(
+            line => line.Id,
+            StringComparer.OrdinalIgnoreCase);
+        var requestedById = requested.Lines.ToDictionary(
+            line => line.Id,
+            StringComparer.OrdinalIgnoreCase);
+        var result = current.Lines.ToDictionary(
+            line => line.Id,
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var baselineId in baselineById.Keys)
+        {
+            if (!requestedById.ContainsKey(baselineId))
+            {
+                result.Remove(baselineId);
+            }
+        }
+
+        foreach (var requestedLine in requested.Lines)
+        {
+            if (!baselineById.TryGetValue(requestedLine.Id, out var baselineLine) ||
+                !Equivalent(baselineLine, requestedLine))
+            {
+                result[requestedLine.Id] = requestedLine;
+            }
+        }
+
+        return requested with
+        {
+            Lines = result.Values.ToArray(),
+        };
+    }
+
+    private static bool Equivalent(
+        ProductionLineDefinition left,
+        ProductionLineDefinition right) =>
+        string.Equals(
+            JsonSerializer.Serialize(left, SerializerOptions),
+            JsonSerializer.Serialize(right, SerializerOptions),
+            StringComparison.Ordinal);
 
     private static ProductionSpeedLibraryState Normalize(
         ProductionSpeedLibraryState state)

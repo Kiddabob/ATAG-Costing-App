@@ -33,25 +33,19 @@
         PreviewTitle="LIVE Braid Preview">
         <local:ModuleWorkspaceShell.HeaderContent>
             <Border Margin="32,8,32,6" Style="{StaticResource ModuleHeaderCardStyle}">
-                <Grid ColumnSpacing="20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                <StackPanel Spacing="10">
                     <StackPanel Spacing="4">
                         <TextBlock Style="{StaticResource SectionLabelStyle}" Text="BRAID COVERAGE MODULE" />
                         <TextBlock FontSize="26" FontWeight="SemiBold" Text="Set the cable, compare the carriers, and see every formula." TextWrapping="Wrap" />
-                        <TextBlock MaxWidth="850" Style="{StaticResource ModuleSupportingTextStyle}" Text="The core lay-up factors and braid formula come from the workbook calculator. Braid wire comes from the retained Copper table and results update immediately as an input changes." />
+                        <TextBlock MaxWidth="850" Style="{StaticResource ModuleSupportingTextStyle}" Text="The core lay-up factors and braid formula come from the workbook calculator. Braid wire comes from the retained Copper table and results update immediately as an input changes." TextWrapping="Wrap" />
                     </StackPanel>
                     <InfoBar
-                        Grid.Column="1"
-                        MaxWidth="420"
-                        VerticalAlignment="Center"
+                        IsOpen="True"
                         Style="{StaticResource ModuleStatusInfoBarStyle}"
                         Message="{Binding CalculationStatus}"
                         Severity="Success"
                         Title="LIVE calculation" />
-                </Grid>
+                </StackPanel>
             </Border>
         </local:ModuleWorkspaceShell.HeaderContent>
 

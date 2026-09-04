@@ -1,3 +1,5 @@
+using ATAG.Costing.Application.Preferences;
+
 namespace ATAG.Costing.WinUI;
 
 internal enum AppSessionMode
@@ -17,6 +19,7 @@ internal static class AppRuntimeMode
 
     private static AppSessionMode _sessionMode = AppSessionMode.Automatic;
     private static bool? _hasOrganisationAccount;
+    private static string? _applicationDataRoot;
 
     public static bool IsPublicReview
     {
@@ -33,6 +36,23 @@ internal static class AppRuntimeMode
     public static bool HasDetectedOrganisationAccount =>
         _hasOrganisationAccount ??=
             LocalBrandingService.HasOrganisationOneDriveAccount();
+
+    public static bool UsesOrganisationSharedData =>
+        !IsPublicReview && HasDetectedOrganisationAccount;
+
+    public static string ApplicationDataRoot =>
+        _applicationDataRoot ?? throw new InvalidOperationException(
+            "The application-data location has not been configured.");
+
+    public static string CentralDataPath =>
+        ApplicationDataLocationPolicy.GetDataFilePath(
+            ApplicationDataRoot,
+            ApplicationDataLocationPolicy.CentralDataFileName);
+
+    public static string ProductionSpeedLibraryPath =>
+        ApplicationDataLocationPolicy.GetDataFilePath(
+            ApplicationDataRoot,
+            ApplicationDataLocationPolicy.ProductionSpeedLibraryFileName);
 
     public static bool ShouldOfferLaunchModeChoice =>
         !IsPublicReview &&
@@ -97,5 +117,12 @@ internal static class AppRuntimeMode
 
         _sessionMode = mode;
 #endif
+    }
+
+    public static void ConfigureApplicationDataRoot(string? userSelectedRoot)
+    {
+        _applicationDataRoot = ApplicationDataLocationPolicy.ResolveRoot(
+            UsesOrganisationSharedData,
+            userSelectedRoot);
     }
 }

@@ -4,9 +4,17 @@
       This is the single version source for the app binary, Velopack package,
       installer and GitHub release workflow. Keep it as a three-part SemVer.
     -->
-    <CostingAppVersion>0.7.0</CostingAppVersion>
+    <CostingAppVersion>0.8.0</CostingAppVersion>
     <Version>$(CostingAppVersion)</Version>
     <InformationalVersion>$(CostingAppVersion)</InformationalVersion>
+
+    <!--
+      Routine development builds must remain deterministic when the portable
+      workspace is offline or a restricted automation session cannot reach
+      NuGet's advisory endpoint. The release gate explicitly overrides this,
+      refreshes the audit feed and treats every audit/feed warning as an error.
+    -->
+    <NuGetAudit Condition="'$(NuGetAudit)' == ''">false</NuGetAudit>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(AtagPublicReview)' == 'true'">

@@ -92,6 +92,45 @@ public sealed class JsonProductionSpeedLibraryStoreTests
         }
     }
 
+    [Fact]
+    public void SeparateClients_AddingDifferentLines_PreserveBothChanges()
+    {
+        var statePath = TemporaryStatePath();
+
+        try
+        {
+            var firstClient = new JsonProductionSpeedLibraryStore(statePath);
+            var secondClient = new JsonProductionSpeedLibraryStore(statePath);
+            firstClient.Load();
+            secondClient.Load();
+
+            firstClient.Save(new ProductionSpeedLibraryState
+            {
+                Lines = [Line("line-1", "Line 1")],
+            });
+            secondClient.Save(new ProductionSpeedLibraryState
+            {
+                Lines = [Line("line-2", "Line 2")],
+            });
+
+            var reloaded = new JsonProductionSpeedLibraryStore(statePath).Load();
+            Assert.Equal(2, reloaded.Lines.Count);
+            Assert.Contains(reloaded.Lines, line => line.Id == "line-1");
+            Assert.Contains(reloaded.Lines, line => line.Id == "line-2");
+        }
+        finally
+        {
+            DeleteTemporaryParent(statePath);
+        }
+    }
+
+    private static ProductionLineDefinition Line(string id, string name) =>
+        new()
+        {
+            Id = id,
+            Name = name,
+        };
+
     private static string TemporaryStatePath() =>
         Path.Combine(
             Path.GetTempPath(),

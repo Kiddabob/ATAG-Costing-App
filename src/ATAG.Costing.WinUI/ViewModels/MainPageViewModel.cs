@@ -27,6 +27,7 @@ public partial class MainPageViewModel : ObservableObject
     ];
 
     private readonly IAppPreferencesService _preferencesService;
+    private readonly string? _applicationDataFolderPath;
     private bool _isLoading;
 
     [ObservableProperty]
@@ -96,6 +97,7 @@ public partial class MainPageViewModel : ObservableObject
 
         _isLoading = true;
         var preferences = _preferencesService.Load();
+        _applicationDataFolderPath = preferences.ApplicationDataFolderPath;
         StorageFolderPath = preferences.SaveFolderPath ?? string.Empty;
         ShowStorageSetupOnStartup = preferences.ShowStorageSetupOnStartup;
         HasCompletedFirstRunSetup = preferences.HasCompletedFirstRunSetup;
@@ -307,7 +309,8 @@ public partial class MainPageViewModel : ObservableObject
                 ? "Beta"
                 : "Stable",
             AccentColour: SelectedAccentName,
-            CustomAccentHex: NormalizeHex(CustomAccentHex) ?? "#F78370"));
+            CustomAccentHex: NormalizeHex(CustomAccentHex) ?? "#F78370",
+            ApplicationDataFolderPath: _applicationDataFolderPath));
     }
 
     private static string? NormalizeHex(string? value)

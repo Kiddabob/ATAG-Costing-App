@@ -1,5 +1,40 @@
 # Costing App release notes
 
+## 0.8.0 - 2026-09-04
+
+- Moves retained central tables and the production-speed library to one shared
+  application-data location when an ATAG OneDrive business account is detected,
+  allowing ATAG PCs to use the same current business data without changing the
+  separate user-selected folder for costings, quotes, reports, and backups.
+- Gives generic installations a first-launch application-data folder choice,
+  including an explicit local-PC option, while keeping visual preferences,
+  updater settings, window placement, and the disposable exchange-rate cache
+  private to each Windows user.
+- Protects shared JSON with cross-process locks and atomic replacement, merges
+  non-conflicting production-line edits against each client's loaded baseline,
+  and streams the larger retained-data file to reduce peak memory allocation.
+- Changes automatic refresh of configured database links to once per hour;
+  manual refresh remains immediate and a failed automatic refresh still pauses
+  further attempts until the user retries.
+- Adds a retained-core Buncher LIVE Preview with end and side views. Core groups
+  are physical equal cable cores—for example, six cores are one centre plus
+  five around it—rather than a false former with thin surrounding wires.
+- Adds a bounded Coil LIVE Preview showing the bar, representative complete
+  turns, parallel tails, selected cable shape, and authoritative calculated
+  dimensions without introducing pricing or duplicate formula logic.
+- Coalesces rapid Dual, Buncher, and Coil preview redraws and stops their render
+  timers while unloaded, while preserving COR hardware D3D11/WARP 3D and the
+  existing Braid and Dual engineering visuals.
+- Fixes long ATAG wordmarks in published builds by resolving them as packaged
+  resources, removes the detached-preview shutdown exception, and makes the
+  Braid and Buncher headers readable in compact windows.
+- Makes routine local NuGet restores deterministic when the advisory endpoint
+  is unavailable while retaining a fresh, warning-as-error vulnerability audit
+  in the Release gate.
+- Includes the portable development-roadmap page and reusable native Windows UI
+  acceptance runners as source/development aids; no business database or saved
+  production data is included in the installer.
+
 ## 0.7.0 - 2026-08-23
 
 - Promotes the accepted interactive Direct3D 11 cable view into the single-core

@@ -12,6 +12,8 @@ public sealed record CoilShapeChoice(
 
 public partial class CoilCalculatorViewModel : ObservableObject
 {
+    private CoilCableLengthResult? _previewResult;
+
     public IReadOnlyList<CoilShapeChoice> ShapeOptions { get; } =
     [
         new(
@@ -114,6 +116,12 @@ public partial class CoilCalculatorViewModel : ObservableObject
         : "Cable width · axial pitch (mm)";
 
     public bool IsCableWidthEnabled => SelectedShape?.Shape != CoilCableShape.Round;
+
+    public CoilCableLengthResult? PreviewResult
+    {
+        get => _previewResult;
+        private set => SetProperty(ref _previewResult, value);
+    }
 
     public CoilCalculatorViewModel()
     {
@@ -234,6 +242,7 @@ public partial class CoilCalculatorViewModel : ObservableObject
             CalculationStatus =
                 "Live · geometry only. Pricing is intentionally excluded from this module.";
             CalculationStatusSeverity = InfoBarSeverity.Success;
+            PreviewResult = result;
         }
         catch (ArgumentException exception)
         {
@@ -246,6 +255,7 @@ public partial class CoilCalculatorViewModel : ObservableObject
         CalculationStatusTitle = "Check the inputs";
         CalculationStatus = message;
         CalculationStatusSeverity = InfoBarSeverity.Warning;
+        PreviewResult = null;
         RequiredBarDiameterDisplay = "—";
         CompleteTurnsDisplay = "—";
         CablePerCoilDisplay = "—";

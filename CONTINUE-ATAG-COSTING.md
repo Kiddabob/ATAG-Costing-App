@@ -1,13 +1,11 @@
 # Continue ATAG Costing development on another PC
 
-**Handoff updated:** 23 August 2026. The current public baseline is v0.6.2 and
-the local `feature/interactive-3d-v1` branch is the v0.7.0 release candidate.
-The accepted Direct3D proof now consumes the active COR construction through
-one shared LIVE Preview session, with Simple, Detailed, and Interactive 3D
-modes moving between the responsive dock and an owned pop-out window. The
-performance-first multi-module preview roadmap and the approval-gated `Coils`
-worksheet audit remain recorded in the latest sections and linked documents
-below. Historical implementation context follows.
+**Handoff updated:** 25 August 2026. Public `v0.7.0` remains the baseline. The
+current local `main` working tree contains an uncommitted durable NuGet
+restore/audit boundary and a one-hour central-data automatic refresh policy.
+The comprehensive automated/native UI baseline, confirmed defects and next
+modularity slice are in `docs/TEST-BASELINE-2026-08-25.md`; read that concise
+file first. Historical implementation context follows here only when needed.
 
 **Earlier handoff summary:** 9 August 2026, after the auditable missing-field derivation,
 per-table link-status, and compact conductor-preview follow-up. Central-data workflow windows now use the
@@ -3733,3 +3731,166 @@ public Velopack `releases.win.json` resolves version 0.7.0 to the full-package
 size and SHA-256 above, includes the complete v0.7.0 notes, and therefore forms
 the expected anonymous stable updater payload. Release URL:
 `https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.7.0`.
+
+## 2026-08-25 NuGet, hourly relink and comprehensive native test baseline
+
+Read `docs/TEST-BASELINE-2026-08-25.md` before the next development slice. It
+supersedes the older test-count and outstanding-runtime-check summaries for the
+current local tree without deleting their historical context.
+
+Routine local builds now default NuGet audit off so the portable workspace does
+not repeatedly fail on an unreachable advisory endpoint. The Release script
+forces a fresh online audit and promotes `NU1900` through `NU1904` to errors.
+The central-data automatic refresh interval is now exactly one hour, manual
+refresh remains immediate, and failed/partial automatic refresh still pauses
+until manual retry. An application regression test fixes that policy at one
+hour.
+
+The final result is 160 automated tests passed, 2 approval-gated skips and 0
+failed; a clean Debug build; a clean online-audited Release/package gate; 48
+native Windows UI page captures across wide and compact viewports with zero
+navigation failures; passing Braid, Buncher, Coil, hardware D3D11, WARP,
+detach and redock interactions. The native audit confirmed three priority
+defects: the long ATAG logo is absent only from Release-published execution due
+to `UnauthorizedAccessException`; main-window shutdown while the preview is
+detached logs an unhandled `NullReferenceException`; and the compact Braid
+header collapses into an unusably narrow text column. Fix these before starting
+the shell/module extraction described in the baseline document. This local
+work is not committed or pushed.
+
+## 2026-08-25 local interactive development roadmap
+
+The complete outstanding-work list from the 25 August test baseline and the
+retained handover scope is available as an editable local web planner in
+`roadmap/portable-dist/index.html`. From the portable workspace root, use
+`..\Open ATAG Development Roadmap.cmd`; the launcher resolves the page
+relative to itself and does not assume a USB drive letter.
+
+The planner contains 61 seeded tasks covering confirmed defects, performance,
+modularity, Braid/Buncher, Dual, Coil, Production Speeds, future modules,
+reporting, project workflow, data/operations and unresolved business
+decisions. The user can drag or keyboard-move tasks, check them off, change
+priority and Fix/Feature classification, add instructions, add tasks to any
+existing or new section, filter independently by completion, priority,
+Fix/Feature and section, search, and switch System/Light/Dark appearance.
+Browser-local autosave is
+supplemented by JSON backup/import for moving between PCs and an ordered
+Markdown export intended for the next Codex development task. This planner is
+a local planning aid only; it does not change the approved app scope or mark
+any development item complete.
+
+## 2026-08-28 ATAG shared application-data handover
+
+Stop here before starting the preview work below. The installed application is
+still the current public Stable `v0.7.0`; its installed `sq.version`, source
+version and GitHub release all report 0.7.0. Public `main` and `origin/main`
+were both at `2f77c01d3bdba1abf2e7d40611fbc88f3466864f` when this pass began, but
+the working tree already contained the unreleased 25 August reliability/test
+work and now also contains this uncommitted storage slice. Nothing from this
+pass has been installed, committed, pushed or published.
+
+The ATAG network folder `\\atagdesign\database\ATAG Costing App` exists. The
+current machine's retained central tables and production-speed saved runs were
+copied there atomically and SHA-256 verified on 28 August 2026:
+
+- `central-data-state.json`: 7,928,960 bytes,
+  `3C007DE93E8F3C18D8153AF440655242FD70EA9B8E4ADD1A990C717D00505C46`;
+- `production-speed-library.json`: 3,222 bytes,
+  `6CB19FEF022EC3242C1B035F4834717828FCF18D9FDB99ACCFEC411D14F941FF`.
+
+The original LocalAppData files remain intact as recovery backups; the new
+source deliberately treats existing network files as authoritative and never
+overwrites them during one-time migration. Do not manually recopy a local file
+over the shared copy on the other PC.
+
+Local source now separates three storage scopes:
+
+- an actually detected `@atagcables.com` OneDrive business account always uses
+  the managed UNC root above for `central-data-state.json` and
+  `production-speed-library.json`;
+- the generic application asks for an application-data folder before the main
+  page is constructed, with an explicit local-PC option, and retains that path
+  in local preferences;
+- generated costings, quotes, reports and backups continue to use the existing
+  independent user-selected save folder. Theme, updater preference, window
+  placement and the disposable ECB exchange-rate cache remain per PC. Public
+  review remains isolated and in-memory.
+
+If the managed UNC folder is unavailable, an ATAG-detected launch now stops at
+a retry screen rather than silently opening an empty local database. Shared
+JSON writes use a cross-process lock and unique atomic temporary files. The
+production-speed store also performs a baseline-aware merge so separate PCs
+adding or editing different production lines preserve both changes; truly
+simultaneous edits to the same line still resolve as the last completed edit.
+
+Verification completed before handover: the full automated suite passed with
+165 tests, the same 2 approval-gated workbook fixtures skipped and 0 failures.
+The x64 Debug WinUI build then completed with 0 warnings and 0 errors. The new
+executable was not launched for native visual acceptance before the requested
+USB handover. On the next PC, first preserve this working tree, then run the
+exact Debug executable with the ATAG account detected and verify that Live Data
+and Production Speeds read the two shared files. Also run one generic/blank
+startup-selection check before preparing a release.
+
+The next development slice, only after storage runtime acceptance, is shared
+LIVE Preview coverage for every relevant module. The Buncher Lay preview must
+not draw a false central cable with thin lines around it: it must render the
+actual multi-core lay-up from the already imported bunch-group/lay-up table
+(for example, 6 cores is 1 centre plus 5 around it). Reuse the common preview
+session/dock architecture where practical, give each module its correct scene,
+and do not start that work until this storage slice is accepted or safely
+reverted.
+
+## 2026-09-04 shared storage accepted and relevant LIVE Previews completed locally
+
+Read `docs/SHARED-STORAGE-AND-PREVIEW-ACCEPTANCE-2026-09-04.md` first. It is the
+concise authoritative continuation record for this combined dirty tree and
+avoids reloading the entire historical handover when context is limited.
+
+Native acceptance of the exact Debug executable confirmed that this detected
+ATAG PC selected `\\atagdesign\database\ATAG Costing App`, loaded the expected
+325 copper / 74 compound / 348 masterbatch / 568 contact / 23 operator shared
+snapshot, retained all five database links and loaded production `Line 1`.
+Automatic relinking remains exactly hourly and manual refresh remains immediate.
+The generic blank/non-ATAG chooser still needs one native acceptance on a PC
+where ATAG account detection is genuinely absent.
+
+The relevant completed calculation modules now have live visuals: COR retains
+Simple/Detailed/Interactive 3D, Dual and Braid retain their 2D previews,
+Buncher renders equal real cable cores from the retained group table, and Coil
+shows its bar, complete turns, parallel tails and shape. Six-core Buncher is
+explicitly one centre plus five around it with no invented former. Flat and
+D-shape remain input-less placeholders and Production Speeds is a data module,
+so none of those has fake geometry. Dual, Buncher and Coil coalesce redraws; the
+central retained-data JSON now streams instead of allocating one large string.
+
+The final gate is 171 passed, 2 intentional skips and 0 failed, followed by an
+x64 Debug build with 0 warnings and 0 errors. Native interaction acceptance is
+6 passed and 0 failed; evidence is in
+`artifacts/app-interaction-audit-20260904-live-previews-v5`. The installed and
+current public stable versions remain 0.7.0; the accepted local tree is now a
+0.8.0 release candidate. The Release-logo, detached-preview shutdown and
+compact Braid/Buncher header defects were corrected during release preparation.
+Forced-WARP shutdown passed 3/3 checks, and the repeated 48-route compact/wide
+audit had zero navigation failures. This work is not yet committed, pushed,
+installed, packaged or published. The generic chooser still needs acceptance
+on a genuinely non-ATAG PC; run the online Release/package gate before release.
+
+## 2026-09-04 v0.8.0 release candidate verified
+
+The three retained release blockers are now fixed. Packaged resource URIs load
+the long ATAG wordmarks in Release output; detached-preview cleanup retains its
+`AppWindow` event source and no longer raises the shutdown exception; and Braid
+and Buncher use compact-safe stacked headers. Forced-WARP detached shutdown
+passed 3/3 native checks. A fresh Debug 48-route audit and an exact Release-
+published 48-route audit both completed with zero navigation failures. Visual
+inspection confirms the long logos and compact headers render correctly.
+
+The online-audited v0.8.0 Release gate passed 171 tests with the same two
+approval-gated skips, verified the embedded icon and required packaged assets,
+passed the public-data safety audit, and created the installer, full package and
+portable archive. Local payload hashes are recorded in
+`docs/SHARED-STORAGE-AND-PREVIEW-ACCEPTANCE-2026-09-04.md`. The generic chooser
+still needs a true non-ATAG PC acceptance. At this point the candidate is ready
+for its release branch, reviewed GitHub merge and Stable workflow; public merge,
+Actions, asset and updater evidence must be appended afterward.

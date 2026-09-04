@@ -13,7 +13,8 @@ public sealed record AppPreferences(
     bool AutomaticallyCheckForUpdates = true,
     string UpdateChannel = "Stable",
     string AccentColour = "Coral",
-    string CustomAccentHex = "#F78370")
+    string CustomAccentHex = "#F78370",
+    string? ApplicationDataFolderPath = null)
 {
     public static AppPreferences Default { get; } = new(
         SaveFolderPath: null,
@@ -24,5 +25,6 @@ public sealed record AppPreferences(
         AutomaticallyCheckForUpdates: true,
         UpdateChannel: "Stable",
         AccentColour: "Coral",
-        CustomAccentHex: "#F78370");
+        CustomAccentHex: "#F78370",
+        ApplicationDataFolderPath: null);
 }

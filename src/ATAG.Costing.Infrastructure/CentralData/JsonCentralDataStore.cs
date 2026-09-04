@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ATAG.Costing.Application.CentralData;
+using ATAG.Costing.Infrastructure.Storage;
 
 namespace ATAG.Costing.Infrastructure.CentralData;
 
@@ -31,6 +32,7 @@ public sealed class JsonCentralDataStore : ICentralDataStore
     {
         lock (_syncRoot)
         {
+            using var gate = SharedFileGate.Acquire(_statePath);
             return NormalizeOrSeed(TryLoad());
         }
     }
@@ -41,6 +43,7 @@ public sealed class JsonCentralDataStore : ICentralDataStore
 
         lock (_syncRoot)
         {
+            using var gate = SharedFileGate.Acquire(_statePath);
             var current = NormalizeOrSeed(TryLoad());
             Save(current with { Configuration = configuration });
         }
@@ -52,6 +55,7 @@ public sealed class JsonCentralDataStore : ICentralDataStore
 
         lock (_syncRoot)
         {
+            using var gate = SharedFileGate.Acquire(_statePath);
             var current = LoadCurrentOrSeed();
             var links = current.EffectiveTableLinks
                 .Where(existing => existing.Area != link.Area)
@@ -67,6 +71,7 @@ public sealed class JsonCentralDataStore : ICentralDataStore
     {
         lock (_syncRoot)
         {
+            using var gate = SharedFileGate.Acquire(_statePath);
             var current = LoadCurrentOrSeed();
             var links = current.EffectiveTableLinks
                 .Where(existing => existing.Area != area)
@@ -91,6 +96,7 @@ public sealed class JsonCentralDataStore : ICentralDataStore
 
         lock (_syncRoot)
         {
+            using var gate = SharedFileGate.Acquire(_statePath);
             var current = LoadCurrentOrSeed();
             Save(current with { Snapshot = snapshot });
         }
@@ -121,6 +127,7 @@ public sealed class JsonCentralDataStore : ICentralDataStore
 
         lock (_syncRoot)
         {
+            using var gate = SharedFileGate.Acquire(_statePath);
             var current = LoadCurrentOrSeed();
             var links = current.EffectiveTableLinks
                 .Where(existing => existing.Area != link.Area)
@@ -192,9 +199,13 @@ public sealed class JsonCentralDataStore : ICentralDataStore
                 return null;
             }
 
-            var json = File.ReadAllText(_statePath);
+            using var stream = new FileStream(
+                _statePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
             return JsonSerializer.Deserialize<CentralDataState>(
-                json,
+                stream,
                 SerializerOptions);
         }
         catch (IOException)
@@ -219,10 +230,27 @@ public sealed class JsonCentralDataStore : ICentralDataStore
 
         Directory.CreateDirectory(directory);
 
-        var temporaryPath = $"{_statePath}.tmp";
-        var json = JsonSerializer.Serialize(state, SerializerOptions);
-        File.WriteAllText(temporaryPath, json);
-        File.Move(temporaryPath, _statePath, overwrite: true);
+        var temporaryPath = $"{_statePath}.{Guid.NewGuid():N}.tmp";
+        try
+        {
+            using (var stream = new FileStream(
+                temporaryPath,
+                FileMode.CreateNew,
+                FileAccess.Write,
+                FileShare.None))
+            {
+                JsonSerializer.Serialize(stream, state, SerializerOptions);
+                stream.Flush(flushToDisk: true);
+            }
+            File.Move(temporaryPath, _statePath, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath))
+            {
+                File.Delete(temporaryPath);
+            }
+        }
     }
 
     private static bool HasAnyData(CentralDataSnapshot snapshot) =>

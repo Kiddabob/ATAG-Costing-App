@@ -128,7 +128,7 @@ public partial class ProductionSpeedLibraryViewModel : ObservableObject
 
         SelectedLine = Lines.FirstOrDefault();
         LibraryStatus = isEditingEnabled
-            ? "Production lines are retained privately for this Windows user."
+            ? "Production lines and known-run evidence use the configured application-data location."
             : "Production data is disabled in the interface-only public review.";
     }
 

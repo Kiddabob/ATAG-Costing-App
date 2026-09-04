@@ -31,6 +31,7 @@ public sealed class JsonAppPreferencesServiceTests
             Assert.Equal("Stable", loaded.UpdateChannel);
             Assert.Equal("Coral", loaded.AccentColour);
             Assert.Equal("#F78370", loaded.CustomAccentHex);
+            Assert.Null(loaded.ApplicationDataFolderPath);
         }
         finally
         {
@@ -51,6 +52,7 @@ public sealed class JsonAppPreferencesServiceTests
                 UpdateChannel = "Beta",
                 AccentColour = "Purple",
                 CustomAccentHex = "#654321",
+                ApplicationDataFolderPath = @"C:\Shared costing data",
             });
 
             var loaded = service.Load();
@@ -59,6 +61,9 @@ public sealed class JsonAppPreferencesServiceTests
             Assert.Equal("Beta", loaded.UpdateChannel);
             Assert.Equal("Purple", loaded.AccentColour);
             Assert.Equal("#654321", loaded.CustomAccentHex);
+            Assert.Equal(
+                @"C:\Shared costing data",
+                loaded.ApplicationDataFolderPath);
         }
         finally
         {

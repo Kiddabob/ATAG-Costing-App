@@ -24,11 +24,14 @@ It must not contain:
   or other user documents;
 - developer symbols or machine-local source paths.
 
-First run asks the user to choose business-file storage and import the five LIVE
-data areas. Runtime state stays under `%LOCALAPPDATA%\ATAG Design Ltd\ATAG
-Costing` and business files stay in the user-selected folder. Both locations
-are outside Velopack's replaceable `current` directory and must survive install,
-update, repair, and uninstall unless the user deliberately removes them.
+First run asks the user to choose costing-document storage and import the five
+LIVE data areas. ATAG-detected sessions retain central tables and production
+runs under `\\atagdesign\database\ATAG Costing App`; generic sessions choose
+their application-data folder before the main page opens. UI preferences and
+window placement stay under `%LOCALAPPDATA%\ATAG Design Ltd\ATAG Costing`, while
+generated business files stay in the independent user-selected folder. These
+locations are outside Velopack's replaceable `current` directory and must
+survive install, update, repair, and uninstall unless deliberately removed.
 
 ## Update behaviour
 
@@ -67,6 +70,17 @@ is explicit because an update restarts the app and users may need to save a
 working costing first.
 
 ## Maintainer release flow
+
+Routine development restores disable NuGet's network vulnerability query so
+an offline USB workspace or restricted automation session does not retain
+`NU1900` feed failures in otherwise valid project assets. Package restore still
+uses the normal configured NuGet sources whenever a dependency is not cached.
+
+`tools/Build-Release.ps1` is the security boundary: it force-refreshes the
+solution with `NuGetAudit=true` and treats `NU1900` through `NU1904` as errors.
+A release therefore stops if the advisory feed is unavailable or any low,
+moderate, high, or critical package advisory is reported; the audit is not
+silently skipped.
 
 1. Change `CostingAppVersion` in `Directory.Build.props` and update
    `CHANGELOG.md`.

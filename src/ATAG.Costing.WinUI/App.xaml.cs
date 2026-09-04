@@ -1,4 +1,7 @@
 using Microsoft.UI.Xaml;
+using ATAG.Costing.Application.Preferences;
+using ATAG.Costing.Infrastructure.Preferences;
+using ATAG.Costing.Infrastructure.Storage;
 namespace ATAG.Costing.WinUI;
 
 /// <summary>
@@ -7,6 +10,7 @@ namespace ATAG.Costing.WinUI;
 public partial class App : Microsoft.UI.Xaml.Application
 {
     private LaunchModeChoiceWindow? _launchModeChoiceWindow;
+    private ApplicationDataSetupWindow? _applicationDataSetupWindow;
 
     /// <summary>
     /// The main application window. Use <c>App.Window</c> from any class that needs
@@ -63,7 +67,7 @@ public partial class App : Microsoft.UI.Xaml.Application
                 return;
             }
 
-            OpenMainWindow();
+            ContinueAfterModeChoice();
         }
         catch (Exception exception)
         {
@@ -81,8 +85,82 @@ public partial class App : Microsoft.UI.Xaml.Application
 
         var choiceWindow = _launchModeChoiceWindow;
         _launchModeChoiceWindow = null;
-        OpenMainWindow();
+        ContinueAfterModeChoice();
         choiceWindow?.Close();
+    }
+
+    private void ContinueAfterModeChoice()
+    {
+        var preferencesService = new JsonAppPreferencesService();
+        var preferences = preferencesService.Load();
+        var root = ApplicationDataLocationPolicy.ResolveRoot(
+            AppRuntimeMode.UsesOrganisationSharedData,
+            preferences.ApplicationDataFolderPath);
+
+        if (AppRuntimeMode.IsPublicReview ||
+            StorageLocationPolicy.IsAvailable(root))
+        {
+            CompleteApplicationDataSetup(
+                root,
+                preferencesService,
+                preferences);
+            return;
+        }
+
+        Program.Log(AppRuntimeMode.UsesOrganisationSharedData
+            ? "ATAG shared application-data folder is unavailable."
+            : "Generic application-data folder selection is required.");
+        _applicationDataSetupWindow = new ApplicationDataSetupWindow(
+            AppRuntimeMode.UsesOrganisationSharedData,
+            selectedRoot => CompleteApplicationDataSetup(
+                selectedRoot,
+                preferencesService,
+                preferences));
+        _applicationDataSetupWindow.Activate();
+    }
+
+    private void CompleteApplicationDataSetup(
+        string root,
+        JsonAppPreferencesService preferencesService,
+        AppPreferences preferences)
+    {
+        if (!AppRuntimeMode.UsesOrganisationSharedData &&
+            !AppRuntimeMode.IsPublicReview &&
+            !string.Equals(
+                preferences.ApplicationDataFolderPath,
+                root,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            preferencesService.Save(preferences with
+            {
+                ApplicationDataFolderPath = root,
+            });
+        }
+
+        AppRuntimeMode.ConfigureApplicationDataRoot(root);
+        if (AppRuntimeMode.UsesOrganisationSharedData)
+        {
+            var copied = SharedApplicationDataMigrator.CopyMissingFiles(
+                ApplicationDataLocationPolicy.LocalDefaultRoot,
+                AppRuntimeMode.ApplicationDataRoot,
+                [
+                    ApplicationDataLocationPolicy.CentralDataFileName,
+                    ApplicationDataLocationPolicy.ProductionSpeedLibraryFileName,
+                ]);
+            if (copied.Count > 0)
+            {
+                Program.Log(
+                    $"Migrated {copied.Count} legacy application-data file(s) to the ATAG share.");
+            }
+        }
+        Program.Log(AppRuntimeMode.UsesOrganisationSharedData
+            ? "Using ATAG managed shared application data."
+            : "Using user-selected application data.");
+
+        var setupWindow = _applicationDataSetupWindow;
+        _applicationDataSetupWindow = null;
+        OpenMainWindow();
+        setupWindow?.Close();
     }
 
     private static void OpenMainWindow()
