@@ -4,11 +4,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Spacing="14">
-        <InfoBar
-            Message="The preview reads the selected retained lay. It does not infer or recommend a machine setting."
-            Severity="Informational"
-            Style="{StaticResource ModuleStatusInfoBarStyle}"
-            Title="Visual check" />
         <Border Style="{StaticResource ModuleBackgroundCardStyle}">
             <StackPanel Spacing="8">
                 <Grid ColumnSpacing="12">
@@ -16,10 +11,22 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock FontWeight="SemiBold" Text="Selected buncher lay" />
+                    <StackPanel Spacing="2">
+                        <TextBlock FontWeight="SemiBold" Text="Selected buncher lay" />
+                        <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="{Binding CoreLayoutDisplay}" TextWrapping="Wrap" />
+                    </StackPanel>
                     <TextBlock Grid.Column="1" Foreground="{StaticResource ModuleResultBorderBrush}" Text="{Binding SelectedChoice.LayDisplay}" />
                 </Grid>
-                <Canvas x:Name="PreviewCanvas" Height="180" SizeChanged="PreviewCanvas_SizeChanged" />
+                <ComboBox
+                    DisplayMemberPath="Display"
+                    Header="Core group to preview · visual only"
+                    HorizontalAlignment="Stretch"
+                    ItemsSource="{Binding CoreLayouts}"
+                    SelectedItem="{Binding SelectedCoreLayout, Mode=TwoWay}" />
+                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="END VIEW · ACTUAL CORE GROUP" />
+                <Canvas x:Name="CrossSectionCanvas" Height="190" SizeChanged="PreviewCanvas_SizeChanged" />
+                <TextBlock Style="{StaticResource ModuleMetricLabelStyle}" Text="SIDE VIEW · LAY REPEAT" />
+                <Canvas x:Name="SideProfileCanvas" Height="140" SizeChanged="PreviewCanvas_SizeChanged" />
                 <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="{Binding TraceDisplay}" TextWrapping="Wrap" />
             </StackPanel>
         </Border>

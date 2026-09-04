@@ -18,6 +18,7 @@ internal sealed class LivePreviewWindow : Window
     private const int MinimumWindowWidth = 760;
     private const int MinimumWindowHeight = 520;
     private readonly LivePreviewSession _session;
+    private readonly AppWindow _appWindow;
     private readonly Grid _previewHost = new();
     private readonly Grid _twoDimensionalHost = new();
     private readonly ComboBox _modeComboBox = new();
@@ -35,6 +36,7 @@ internal sealed class LivePreviewWindow : Window
         FrameworkElement sideProfileCard)
     {
         _session = session;
+        _appWindow = AppWindow;
         _crossSectionCard = crossSectionCard;
         _sideProfileCard = sideProfileCard;
         Title = $"{AppRuntimeMode.ProductName} - LIVE Preview";
@@ -54,7 +56,7 @@ internal sealed class LivePreviewWindow : Window
         Content = BuildContent(requestedTheme);
         _session.ModeChanged += Session_ModeChanged;
         _session.SceneChanged += Session_SceneChanged;
-        AppWindow.Changed += AppWindow_Changed;
+        _appWindow.Changed += AppWindow_Changed;
         Closed += LivePreviewWindow_Closed;
         SizeAndCentre();
         RenderCurrentMode();
@@ -257,7 +259,7 @@ internal sealed class LivePreviewWindow : Window
         ReleaseThreeDHost();
         _session.ModeChanged -= Session_ModeChanged;
         _session.SceneChanged -= Session_SceneChanged;
-        AppWindow.Changed -= AppWindow_Changed;
+        _appWindow.Changed -= AppWindow_Changed;
         _modeComboBox.SelectionChanged -= ModeComboBox_SelectionChanged;
         Closed -= LivePreviewWindow_Closed;
     }

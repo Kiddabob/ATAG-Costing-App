@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="ATAG.Costing.WinUI.CoilLivePreview"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Spacing="12">
+        <Border Style="{StaticResource ModuleBackgroundCardStyle}">
+            <StackPanel Spacing="8">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="2">
+                        <TextBlock FontWeight="SemiBold" Text="One-layer production coil" />
+                        <TextBlock Style="{StaticResource ModuleSupportingTextStyle}" Text="Complete turns keep both tails parallel." TextWrapping="Wrap" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Foreground="{StaticResource ModuleResultBorderBrush}" Text="{Binding CompleteTurnsDisplay}" />
+                </Grid>
+                <Canvas x:Name="PreviewCanvas" Height="300" SizeChanged="PreviewCanvas_SizeChanged" />
+            </StackPanel>
+        </Border>
+        <InfoBar
+            IsOpen="True"
+            Message="{Binding AxialFitDisplay}"
+            Severity="{Binding AxialFitSeverity}"
+            Style="{StaticResource ModuleStatusInfoBarStyle}"
+            Title="Complete-turn fit" />
+    </StackPanel>
+</UserControl>

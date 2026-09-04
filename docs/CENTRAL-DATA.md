@@ -30,8 +30,8 @@ Access or SQL table -- successful import/refresh --> local retained table
                                                 costing selections
 ```
 
-Changing link settings does not discard the current snapshot. A configured link
-is checked every 30 seconds. After a failed attempt, automatic checks pause and
+Changing link settings does not discard the current snapshot. Configured links
+are refreshed together once an hour. After a failed attempt, automatic checks pause and
 the colour-coded state reports **OFFLINE** until the user presses **Refresh
 link**. A successful read replaces the local
 snapshot only after the complete read succeeds. A missing file, unavailable
@@ -45,17 +45,18 @@ against a refreshed catalogue or newer rules. Saved locked material evidence
 can reconstruct a document-local reference when a row is no longer present in
 the retained catalogue.
 
-The snapshot and link configuration are stored per Windows user at:
+The snapshot and link configuration are stored outside the replaceable app
+folder. ATAG-detected sessions use the managed shared location:
 
 ```text
-%LOCALAPPDATA%/ATAG Design Ltd/ATAG Costing/central-data-state.json
+\\atagdesign\database\ATAG Costing App\central-data-state.json
 ```
 
-The retained state is machine/user-local and is excluded from source control and
-release contents. Existing users keep their previously imported rows when an
-upgrade is installed. Legacy states are normalised without inventing missing
-tables; a clean or incomplete state remains visibly incomplete until the user
-imports the required areas.
+The generic app asks for an application-data folder before its main page is
+created and stores the same file there. Public review keeps no retained private
+data. UI preferences and window placement remain per Windows user. Retained
+state is excluded from source control and release contents; existing files
+survive upgrades. Legacy states are normalised without inventing missing tables.
 
 ## Database Navigator and transform editor
 
@@ -200,7 +201,7 @@ link can refresh from the saved definition. Editing a SQL-password link asks
 for the session-only sign-in again before reopening Transform data.
 
 Each data area keeps an independent link, so the five areas may use different
-databases, objects, or source types. A manual or 30-second refresh processes
+databases, objects, or source types. A manual or hourly refresh processes
 each linked area independently. A successfully read and validated area replaces
 only that retained table. If another link fails, its previous rows remain and
 the connection state is **PARTIAL/OFFLINE** until a manual retry. Refresh

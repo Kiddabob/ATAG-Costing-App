@@ -49,6 +49,16 @@ Set-Content -LiteralPath $releaseNotes `
 
 Push-Location $root
 try {
+    $nugetAuditWarnings = 'NU1900,NU1901,NU1902,NU1903,NU1904'
+    dotnet restore $solution `
+        --force-evaluate `
+        -p:Platform=x64 `
+        -p:NuGetAudit=true `
+        "-warnaserror:$nugetAuditWarnings"
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Release dependency restore or vulnerability audit failed.'
+    }
+
     if (-not $SkipTests) {
         dotnet test $solution -c Release -p:Platform=x64 --no-restore
         if ($LASTEXITCODE -ne 0) { throw 'Release tests failed.' }

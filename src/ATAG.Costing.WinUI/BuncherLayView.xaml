@@ -7,36 +7,30 @@
 
     <local:ModuleWorkspaceShell
         IsPreviewEnabled="False"
-        PreviewOffMessage="Turn on LIVE Preview to inspect the selected lay direction and repeat. The retained machine and gear result remains visible while it is off."
-        PreviewSubtitle="The selected workbook lay drives this visual-only repeat."
+        PreviewOffMessage="Turn on LIVE Preview to inspect the retained equal-core group and selected lay repeat. The retained machine and gear result remains visible while it is off."
+        PreviewSubtitle="The retained core group and selected workbook lay drive this visual-only construction."
         PreviewTitle="LIVE Buncher Preview">
         <local:ModuleWorkspaceShell.HeaderContent>
             <Border Margin="32,8,32,6" Style="{StaticResource ModuleHeaderCardStyle}">
-                <Grid ColumnSpacing="20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                <StackPanel Spacing="10">
                     <StackPanel Spacing="4">
                         <TextBlock Style="{StaticResource SectionLabelStyle}" Text="BUNCHER LAY MODULE" />
                         <TextBlock FontSize="26" FontWeight="SemiBold" Text="Choose a target lay and reveal its exact machine setting." TextWrapping="Wrap" />
-                        <TextBlock MaxWidth="850" Style="{StaticResource ModuleSupportingTextStyle}" Text="Buncher lay is kept separate from braid coverage. The selected lay is the input; machine and gears are exact retained workbook-table outputs." />
+                        <TextBlock MaxWidth="850" Style="{StaticResource ModuleSupportingTextStyle}" Text="Buncher lay is kept separate from braid coverage. The selected lay is the input; machine and gears are exact retained workbook-table outputs." TextWrapping="Wrap" />
                     </StackPanel>
                     <InfoBar
-                        Grid.Column="1"
-                        MaxWidth="390"
-                        VerticalAlignment="Center"
+                        IsOpen="True"
                         Message="{Binding StatusDisplay}"
                         Severity="Success"
                         Style="{StaticResource ModuleStatusInfoBarStyle}"
                         Title="Buncher table" />
-                </Grid>
+                </StackPanel>
             </Border>
         </local:ModuleWorkspaceShell.HeaderContent>
 
         <local:ModuleWorkspaceShell.PreviewGuidanceContent>
             <InfoBar
-                Message="The preview is a visual check only. The labelled machine and gear pair is the authoritative retained-table result."
+                Message="The preview is a visual check of the cable cores themselves—never a central former with thin wires. The labelled machine and gear pair remains the authoritative retained-table result."
                 Severity="Informational"
                 Style="{StaticResource ModuleStatusInfoBarStyle}"
                 Title="Preview boundary" />

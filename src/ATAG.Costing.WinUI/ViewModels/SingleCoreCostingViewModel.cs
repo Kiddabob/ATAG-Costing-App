@@ -2459,9 +2459,9 @@ public partial class SingleCoreCostingViewModel : ObservableObject
             UpdateCentralDataLinkStatuses();
             CentralDataStatus = DatabaseTableLinks.Count > 0
                 ? $"{DatabaseTableLinks.Count} database table link(s) configured. " +
-                  "The last successfully imported local tables remain active."
+                  "The last successfully imported retained tables remain active."
                 : RetainedSourceTables.Count > 0
-                    ? "Using retained local tables. No Access or SQL refresh link is configured."
+                    ? "Using retained tables. No Access or SQL refresh link is configured."
                     : "No central data is installed. Link and import the required Access or SQL tables to begin costing.";
             if (DatabaseTableLinks.Count == 0)
             {

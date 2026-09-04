@@ -4774,7 +4774,7 @@
                                     <TextBlock
                                         VerticalAlignment="Center"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="A configured link is checked every 30 seconds. After a failed check, automatic attempts pause and this manual refresh is required; cached tables and manual project save remain available."
+                                        Text="Configured links refresh together once an hour. After a failed check, automatic attempts pause and this manual refresh is required; cached tables and manual project save remain available."
                                         TextWrapping="Wrap" />
                                     <StackPanel
                                         Grid.Column="1"
@@ -4814,7 +4814,7 @@
                                 IsOpen="True"
                                 Message="{Binding LibraryStatus}"
                                 Severity="Informational"
-                                Title="Private production library" />
+                                Title="Production data library" />
 
                             <Border Style="{StaticResource CardBorderStyle}">
                                 <StackPanel Spacing="16">
@@ -5132,7 +5132,7 @@
 
                             <TextBlock
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="Stored privately in LocalAppData as production-speed-library.json. No workbook path, removable-drive letter, production row, or machine setting is included in app releases."
+                                Text="Stored outside the replaceable app folder in the configured application-data location. No workbook path, removable-drive letter, production row, or machine setting is included in app releases."
                                 TextWrapping="Wrap" />
                         </StackPanel>
                     </ScrollViewer>

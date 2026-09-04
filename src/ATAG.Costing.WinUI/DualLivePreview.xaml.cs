@@ -18,29 +18,45 @@ namespace ATAG.Costing.WinUI;
 /// </summary>
 public sealed partial class DualLivePreview : UserControl
 {
+    private readonly DispatcherTimer _renderTimer = new()
+    {
+        Interval = TimeSpan.FromMilliseconds(50d),
+    };
     private INotifyPropertyChanged? _observedViewModel;
 
     public DualLivePreview()
     {
         InitializeComponent();
+        _renderTimer.Tick += RenderTimer_Tick;
         DataContextChanged += OnDataContextChanged;
-        Loaded += (_, _) =>
-        {
-            Observe(DataContext as INotifyPropertyChanged);
-            RenderAll();
-        };
-        Unloaded += (_, _) => Observe(null);
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
     private DualInsulationCostingViewModel? ViewModel =>
         DataContext as DualInsulationCostingViewModel;
 
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        Observe(DataContext as INotifyPropertyChanged);
+        ScheduleRender();
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        _renderTimer.Stop();
+        Observe(null);
+    }
+
     private void OnDataContextChanged(
         FrameworkElement sender,
         DataContextChangedEventArgs args)
     {
-        Observe(args.NewValue as INotifyPropertyChanged);
-        RenderAll();
+        if (IsLoaded)
+        {
+            Observe(args.NewValue as INotifyPropertyChanged);
+            ScheduleRender();
+        }
     }
 
     private void Observe(INotifyPropertyChanged? viewModel)
@@ -64,16 +80,32 @@ public sealed partial class DualLivePreview : UserControl
 
     private void ViewModel_PropertyChanged(
         object? sender,
-        PropertyChangedEventArgs e) =>
-        DispatcherQueue.TryEnqueue(RenderAll);
+        PropertyChangedEventArgs e) => ScheduleRender();
 
     private void PreviewCanvas_SizeChanged(
         object sender,
-        SizeChangedEventArgs e) => RenderAll();
+        SizeChangedEventArgs e) => ScheduleRender();
 
     private void DetailedToggle_Toggled(
         object sender,
-        RoutedEventArgs e) => RenderAll();
+        RoutedEventArgs e) => ScheduleRender();
+
+    private void ScheduleRender()
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        _renderTimer.Stop();
+        _renderTimer.Start();
+    }
+
+    private void RenderTimer_Tick(object? sender, object e)
+    {
+        _renderTimer.Stop();
+        RenderAll();
+    }
 
     private void RenderAll()
     {

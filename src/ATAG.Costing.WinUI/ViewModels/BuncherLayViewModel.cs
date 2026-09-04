@@ -26,6 +26,9 @@ public sealed class BuncherLayChoice
 
 public partial class BuncherLayViewModel : ObservableObject
 {
+    public IReadOnlyList<BraidCoreLayout> CoreLayouts { get; } =
+        BraidReferenceTables.CoreLayouts;
+
     public IReadOnlyList<BuncherLayChoice> LayChoices { get; } =
         BraidReferenceTables.BuncherLaySettings
             .Select(setting => new BuncherLayChoice(setting))
@@ -33,6 +36,9 @@ public partial class BuncherLayViewModel : ObservableObject
 
     [ObservableProperty]
     public partial BuncherLayChoice? SelectedChoice { get; set; }
+
+    [ObservableProperty]
+    public partial BraidCoreLayout? SelectedCoreLayout { get; set; }
 
     public string MachineDisplay => SelectedChoice?.MachineDisplay ?? "—";
 
@@ -49,10 +55,14 @@ public partial class BuncherLayViewModel : ObservableObject
     public double SelectedLayLengthMillimetres =>
         SelectedChoice?.Setting.LayLengthMillimetres ?? 0d;
 
+    public string CoreLayoutDisplay =>
+        SelectedCoreLayout?.Display ?? "Choose a core group";
+
     public BuncherLayViewModel()
     {
         SelectedChoice = LayChoices.FirstOrDefault(choice =>
             Math.Abs(choice.Setting.LayLengthMillimetres - 19.43d) < 0.001d);
+        SelectedCoreLayout = CoreLayouts.First(layout => layout.CoreCount == 6);
     }
 
     partial void OnSelectedChoiceChanged(BuncherLayChoice? value)
@@ -63,4 +73,7 @@ public partial class BuncherLayViewModel : ObservableObject
         OnPropertyChanged(nameof(StatusDisplay));
         OnPropertyChanged(nameof(SelectedLayLengthMillimetres));
     }
+
+    partial void OnSelectedCoreLayoutChanged(BraidCoreLayout? value) =>
+        OnPropertyChanged(nameof(CoreLayoutDisplay));
 }

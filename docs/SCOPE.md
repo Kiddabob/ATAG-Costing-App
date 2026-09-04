@@ -39,8 +39,11 @@ been documented, tested against representative workbook cases, and accepted.
   prompt.
 - If the saved folder becomes unavailable, setup is shown again to prevent files
   being silently written elsewhere.
-- Preferences are stored per Windows user under local application data; business
-  files are stored only in the selected folder.
+- Preferences are stored per Windows user under local application data.
+  ATAG-detected sessions share retained central tables and production runs at
+  `\\atagdesign\database\ATAG Costing App`; generic sessions choose their
+  application-data root at startup. Generated costing files remain in the
+  independent user-selected folder.
 - The setup card is content-height and centred inside the full-screen overlay;
   the surrounding view remains scrollable on windows too small for the content.
 
@@ -80,6 +83,12 @@ lay-up/OD-factor table, 1-to-10 ends per carrier, formula trace, and exact
 Buncher Lay machine/gear selection. Reverse calculation and insertion into a
 saved costing remain later slices over the same domain module.
 
+The 4 September 2026 local continuation adds a Buncher end/side preview whose
+equal cable cores come directly from that retained lay-up table. A six-core
+group is therefore one centre plus five around it; the visual never invents a
+central former or sheath. The selected core group and lay setting both drive
+the preview while the retained machine and gear result stays authoritative.
+
 ### Coil calculator
 
 An independent geometry-only production-planning calculator for Round, Flat,
@@ -97,6 +106,11 @@ module contains no pricing. Coiling machine time, labour, and commercial cost
 belong later in the fully dynamic cable-costing workflow after the easy-build
 preset costing pages, consuming this same physical result rather than copying
 its formula.
+
+The local 4 September 2026 page includes a bounded, event-driven LIVE Preview
+of the bar, representative complete turns, parallel tails and selected cable
+shape. The visual consumes the calculated result and does not duplicate the
+geometry rule.
 
 ### Reports
 
@@ -282,16 +296,16 @@ Progress as of 29 July 2026:
   Contacts, and Operators, searchable table/view Navigator previews, a bounded
   transform editor, full transformed source-table retention, Access physical
   name/caption/description matching, deliberate rename/remove-column steps,
-  automatic ATAG field projection, local last-successful snapshot retention, a
-  30-second connection check, visible
+  automatic ATAG field projection, local last-successful snapshot retention, an
+  hourly connection refresh, visible
   online/partial/offline state, and manual refresh are implemented;
 - central-data workflow windows use app-owned WinUI title bars and owner-only
   stacking above the ATAG main window; connection actions precede the data
   previews, unlink always starts with an explicit linked-area choice, and the
   navigation footer reports the exact independent state of all five links;
-- clean builds contain no business-data snapshot; each Windows user imports the
-  five LIVE tables during first-run setup, and only that user's successful
-  imports are retained locally for offline use;
+- clean builds contain no business-data snapshot; successful ATAG imports are
+  retained in the managed shared application-data root, while generic sessions
+  retain them in the application-data folder selected at startup;
 - conductor choice now supports strand construction, nominal mm², or calculated
   AWG plus class and supplier, with rope-lay parsing, exact strand-area
   calculation, presentation-only diameter normalisation, and visible
@@ -472,18 +486,26 @@ as well as colour.
 
 Preview geometry consumes already-calculated inputs and results. It cannot
 calculate, correct, or replace a Domain/Application result. Braid Coverage is
-the first reference implementation. As of the 23 August 2026 v0.7.0 release
-candidate, COR is the first costing workspace on the shared preview session:
-Simple, Detailed strands, and Interactive 3D share one scene and the pop-out
-moves the exact accepted 2D controls instead of maintaining a second drawing.
-Dual Insulation still moves onto this shell only through a later controlled
-refactor that preserves its accepted calculations, saves, revisions, and
-detailed conductor geometry.
+the first reference implementation. As of the 23 August 2026 v0.7.0 release,
+COR is the first costing workspace on the shared preview session: Simple,
+Detailed strands, and Interactive 3D share one scene and the pop-out moves the
+exact accepted 2D controls instead of maintaining a second drawing.
+
+The local 4 September 2026 continuation extends lightweight LIVE visuals to
+the completed Dual, Buncher and Coil modules. Dual retains its accepted
+cross-section and side profile but now coalesces rapid redraw requests. Buncher
+uses the retained core groups, with no false central former. Coil shows the bar,
+bounded representative turns, parallel tails and shape. These module-specific
+vector previews use a short trailing redraw delay, stop while unloaded and
+never duplicate calculations. Moving Dual fully onto the common costing shell
+remains a separate controlled refactor that must preserve its calculations,
+saves, revisions and detailed conductor geometry.
 
 When a module has no useful approved diagram, the shell must remove the preview
-dock entirely instead of presenting an empty or permanently paused rail. The
-Coil calculator is the first consumer of this no-preview shell mode while the
-shared accelerated-renderer optimisation remains pending.
+dock entirely instead of presenting an empty or permanently paused rail. Flat
+and D-shape remain placeholders without calculation inputs, so their real live
+geometry stays deferred until those modules exist. Production Speeds remains a
+data-entry/reference module rather than a cable-construction preview.
 
 The performance-first renderer slice is implemented for COR in the v0.7.0
 release candidate. It uses one Direct3D 11 scene/result contract, renders on
@@ -511,11 +533,12 @@ in LocalAppData and are restored only after validating that the display still
 exists. Closing or redocking a window must not discard module state.
 
 The separate `Coil Calc.xlsm` / `Coils` worksheet was audited on 20 August 2026.
-It is not yet approved for migration because its cable-length formula uses cable
-width where the sheet's own bar-diameter formula establishes cable height as the
-radial dimension. `COIL-CALCULATOR-AUDIT.md` records the evidence and the four
-business decisions required before a `coil-cable-length/v1` Domain rule and
-shared-shell page can be added.
+The user subsequently approved the corrected physical boundary: cable height is
+radial, cable width is the no-gap axial pitch for Flat/D-shape, Round uses one
+diameter for both, every winding completes a full turn so tails remain parallel,
+and optional strip lengths are added separately from tails. The implemented
+`coil-cable-length/v1` Domain rule and shared-shell page contain no pricing.
+`COIL-CALCULATOR-AUDIT.md` retains the workbook discrepancy and decision history.
 
 ### 4. Quotes, contract review, and printing
 

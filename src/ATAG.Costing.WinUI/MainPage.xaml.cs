@@ -46,7 +46,7 @@ public sealed partial class MainPage : Page
         [-0.24d, 0d, 0.24d];
     private readonly DispatcherTimer _centralDataRefreshTimer = new()
     {
-        Interval = TimeSpan.FromSeconds(30),
+        Interval = CentralDataRefreshPolicy.AutomaticRefreshInterval,
     };
     private readonly ISingleCoreProjectRepository _projectRepository =
         new JsonSingleCoreProjectRepository();
@@ -107,7 +107,7 @@ public sealed partial class MainPage : Page
                 new SqlServerCentralDataDatabaseNavigator(),
             ];
             _centralDataService = new CentralDataService(
-                new JsonCentralDataStore(),
+                new JsonCentralDataStore(AppRuntimeMode.CentralDataPath),
                 Array.Empty<ICentralDataSourceReader>(),
                 databaseNavigators);
             CostingViewModel = new SingleCoreCostingViewModel(
@@ -126,7 +126,8 @@ public sealed partial class MainPage : Page
                     ProductionSpeedLibraryDefaults.Empty()),
                 isEditingEnabled: false)
             : new ProductionSpeedLibraryViewModel(
-                new JsonProductionSpeedLibraryStore());
+                new JsonProductionSpeedLibraryStore(
+                    AppRuntimeMode.ProductionSpeedLibraryPath));
         BraidViewModel = new BraidCoverageViewModel(
             _centralDataService.Load());
         BuncherViewModel = new BuncherLayViewModel();
@@ -404,7 +405,7 @@ public sealed partial class MainPage : Page
             XamlRoot = XamlRoot,
             Title = $"Install version {_availableAppUpdate.Version}?",
             Content =
-                "Save any working costing first. The update will be verified, installed, and Costing App will restart. Your LocalAppData settings, database links, cached tables, and costing files are outside the replaceable app folder.",
+                "Save any working costing first. The update will be verified, installed, and Costing App will restart. Your settings, configured application data, database links, retained tables, and costing files are outside the replaceable app folder.",
             PrimaryButtonText = "Download and restart",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary,
@@ -588,15 +589,15 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private static async Task<BitmapImage> LoadPackagedBitmapAsync(
+    private static Task<BitmapImage> LoadPackagedBitmapAsync(
         string relativePath)
     {
-        var assetPath = Path.Combine(AppContext.BaseDirectory, relativePath);
-        var asset = await StorageFile.GetFileFromPathAsync(assetPath);
-        using var stream = await asset.OpenReadAsync();
-        var bitmap = new BitmapImage();
-        await bitmap.SetSourceAsync(stream);
-        return bitmap;
+        // Resolve packaged content through the app resource URI. Opening the
+        // physical Velopack path through StorageFile can be denied even though
+        // the asset is present and readable by the application package.
+        var resourcePath = relativePath.Replace('\\', '/');
+        return Task.FromResult(
+            new BitmapImage(new Uri($"ms-appx:///{resourcePath}")));
     }
 
     private void ConfigurePublicReviewMode()
@@ -1883,12 +1884,12 @@ public sealed partial class MainPage : Page
 
     private void LivePreviewWindow_Closed(object sender, WindowEventArgs args)
     {
-        if (_livePreviewWindow is not null)
+        if (sender is LivePreviewWindow closedWindow)
         {
-            _livePreviewWindow.ReleaseSharedTwoDimensionalCards();
-            _livePreviewWindow.RedockRequested -=
+            closedWindow.ReleaseSharedTwoDimensionalCards();
+            closedWindow.RedockRequested -=
                 LivePreviewWindow_RedockRequested;
-            _livePreviewWindow.Closed -= LivePreviewWindow_Closed;
+            closedWindow.Closed -= LivePreviewWindow_Closed;
         }
 
         RestoreSingleCorePreviewCardsToDock();
