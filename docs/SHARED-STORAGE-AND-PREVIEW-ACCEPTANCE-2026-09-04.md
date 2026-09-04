@@ -1,24 +1,20 @@
 # Shared storage and LIVE Preview acceptance - 4 September 2026
 
-This is the concise continuation record for the uncommitted work completed
-after the 25 August test baseline and the 28 August shared-storage handover.
+This is the concise continuation record for the work completed after the
+25 August test baseline and the 28 August shared-storage handover.
 Read this file before reopening the longer historical handovers.
 
 ## Release and working-tree boundary
 
-- The installed package is `0.7.0`.
-- The local release candidate is now versioned `0.8.0`; the version was raised
-  only after storage/preview acceptance and the three recorded release blockers
-  were corrected.
-- The latest public stable GitHub release was rechecked on 4 September 2026 and
-  remains `v0.7.0`, published against
-  `99865a81aa571b55aeb689dd3d6b836052260359`.
-- Public `main` and `origin/main` were both
-  `2f77c01d3bdba1abf2e7d40611fbc88f3466864f` when this continuation began.
-- The current tree contains the retained 25 August reliability work, the
-  28 August shared-storage work, and the preview changes described below.
-  Nothing in this combined local tree has been committed, pushed, installed,
-  packaged, or published.
+- The installed package updated successfully to `0.8.0`; its product version is
+  `0.8.0+f82cf6d27fb475a7c335b3841b8dab6e295b6b3f`.
+- The latest public Stable release is `v0.8.0`, published against merge commit
+  `f82cf6d27fb475a7c335b3841b8dab6e295b6b3f`.
+- USB `main` contains the release and final evidence commits, matches
+  `origin/main`, and was clean at final handover.
+- The retained 25 August reliability work, 28 August shared-storage work, and
+  preview changes described below are committed, pushed, packaged, published,
+  and installed.
 
 ## ATAG shared application-data acceptance
 

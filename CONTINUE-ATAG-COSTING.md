@@ -3909,9 +3909,10 @@ commit, with all seven expected public assets.
 The anonymous `releases.win.json` updater feed was fetched independently and
 advertises version `0.8.0`, file `Costing.App-0.8.0-full.nupkg`, and SHA-256
 `CF488042989F2694D0D20966FA7291982C54913F388C0ED6A915A8D9C604192F`,
-matching the GitHub release asset. The installed v0.7.0 app can therefore offer
-this release through its normal update check; it was deliberately not replaced
-manually during release verification. The public installer SHA-256 is
+matching the GitHub release asset. The existing installation then updated
+through the normal app mechanism; the executable reports product version
+`0.8.0+f82cf6d27fb475a7c335b3841b8dab6e295b6b3f`. This provides end-to-end
+acceptance of the launch update path. The public installer SHA-256 is
 `427AE5E128093CED212664566E37F58874123220E9236E2B61776BF9DC2D85A4`.
 
 The only Actions annotation was a non-blocking maintenance warning that
