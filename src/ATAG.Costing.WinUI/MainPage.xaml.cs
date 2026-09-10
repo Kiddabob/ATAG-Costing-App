@@ -42,8 +42,6 @@ public sealed partial class MainPage : Page
     private const double PreviewMinimumRightDockWidth = 380d;
     private const double PreviewMaximumRightDockWidth = 820d;
     private const double PreviewMinimumWorkspaceWidth = 520d;
-    private static readonly double[] BundleTextureOffsets =
-        [-0.24d, 0d, 0.24d];
     private readonly DispatcherTimer _centralDataRefreshTimer = new()
     {
         Interval = CentralDataRefreshPolicy.AutomaticRefreshInterval,
@@ -57,14 +55,9 @@ public sealed partial class MainPage : Page
         new VelopackAppUpdateService();
     private readonly CentralDataService _centralDataService;
     private readonly IReadOnlyDictionary<CentralDataSourceKind, ICentralDataDatabaseNavigator> _databaseNavigators;
-    private readonly LivePreviewSession _livePreviewSession = new();
     private ResultWindow? _resultWindow;
-    private LivePreview3DHost? _dockedLivePreview3DHost;
-    private LivePreviewWindow? _livePreviewWindow;
     private bool _isPreviewDockedRight;
     private bool _isPreviewResizeActive;
-    private bool _isPreviewSceneUpdateQueued;
-    private bool _suppressPreviewRedock;
     private uint _previewResizePointerId;
     private double _previewResizeStartX;
     private double _previewResizeStartWidth = 600d;
@@ -73,6 +66,7 @@ public sealed partial class MainPage : Page
     private UpdateReleaseNotesWindow? _updateReleaseNotesWindow;
     private bool _isAppUpdateOperationActive;
     private bool _isSynchronizingNavigation;
+    private string? _activePreviewSection;
 
     public MainPageViewModel ViewModel { get; }
     public SingleCoreCostingViewModel CostingViewModel { get; }
@@ -155,8 +149,14 @@ public sealed partial class MainPage : Page
         BraidCalculatorModuleView.DataContext = BraidViewModel;
         BuncherLayModuleView.DataContext = BuncherViewModel;
         CoilCalculatorModuleView.DataContext = CoilViewModel;
-        _livePreviewSession.Scene = CreateSingleCore3DScene();
-        _livePreviewSession.ModeChanged += LivePreviewSession_ModeChanged;
+#if DEBUG
+        SeedUnifiedPreviewDiagnosticsIfRequested();
+#endif
+        SingleCoreUnifiedPreview.BindSource(
+            CostingViewModel, () => PreviewSceneAdapters.CreateSingleCore(CostingViewModel));
+        DualUnifiedPreview.BindSource(
+            DualCostingViewModel, () => PreviewSceneAdapters.CreateDual(DualCostingViewModel));
+        SingleCoreUnifiedPreview.SetActive(false);
         if (AppRuntimeMode.IsPublicReview)
         {
             ConfigurePublicReviewMode();
@@ -225,7 +225,7 @@ public sealed partial class MainPage : Page
                 SingleCorePreviewToggle.IsOn = true;
             }
 
-            _livePreviewSession.Mode = LivePreviewMode.Interactive3D;
+            SingleCoreUnifiedPreview.ShowInteractive3D();
             Program.Log("LIVE Preview 3D smoke surface activated.");
         });
 #endif
@@ -818,7 +818,7 @@ public sealed partial class MainPage : Page
         var previewIsOn = SingleCorePreviewToggle?.IsOn == true;
         var height = previewIsOn
             ? Math.Clamp(availableHeight * 0.46d, 240d, 440d)
-            : 118d;
+                : 220d;
         PreviewBottomDockRow.Height = new GridLength(height);
     }
 
@@ -934,14 +934,11 @@ public sealed partial class MainPage : Page
     private void MainPage_Unloaded(object sender, RoutedEventArgs e)
     {
         _centralDataRefreshTimer.Stop();
-        _livePreviewSession.ModeChanged -= LivePreviewSession_ModeChanged;
-        ReleaseDockedLivePreview3DHost();
-        if (_livePreviewWindow is not null)
-        {
-            _suppressPreviewRedock = true;
-            _livePreviewWindow.Close();
-            _livePreviewWindow = null;
-        }
+        SingleCoreUnifiedPreview.SetActive(false);
+        DualConstructionView.SetWorkspaceActive(false);
+        BraidCalculatorModuleView.SetPreviewActive(false);
+        BuncherLayModuleView.SetPreviewActive(false);
+        CoilCalculatorModuleView.SetPreviewActive(false);
     }
 
     private async void CentralDataRefreshTimer_Tick(
@@ -1702,262 +1699,26 @@ public sealed partial class MainPage : Page
         PinResultsButton.IsChecked = false;
     }
 
-    private void SingleCorePreviewToggle_Toggled(
-        object sender,
-        RoutedEventArgs e)
+    private void SingleCorePreviewToggle_Toggled(object sender, RoutedEventArgs e)
     {
-        if (SingleCorePreviewContent is null ||
-            sender is not ToggleSwitch toggle)
+        if (SingleCorePreviewContent is null || sender is not ToggleSwitch toggle)
         {
             return;
         }
 
-        SingleCorePreviewContent.Visibility =
-            toggle.IsOn
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        SingleCorePreviewOffHint.Visibility =
-            toggle.IsOn
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-        if (toggle.IsOn)
-        {
-            UpdateCorePrintPreviewVisibility();
-            RenderSingleCorePreviewGeometry();
-            ApplySingleCorePreviewMode();
-        }
-        else
-        {
-            if (_livePreviewWindow is not null)
-            {
-                _suppressPreviewRedock = true;
-                _livePreviewWindow.Close();
-            }
-
-            ReleaseDockedLivePreview3DHost();
-            SingleCoreDetailedStrandPath.Data = null;
-            SingleCoreRopeGroupOutlinePath.Data = null;
-            SingleCoreSideStrandCanvas.Children.Clear();
-        }
-
+        SingleCorePreviewContent.Visibility = toggle.IsOn
+            ? Visibility.Visible : Visibility.Collapsed;
+        SingleCorePreviewOffHint.Visibility = toggle.IsOn
+            ? Visibility.Collapsed : Visibility.Visible;
+        SingleCoreUnifiedPreview.SetActive(
+            toggle.IsOn && CostingWorkspaceView.Visibility == Visibility.Visible);
         UpdateCompactPreviewHeight(CostingEditorLayout.ActualHeight);
     }
 
-    private void SingleCoreDetailedPreviewToggle_Toggled(
-        object sender,
-        RoutedEventArgs e) =>
-        RenderSingleCorePreviewGeometry();
-
-    private void SingleCorePreviewModeComboBox_SelectionChanged(
-        object sender,
-        SelectionChangedEventArgs e)
+    private void SingleCorePreviewDetachButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not ComboBox comboBox ||
-            comboBox.SelectedItem is not ComboBoxItem item ||
-            item.Tag is not string tag ||
-            !Enum.TryParse<LivePreviewMode>(tag, out var mode))
-        {
-            return;
-        }
-
-        _livePreviewSession.Mode = mode;
-    }
-
-    private void LivePreviewSession_ModeChanged(object? sender, EventArgs e)
-    {
-        if (SingleCorePreviewModeComboBox is not null &&
-            SingleCorePreviewModeComboBox.SelectedIndex !=
-            (int)_livePreviewSession.Mode)
-        {
-            SingleCorePreviewModeComboBox.SelectedIndex =
-                (int)_livePreviewSession.Mode;
-        }
-
-        ApplySingleCorePreviewMode();
-    }
-
-    private void ApplySingleCorePreviewMode()
-    {
-        if (SingleCoreCrossSectionCard is null ||
-            SingleCoreSideProfileCard is null ||
-            SingleCoreInteractive3DCard is null ||
-            SingleCorePreviewStrandDetailText is null ||
-            SingleCorePreviewDetachedInfoBar is null ||
-            SingleCorePreviewDetachButton is null)
-        {
-            return;
-        }
-
-        var previewIsOn = SingleCorePreviewToggle?.IsOn == true;
-        var isDetached = _livePreviewWindow is not null;
-        var isInteractive3D =
-            _livePreviewSession.Mode == LivePreviewMode.Interactive3D;
-        var isDetailed =
-            _livePreviewSession.Mode == LivePreviewMode.Detailed;
-
-        SingleCoreDetailedPreviewToggle.IsOn = isDetailed;
-        SingleCoreCrossSectionCard.Visibility =
-            previewIsOn && !isInteractive3D
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        SingleCoreSideProfileCard.Visibility =
-            previewIsOn && !isInteractive3D
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        SingleCorePreviewStrandDetailText.Visibility =
-            previewIsOn && !isDetached && isDetailed
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        SingleCoreInteractive3DCard.Visibility =
-            previewIsOn && !isDetached && isInteractive3D
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        SingleCorePreviewDetachedInfoBar.IsOpen = previewIsOn && isDetached;
-        SingleCorePreviewDetachButton.Content = isDetached
-            ? "Return to dock"
-            : "Open in window";
-
-        if (previewIsOn && !isDetached && isInteractive3D)
-        {
-            EnsureDockedLivePreview3DHost();
-        }
-        else
-        {
-            ReleaseDockedLivePreview3DHost();
-        }
-
-        if (previewIsOn && !isInteractive3D)
-        {
-            RenderSingleCorePreviewGeometry();
-        }
-    }
-
-    private void SingleCorePreviewDetachButton_Click(
-        object sender,
-        RoutedEventArgs e)
-    {
-        if (_livePreviewWindow is not null)
-        {
-            _livePreviewWindow.Close();
-            return;
-        }
-
-        if (SingleCorePreviewToggle is { IsOn: false })
-        {
-            SingleCorePreviewToggle.IsOn = true;
-        }
-
-        ReleaseDockedLivePreview3DHost();
-        SingleCorePreviewModeStack.Children.Remove(
-            SingleCoreCrossSectionCard);
-        SingleCorePreviewModeStack.Children.Remove(
-            SingleCoreSideProfileCard);
-        try
-        {
-            _livePreviewWindow = new LivePreviewWindow(
-                _livePreviewSession,
-                ActualTheme,
-                SingleCoreCrossSectionCard,
-                SingleCoreSideProfileCard);
-            _livePreviewWindow.RedockRequested +=
-                LivePreviewWindow_RedockRequested;
-            _livePreviewWindow.Closed += LivePreviewWindow_Closed;
-            ApplySingleCorePreviewMode();
-            _livePreviewWindow.Activate();
-        }
-        catch (Exception exception)
-        {
-            Program.Log($"LIVE Preview pop-out failed: {exception}");
-            _livePreviewWindow = null;
-            RestoreSingleCorePreviewCardsToDock();
-            CostingViewModel.CalculationStatus =
-                "The LIVE Preview window could not be opened. " +
-                "The preview has been restored to the costing workspace.";
-            ApplySingleCorePreviewMode();
-        }
-    }
-
-    private void LivePreviewWindow_RedockRequested(
-        object? sender,
-        EventArgs e) =>
-        _livePreviewWindow?.Close();
-
-    private void LivePreviewWindow_Closed(object sender, WindowEventArgs args)
-    {
-        if (sender is LivePreviewWindow closedWindow)
-        {
-            closedWindow.ReleaseSharedTwoDimensionalCards();
-            closedWindow.RedockRequested -=
-                LivePreviewWindow_RedockRequested;
-            closedWindow.Closed -= LivePreviewWindow_Closed;
-        }
-
-        RestoreSingleCorePreviewCardsToDock();
-
-        _livePreviewWindow = null;
-        var shouldRedock = !_suppressPreviewRedock;
-        _suppressPreviewRedock = false;
-        if (shouldRedock)
-        {
-            ApplySingleCorePreviewMode();
-        }
-    }
-
-    private void RestoreSingleCorePreviewCardsToDock()
-    {
-        if (SingleCoreCrossSectionCard.Parent is Panel crossSectionParent)
-        {
-            crossSectionParent.Children.Remove(SingleCoreCrossSectionCard);
-        }
-
-        if (SingleCoreSideProfileCard.Parent is Panel sideProfileParent)
-        {
-            sideProfileParent.Children.Remove(SingleCoreSideProfileCard);
-        }
-
-        if (SingleCorePreviewModeStack.Children.Contains(
-                SingleCoreCrossSectionCard))
-        {
-            return;
-        }
-
-        Grid.SetColumn(SingleCoreSideProfileCard, 0);
-        var threeDIndex = SingleCorePreviewModeStack.Children.IndexOf(
-            SingleCoreInteractive3DCard);
-        var insertionIndex = Math.Max(0, threeDIndex);
-        SingleCorePreviewModeStack.Children.Insert(
-            insertionIndex,
-            SingleCoreCrossSectionCard);
-        SingleCorePreviewModeStack.Children.Insert(
-            insertionIndex + 1,
-            SingleCoreSideProfileCard);
-    }
-
-    private void EnsureDockedLivePreview3DHost()
-    {
-        if (_dockedLivePreview3DHost is not null ||
-            SingleCoreInteractive3DHostContainer is null)
-        {
-            return;
-        }
-
-        _dockedLivePreview3DHost = new LivePreview3DHost(
-            _livePreviewSession);
-        SingleCoreInteractive3DHostContainer.Children.Add(
-            _dockedLivePreview3DHost);
-    }
-
-    private void ReleaseDockedLivePreview3DHost()
-    {
-        if (_dockedLivePreview3DHost is null)
-        {
-            return;
-        }
-
-        SingleCoreInteractive3DHostContainer?.Children.Remove(
-            _dockedLivePreview3DHost);
-        _dockedLivePreview3DHost.Dispose();
-        _dockedLivePreview3DHost = null;
+        SingleCorePreviewToggle.IsOn = true;
+        SingleCoreUnifiedPreview.OpenWindow();
     }
 
     private void CostingViewModel_PropertyChanged(
@@ -1978,95 +1739,9 @@ public sealed partial class MainPage : Page
             UpdateFirstRunSetupState();
         }
 
-        if (e.PropertyName ==
-            nameof(SingleCoreCostingViewModel.HasCorePrint))
-        {
-            UpdateCorePrintPreviewVisibility();
-        }
 
-        if (e.PropertyName is
-            nameof(SingleCoreCostingViewModel.SelectedCopper) or
-            nameof(SingleCoreCostingViewModel.PreviewConductorDiameterPixels) or
-            nameof(SingleCoreCostingViewModel.PreviewSideConductorHeightPixels) or
-            nameof(SingleCoreCostingViewModel.PreviewConductorColourHex) or
-            nameof(SingleCoreCostingViewModel.PreviewInsulationColourHex) or
-            nameof(SingleCoreCostingViewModel.PreviewDimensionsDisplay) or
-            nameof(SingleCoreCostingViewModel.PreviewMaterialDisplay) or
-            nameof(SingleCoreCostingViewModel.PreviewStrandDetailDisplay))
-        {
-            QueueLivePreviewSceneUpdate();
-            if (SingleCorePreviewToggle?.IsOn == true &&
-                _livePreviewSession.Mode != LivePreviewMode.Interactive3D)
-            {
-                RenderSingleCorePreviewGeometry();
-            }
-        }
     }
 
-    private void QueueLivePreviewSceneUpdate()
-    {
-        if (_isPreviewSceneUpdateQueued)
-        {
-            return;
-        }
-
-        _isPreviewSceneUpdateQueued = true;
-        DispatcherQueue.TryEnqueue(
-            Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
-            () =>
-            {
-                _isPreviewSceneUpdateQueued = false;
-                _livePreviewSession.Scene = CreateSingleCore3DScene();
-            });
-    }
-
-    private LivePreview3DScene CreateSingleCore3DScene()
-    {
-        const float insulationRadius = 1.10f;
-        const int maximumRenderedStrands = 512;
-        var conductorRadius = Math.Clamp(
-            (float)(CostingViewModel.PreviewConductorDiameterPixels /
-                    176d * insulationRadius),
-            0.035f,
-            insulationRadius);
-        var construction = CostingViewModel.SelectedCopper?.Construction;
-        IReadOnlyList<LivePreview3DStrand> strands = [];
-        var rendersDetailedStrands = false;
-        var detailBoundary = string.Empty;
-        if (construction is not null &&
-            construction.TotalStrandCount <= maximumRenderedStrands)
-        {
-            var layout = ConductorPreviewLayoutBuilder.Create(
-                construction,
-                centerX: 0d,
-                centerY: 0d,
-                envelopeRadius: conductorRadius * 0.985d);
-            strands = layout.Strands
-                .Select(strand => new LivePreview3DStrand(
-                    (float)strand.X,
-                    (float)strand.Y,
-                    Math.Max(0.006f, (float)strand.Radius)))
-                .ToArray();
-            rendersDetailedStrands = strands.Count > 0;
-        }
-        else if (construction is not null)
-        {
-            detailBoundary =
-                $" · bounded envelope for {construction.TotalStrandCount:N0} strands";
-        }
-
-        return new LivePreview3DScene(
-            InsulationRadius: insulationRadius,
-            ConductorRadius: conductorRadius,
-            InsulationColour: LivePreview3DScene.FromHex(
-                CostingViewModel.PreviewInsulationColourHex),
-            ConductorColour: LivePreview3DScene.FromHex(
-                CostingViewModel.PreviewConductorColourHex),
-            Strands: strands,
-            Description:
-                $"{CostingViewModel.PreviewDimensionsDisplay}{detailBoundary}",
-            IsDetailed: rendersDetailedStrands);
-    }
 
     private void UpdateFirstRunSetupState()
     {
@@ -2094,689 +1769,6 @@ public sealed partial class MainPage : Page
         BraidViewModel.RefreshCentralData(state);
     }
 
-    private void UpdateCorePrintPreviewVisibility()
-    {
-        if (SingleCorePrintPreviewBlock is null)
-        {
-            return;
-        }
-
-        SingleCorePrintPreviewBlock.Visibility =
-            CostingViewModel.HasCorePrint
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-    }
-
-    private void RenderSingleCorePreviewGeometry()
-    {
-        if (SingleCoreSimpleConductorCircle is null ||
-            SingleCoreDetailedStrandPath is null ||
-            SingleCoreRopeGroupOutlinePath is null ||
-            SingleCoreWallDimensionLine is null ||
-            SingleCoreSideStrandCanvas is null ||
-            SingleCoreSideConductorBody is null ||
-            SingleCoreSideConductorHighlight is null ||
-            SingleCoreSideConductorEndFace is null ||
-            SingleCoreSideInsulationRing is null ||
-            SingleCoreSideInsulationRingHighlight is null ||
-            SingleCoreSideInsulationCutout is null)
-        {
-            return;
-        }
-
-        var conductorDiameter =
-            Math.Clamp(
-                CostingViewModel.PreviewConductorDiameterPixels,
-                3d,
-                176d);
-        SingleCoreWallDimensionLine.X1 =
-            Math.Clamp(105d + conductorDiameter / 2d, 105d, 193d);
-        SingleCoreWallDimensionLine.X2 = 193d;
-        UpdateSingleCoreSideProfileGeometry();
-
-        var construction = CostingViewModel.SelectedCopper?.Construction;
-        var showDetailed =
-            SingleCoreDetailedPreviewToggle?.IsOn == true &&
-            construction is not null;
-        SingleCoreSimpleConductorCircle.Visibility =
-            showDetailed
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-        SingleCoreDetailedStrandPath.Visibility =
-            showDetailed
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        SingleCoreRopeGroupOutlinePath.Visibility =
-            showDetailed && construction!.IsRopeLay
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        SingleCoreSideConductorBody.Opacity = showDetailed ? 0.28d : 1d;
-        SingleCoreSideConductorHighlight.Opacity = showDetailed ? 0.42d : 1d;
-        SingleCoreSideConductorEndFace.Opacity = showDetailed ? 0.28d : 1d;
-        SingleCoreSideConductorOpeningFace.Opacity = showDetailed ? 0.28d : 1d;
-
-        if (!showDetailed)
-        {
-            SingleCoreDetailedStrandPath.Data = null;
-            SingleCoreRopeGroupOutlinePath.Data = null;
-            SingleCoreSideStrandCanvas.Children.Clear();
-            return;
-        }
-
-        var layout = ConductorPreviewLayoutBuilder.Create(
-            construction!,
-            centerX: 105d,
-            centerY: 105d,
-            envelopeRadius: conductorDiameter / 2d - 1d);
-        var smallestStrandRadius = layout.Strands
-            .Select(strand => strand.Radius)
-            .DefaultIfEmpty(1d)
-            .Min();
-        SingleCoreDetailedStrandPath.StrokeThickness = Math.Clamp(
-            smallestStrandRadius * 0.18d,
-            0.06d,
-            0.45d);
-        SingleCoreRopeGroupOutlinePath.StrokeThickness = Math.Clamp(
-            layout.Groups
-                .Where(group => group.Level == 0)
-                .Select(group => group.Radius)
-                .DefaultIfEmpty(1d)
-                .Min() * 0.06d,
-            0.18d,
-            0.8d);
-        var strandGeometry = new GeometryGroup();
-        foreach (var strand in layout.Strands)
-        {
-            strandGeometry.Children.Add(
-                new EllipseGeometry
-                {
-                    Center = new Windows.Foundation.Point(
-                        strand.X,
-                        strand.Y),
-                    RadiusX = strand.Radius,
-                    RadiusY = strand.Radius,
-                });
-        }
-
-        var groupGeometry = new GeometryGroup();
-        foreach (var group in layout.Groups)
-        {
-            groupGeometry.Children.Add(
-                new EllipseGeometry
-                {
-                    Center = new Windows.Foundation.Point(
-                        group.X,
-                        group.Y),
-                    RadiusX = group.Radius,
-                    RadiusY = group.Radius,
-                });
-        }
-
-        SingleCoreDetailedStrandPath.Data = strandGeometry;
-        SingleCoreRopeGroupOutlinePath.Data = groupGeometry;
-        RenderDetailedSideStrands(construction!, layout);
-    }
-
-    private void RenderDetailedSideStrands(
-        ConductorConstructionResult construction,
-        ConductorPreviewLayout layout)
-    {
-        SingleCoreSideStrandCanvas.Children.Clear();
-        var sideHeight = Math.Max(
-            8d,
-            CostingViewModel.PreviewSideConductorHeightPixels);
-        var crossDiameter = Math.Max(
-            1d,
-            CostingViewModel.PreviewConductorDiameterPixels);
-        var yScale = sideHeight / crossDiameter;
-        var colour = ParsePreviewColour(
-            CostingViewModel.PreviewConductorColourHex);
-        var sideUnits = layout.SurfaceUnits;
-        if (sideUnits.Count == 0)
-        {
-            return;
-        }
-
-        var outline = new SolidColorBrush(
-            Color.FromArgb(165, 65, 34, 15));
-        var turns = construction.IsRopeLay ? 0.22d : 0.34d;
-        AddDetailedOpeningFace(
-            layout,
-            yScale,
-            colour,
-            outline);
-        var coreUnits = construction.IsRopeLay
-            ? layout.Groups
-                .Where(unit => unit.Level == 0 && !unit.IsBoundary)
-                .ToArray()
-            : layout.Strands
-                .Where(unit => unit.Level == 0 && !unit.IsBoundary)
-                .ToArray();
-        foreach (var coreUnit in coreUnits.OrderBy(unit => unit.Y))
-        {
-            AddContinuousHelixSurface(
-                new HelixSurface(coreUnit, -10),
-                yScale,
-                turns,
-                colour,
-                outline,
-                construction.IsRopeLay);
-        }
-
-        var maximumOrbit = Math.Max(
-            1d,
-            sideUnits
-                .Select(unit => UnitDistanceFromCenter(unit) * yScale)
-                .DefaultIfEmpty(1d)
-                .Max());
-        var helicalSurfaces = sideUnits
-            .Select(
-                surface =>
-                    new HelixSurface(
-                        surface,
-                        GetSurfaceColourAdjustment(
-                            surface,
-                            yScale,
-                            turns,
-                            maximumOrbit)))
-            .ToArray();
-
-        foreach (var surface in helicalSurfaces
-                     .Where(surface =>
-                         GetHelixDepthAt(
-                             surface.Surface,
-                             turns,
-                             0.5d) < 0d)
-                     .OrderBy(surface =>
-                         GetHelixDepthAt(
-                             surface.Surface,
-                             turns,
-                             0.5d)))
-        {
-            AddContinuousHelixSurface(
-                surface,
-                yScale,
-                turns,
-                colour,
-                outline,
-                construction.IsRopeLay);
-        }
-
-        foreach (var surface in helicalSurfaces
-                     .Where(surface =>
-                         GetHelixDepthAt(
-                             surface.Surface,
-                             turns,
-                             0.5d) >= 0d)
-                     .OrderBy(surface =>
-                         GetHelixDepthAt(
-                             surface.Surface,
-                             turns,
-                             0.5d)))
-        {
-            AddContinuousHelixSurface(
-                surface,
-                yScale,
-                turns,
-                colour,
-                outline,
-                construction.IsRopeLay);
-        }
-
-        AddDetailedEndFace(
-            layout,
-            yScale,
-            turns,
-            colour,
-            outline);
-    }
-
-    private void AddDetailedEndFace(
-        ConductorPreviewLayout layout,
-        double yScale,
-        double turns,
-        Color colour,
-        Brush outline)
-    {
-        var strandGeometry = CreateAngledEndFaceGeometry(
-            layout.Strands,
-            yScale,
-            turns);
-        var strandOutlineThickness = Math.Clamp(
-            layout.Strands
-                .Select(strand => strand.Radius * yScale)
-                .DefaultIfEmpty(1d)
-                .Min() * 0.22d,
-            0.05d,
-            0.55d);
-        SingleCoreSideStrandCanvas.Children.Add(
-            new Microsoft.UI.Xaml.Shapes.Path
-            {
-                Data = strandGeometry,
-                Fill = new SolidColorBrush(AdjustColour(colour, -2)),
-                Stroke = outline,
-                StrokeThickness = strandOutlineThickness,
-                IsHitTestVisible = false,
-            });
-
-        if (layout.Groups.Count == 0)
-        {
-            return;
-        }
-
-        var groupGeometry = CreateAngledEndFaceGeometry(
-            layout.Groups.Where(group => group.Level == 0),
-            yScale,
-            turns);
-        SingleCoreSideStrandCanvas.Children.Add(
-            new Microsoft.UI.Xaml.Shapes.Path
-            {
-                Data = groupGeometry,
-                Fill = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
-                Stroke = new SolidColorBrush(
-                    Color.FromArgb(135, 86, 46, 21)),
-                StrokeThickness = Math.Clamp(
-                    layout.Groups
-                        .Where(group => group.Level == 0)
-                        .Select(group => group.Radius * yScale)
-                        .DefaultIfEmpty(1d)
-                        .Min() * 0.08d,
-                    0.12d,
-                    0.75d),
-                IsHitTestVisible = false,
-            });
-    }
-
-    private void AddDetailedOpeningFace(
-        ConductorPreviewLayout layout,
-        double yScale,
-        Color colour,
-        Brush outline)
-    {
-        var strandGeometry = CreateAngledFaceGeometry(
-            layout.Strands,
-            centerX: 348d,
-            yScale,
-            rotationTurns: 0d);
-        SingleCoreSideStrandCanvas.Children.Add(
-            new Microsoft.UI.Xaml.Shapes.Path
-            {
-                Data = strandGeometry,
-                Fill = new SolidColorBrush(AdjustColour(colour, -2)),
-                Stroke = outline,
-                StrokeThickness = Math.Clamp(
-                    layout.Strands
-                        .Select(strand => strand.Radius * yScale)
-                        .DefaultIfEmpty(1d)
-                        .Min() * 0.22d,
-                    0.05d,
-                    0.55d),
-                IsHitTestVisible = false,
-            });
-    }
-
-    private static GeometryGroup CreateAngledEndFaceGeometry(
-        IEnumerable<ConductorPreviewCircle> circles,
-        double yScale,
-        double turns) =>
-        CreateAngledFaceGeometry(
-            circles,
-            centerX: 482d,
-            yScale,
-            rotationTurns: turns);
-
-    private static GeometryGroup CreateAngledFaceGeometry(
-        IEnumerable<ConductorPreviewCircle> circles,
-        double centerX,
-        double yScale,
-        double rotationTurns)
-    {
-        const double centerY = 75d;
-        const double perspectiveScale =
-            0.3420201433256687d;
-        var rotation = rotationTurns * 2d * Math.PI;
-        var cosine = Math.Cos(rotation);
-        var sine = Math.Sin(rotation);
-        var geometry = new GeometryGroup();
-        foreach (var circle in circles)
-        {
-            var relativeX = circle.X - 105d;
-            var relativeY = circle.Y - 105d;
-            var rotatedX =
-                relativeX * cosine - relativeY * sine;
-            var rotatedY =
-                relativeX * sine + relativeY * cosine;
-            var radiusY = Math.Max(0.2d, circle.Radius * yScale);
-            var radiusX = Math.Max(
-                0.14d,
-                radiusY * perspectiveScale);
-            geometry.Children.Add(
-                new EllipseGeometry
-                {
-                    Center = new Windows.Foundation.Point(
-                        centerX +
-                        rotatedX * yScale * perspectiveScale,
-                        centerY + rotatedY * yScale),
-                    RadiusX = radiusX,
-                    RadiusY = radiusY,
-                });
-        }
-
-        return geometry;
-    }
-
-    private void AddContinuousHelixSurface(
-        HelixSurface surface,
-        double yScale,
-        double turns,
-        Color colour,
-        Brush outline,
-        bool showBundleTexture)
-    {
-        var scaledDiameter = Math.Max(
-            0.55d,
-            surface.Surface.Radius * 2d * yScale);
-        var outlineAddition = Math.Clamp(
-            scaledDiameter * 0.16d,
-            0.22d,
-            1.3d);
-        var outlineGeometry = CreateContinuousHelixGeometry(
-            surface.Surface,
-            yScale,
-            turns);
-
-        SingleCoreSideStrandCanvas.Children.Add(
-            CreateSurfacePath(
-                outlineGeometry,
-                outline,
-                scaledDiameter + outlineAddition,
-                PenLineCap.Round));
-        var fillGeometry = CreateContinuousHelixGeometry(
-            surface.Surface,
-            yScale,
-            turns);
-        SingleCoreSideStrandCanvas.Children.Add(
-            CreateSurfacePath(
-                fillGeometry,
-                new SolidColorBrush(
-                    AdjustColour(
-                        colour,
-                        surface.ColourAdjustment)),
-                scaledDiameter,
-                PenLineCap.Round));
-        var highlightGeometry = CreateContinuousHelixGeometry(
-            surface.Surface,
-            yScale,
-            turns,
-            -scaledDiameter * 0.18d);
-        var highlightColour = AdjustColour(
-            colour,
-            surface.ColourAdjustment + 42);
-        SingleCoreSideStrandCanvas.Children.Add(
-            CreateSurfacePath(
-                highlightGeometry,
-                new SolidColorBrush(Color.FromArgb(
-                    105,
-                    highlightColour.R,
-                    highlightColour.G,
-                    highlightColour.B)),
-                Math.Clamp(scaledDiameter * 0.09d, 0.28d, 1.1d),
-                PenLineCap.Round));
-
-        if (showBundleTexture)
-        {
-            AddBundleTexture(
-                surface.Surface,
-                yScale,
-                turns,
-                scaledDiameter,
-                colour,
-                surface.ColourAdjustment);
-        }
-    }
-
-    private static Microsoft.UI.Xaml.Shapes.Path CreateSurfacePath(
-        Geometry geometry,
-        Brush stroke,
-        double strokeThickness,
-        PenLineCap lineCap = PenLineCap.Round)
-    {
-        return new Microsoft.UI.Xaml.Shapes.Path
-        {
-            Data = geometry,
-            Stroke = stroke,
-            StrokeThickness = strokeThickness,
-            StrokeStartLineCap = lineCap,
-            StrokeEndLineCap = lineCap,
-            StrokeLineJoin = PenLineJoin.Round,
-            IsHitTestVisible = false,
-        };
-    }
-
-    private void AddBundleTexture(
-        ConductorPreviewCircle surface,
-        double yScale,
-        double turns,
-        double scaledDiameter,
-        Color colour,
-        int colourAdjustment)
-    {
-        foreach (var offsetFactor in BundleTextureOffsets)
-        {
-            var textureGeometry = CreateContinuousHelixGeometry(
-                surface,
-                yScale,
-                turns,
-                scaledDiameter * offsetFactor);
-            SingleCoreSideStrandCanvas.Children.Add(
-                CreateSurfacePath(
-                    textureGeometry,
-                    CreateBundleTextureBrush(
-                        colour,
-                        colourAdjustment),
-                    Math.Max(0.45d, scaledDiameter * 0.055d),
-                    PenLineCap.Flat));
-        }
-    }
-
-    private static PathGeometry CreateContinuousHelixGeometry(
-        ConductorPreviewCircle surface,
-        double yScale,
-        double turns,
-        double verticalOffset = 0d)
-    {
-        const int segmentCount = 72;
-        const double startX = 348d;
-        const double endX = 482d;
-        const double centerY = 75d;
-        var orbitRadius =
-            UnitDistanceFromCenter(surface) * yScale;
-        var phase =
-            Math.Atan2(
-                surface.Y - 105d,
-                surface.X - 105d);
-        var figure = new PathFigure
-        {
-            StartPoint = new Windows.Foundation.Point(
-                startX,
-                centerY +
-                Math.Sin(phase) * orbitRadius +
-                verticalOffset),
-            IsClosed = false,
-        };
-        var geometry = new PathGeometry();
-        geometry.Figures.Add(figure);
-
-        for (var segment = 1; segment <= segmentCount; segment++)
-        {
-            var progress = segment / (double)segmentCount;
-            var angle =
-                phase +
-                progress * turns * 2d * Math.PI;
-            figure.Segments.Add(
-                new LineSegment
-                {
-                    Point =
-                new Windows.Foundation.Point(
-                    startX + (endX - startX) * progress,
-                    centerY +
-                    Math.Sin(angle) * orbitRadius +
-                    verticalOffset),
-                });
-        }
-
-        return geometry;
-    }
-
-    private static double GetHelixDepthAt(
-        ConductorPreviewCircle surface,
-        double turns,
-        double progress)
-    {
-        var phase =
-            Math.Atan2(
-                surface.Y - 105d,
-                surface.X - 105d);
-        return Math.Cos(
-            phase +
-            progress * turns * 2d * Math.PI);
-    }
-
-    private static int GetSurfaceColourAdjustment(
-        ConductorPreviewCircle surface,
-        double yScale,
-        double turns,
-        double maximumOrbit)
-    {
-        var depth =
-            GetHelixDepthAt(surface, turns, 0.5d) *
-            UnitDistanceFromCenter(surface) *
-            yScale;
-        return (int)Math.Round(
-            Math.Clamp(
-                depth / maximumOrbit * 18d,
-                -18d,
-                18d));
-    }
-
-    private void UpdateSingleCoreSideProfileGeometry()
-    {
-        var sideHeight = Math.Clamp(
-            CostingViewModel.PreviewSideConductorHeightPixels,
-            6d,
-            90d);
-        var top = 75d - sideHeight / 2d;
-        var endFaceWidth = Math.Clamp(
-            sideHeight * Math.Sin(20d * Math.PI / 180d),
-            6d,
-            28d);
-
-        Canvas.SetTop(SingleCoreSideConductorBody, top);
-        Canvas.SetTop(SingleCoreSideConductorHighlight, top);
-        Canvas.SetTop(SingleCoreSideConductorEndFace, top);
-        Canvas.SetTop(SingleCoreSideConductorOpeningFace, top);
-        Canvas.SetTop(SingleCoreSideInsulationCutout, top);
-        Canvas.SetLeft(SingleCoreSideConductorBody, 348d);
-        Canvas.SetLeft(SingleCoreSideConductorHighlight, 348d);
-        SingleCoreSideConductorBody.Width = 134d;
-        SingleCoreSideConductorHighlight.Width = 134d;
-        SingleCoreSideConductorEndFace.Width = endFaceWidth;
-        Canvas.SetLeft(
-            SingleCoreSideConductorEndFace,
-            482d - endFaceWidth / 2d);
-        SingleCoreSideConductorOpeningFace.Width = endFaceWidth;
-        Canvas.SetLeft(
-            SingleCoreSideConductorOpeningFace,
-            348d - endFaceWidth / 2d);
-        SingleCoreSideInsulationCutout.Width = endFaceWidth;
-        Canvas.SetLeft(
-            SingleCoreSideInsulationCutout,
-            348d - endFaceWidth / 2d);
-        var insulationRingGeometry = CreateInsulationRingGeometry(
-            endFaceWidth,
-            sideHeight);
-        SingleCoreSideInsulationRing.Data = insulationRingGeometry;
-        SingleCoreSideInsulationRingHighlight.Data =
-            CreateInsulationRingGeometry(
-                endFaceWidth,
-                sideHeight);
-    }
-
-    private static GeometryGroup CreateInsulationRingGeometry(
-        double innerWidth,
-        double innerHeight)
-    {
-        var ring = new GeometryGroup
-        {
-            FillRule = FillRule.EvenOdd,
-        };
-        ring.Children.Add(
-            new EllipseGeometry
-            {
-                Center = new Windows.Foundation.Point(348d, 75d),
-                RadiusX = 15d,
-                RadiusY = 45d,
-            });
-        ring.Children.Add(
-            new EllipseGeometry
-            {
-                Center = new Windows.Foundation.Point(348d, 75d),
-                RadiusX = innerWidth / 2d,
-                RadiusY = innerHeight / 2d,
-            });
-        return ring;
-    }
-
-    private static double UnitDistanceFromCenter(ConductorPreviewCircle unit) =>
-        Math.Sqrt(
-            Math.Pow(unit.X - 105d, 2d) +
-            Math.Pow(unit.Y - 105d, 2d));
-
-    private static Color AdjustColour(Color colour, int amount) =>
-        Color.FromArgb(
-            235,
-            (byte)Math.Clamp(colour.R + amount, 0, 255),
-            (byte)Math.Clamp(colour.G + amount, 0, 255),
-            (byte)Math.Clamp(colour.B + amount, 0, 255));
-
-    private static SolidColorBrush CreateBundleTextureBrush(
-        Color colour,
-        int amount)
-    {
-        var adjusted = AdjustColour(colour, amount + 38);
-        return new SolidColorBrush(
-            Color.FromArgb(
-                120,
-                adjusted.R,
-                adjusted.G,
-                adjusted.B));
-    }
-
-    private static Color ParsePreviewColour(string? value)
-    {
-        var hex = value?.Trim().TrimStart('#') ?? "";
-        if (hex.Length != 6 ||
-            !byte.TryParse(
-                hex[..2],
-                System.Globalization.NumberStyles.HexNumber,
-                null,
-                out var red) ||
-            !byte.TryParse(
-                hex[2..4],
-                System.Globalization.NumberStyles.HexNumber,
-                null,
-                out var green) ||
-            !byte.TryParse(
-                hex[4..6],
-                System.Globalization.NumberStyles.HexNumber,
-                null,
-                out var blue))
-        {
-            return Color.FromArgb(255, 199, 120, 46);
-        }
-
-        return Color.FromArgb(255, red, green, blue);
-    }
 
     private async void OpenWallReferenceSource_Click(
         object sender,
@@ -2790,10 +1782,6 @@ public sealed partial class MainPage : Page
             await Launcher.LaunchUriAsync(source);
         }
     }
-
-    private sealed record HelixSurface(
-        ConductorPreviewCircle Surface,
-        int ColourAdjustment);
 
     private void OpenResultWindow_Click(object sender, RoutedEventArgs e)
     {
@@ -3134,6 +2122,17 @@ public sealed partial class MainPage : Page
         string section,
         bool syncNavigation = true)
     {
+        // Collapsing a WinUI page does not unload it. Explicitly release the
+        // outgoing preview before activating the next one.
+        if (!string.Equals(_activePreviewSection, section, StringComparison.Ordinal))
+        {
+            SingleCoreUnifiedPreview.SetActive(false);
+            DualConstructionView.SetWorkspaceActive(false);
+            BraidCalculatorModuleView.SetPreviewActive(false);
+            BuncherLayModuleView.SetPreviewActive(false);
+            CoilCalculatorModuleView.SetPreviewActive(false);
+            _activePreviewSection = section;
+        }
         HomeView.Visibility = Visibility.Collapsed;
         SettingsView.Visibility = Visibility.Collapsed;
         ModulePlaceholderView.Visibility = Visibility.Collapsed;
@@ -3237,6 +2236,12 @@ public sealed partial class MainPage : Page
                 break;
         }
 
+        SingleCoreUnifiedPreview.SetActive(
+            section == "costing" && SingleCorePreviewToggle.IsOn);
+        DualConstructionView.SetWorkspaceActive(section == "costing-dual");
+        BraidCalculatorModuleView.SetPreviewActive(section == "braid");
+        BuncherLayModuleView.SetPreviewActive(section == "buncher");
+        CoilCalculatorModuleView.SetPreviewActive(section == "coil");
         Program.Log($"Main section shown: {section}.");
 
         if (syncNavigation)

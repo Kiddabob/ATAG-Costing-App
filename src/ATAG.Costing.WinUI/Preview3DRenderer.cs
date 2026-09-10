@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Dispatching;
 using SharpGen.Runtime;
 using Vortice.D3DCompiler;
 using Vortice.Direct3D;
@@ -34,6 +35,11 @@ internal sealed class Preview3DRenderer : IDisposable
     private readonly SwapChainPanel _panel;
     private readonly Action<Preview3DStatistics> _statisticsChanged;
     private LivePreview3DScene _scene;
+    private PreviewGeometry? _geometry;
+    private readonly Action<string>? _renderFailed;
+    private readonly DispatcherQueueTimer _renderTimer;
+    private bool _isRecovering;
+    private bool _renderUnavailable;
     private IDXGIFactory2? _factory;
     private ID3D11Device? _device;
     private ID3D11DeviceContext? _context;
@@ -69,11 +75,19 @@ internal sealed class Preview3DRenderer : IDisposable
         SwapChainPanel panel,
         Action<Preview3DStatistics> statisticsChanged,
         LivePreview3DScene scene,
-        LivePreviewCameraState camera)
+        LivePreviewCameraState camera,
+        PreviewGeometry? geometry = null,
+        Action<string>? renderFailed = null)
     {
         _panel = panel;
         _statisticsChanged = statisticsChanged;
         _scene = scene;
+        _geometry = geometry;
+        _renderFailed = renderFailed;
+        _renderTimer = panel.DispatcherQueue.CreateTimer();
+        _renderTimer.Interval = TimeSpan.FromMilliseconds(33);
+        _renderTimer.IsRepeating = false;
+        _renderTimer.Tick += RenderTimer_Tick;
         ApplyCamera(camera);
     }
 
@@ -150,6 +164,15 @@ internal sealed class Preview3DRenderer : IDisposable
         Render();
     }
 
+    public void UpdateGeometry(PreviewGeometry geometry)
+    {
+        ThrowIfDisposed();
+        _geometry = geometry;
+        if (_device is null) return;
+        CreateGeometryBuffers();
+        Render();
+    }
+
     private void ApplyCompositionScale(double scale)
     {
         if (_swapChain is null)
@@ -169,7 +192,7 @@ internal sealed class Preview3DRenderer : IDisposable
     public void Orbit(float deltaX, float deltaY)
     {
         _yaw += deltaX * 0.012f;
-        _pitch = Math.Clamp(_pitch + (deltaY * 0.012f), -1.25f, 1.25f);
+        _pitch = Math.Clamp(_pitch + (deltaY * 0.012f), -1.55f, 1.55f);
         Render();
     }
 
@@ -185,13 +208,26 @@ internal sealed class Preview3DRenderer : IDisposable
     public void Zoom(float wheelDelta)
     {
         var factor = MathF.Exp(-wheelDelta * 0.0011f);
-        _distance = Math.Clamp(_distance * factor, 3.6f, 18f);
+        _distance = Math.Clamp(_distance * factor, 0.01f, 100f);
         Render();
     }
 
     public void ResetCamera()
     {
         ApplyCamera(LivePreviewCameraState.Default);
+        Render();
+    }
+
+    public void InspectSurface()
+    {
+        var camera = LivePreviewCameraState.Default with
+        {
+            Yaw = 0,
+            Pitch = 0,
+            Target = _geometry?.InspectionTarget ?? Vector3.Zero,
+            Distance = _geometry?.InspectionDistance ?? 1f,
+        };
+        ApplyCamera(camera);
         Render();
     }
 
@@ -210,6 +246,28 @@ internal sealed class Preview3DRenderer : IDisposable
     }
 
     public void Render()
+    {
+        // Pointer, resize and scene changes share a capped one-shot frame.
+        // There is no recurring/idle rendering loop.
+        if (!_isDisposed && !_renderUnavailable && !_renderTimer.IsRunning)
+            _renderTimer.Start();
+    }
+
+    private void RenderTimer_Tick(DispatcherQueueTimer sender, object args)
+    {
+        try
+        {
+            RenderFrame();
+        }
+        catch (Exception exception)
+        {
+            _renderUnavailable = true;
+            _renderFailed?.Invoke(exception.Message);
+            Program.Log($"LIVE Preview rendering stopped: {exception}");
+        }
+    }
+
+    private void RenderFrame()
     {
         if (_isDisposed ||
             _context is null ||
@@ -241,8 +299,8 @@ internal sealed class Preview3DRenderer : IDisposable
         var projection = Matrix4x4.CreatePerspectiveFieldOfView(
             MathF.PI / 4.2f,
             Math.Max(0.1f, aspect),
-            0.1f,
-            100f);
+            Math.Clamp(_distance * 0.005f, 0.0001f, 0.1f),
+            Math.Max(100f, _distance * 4));
         var constants = new SceneConstants
         {
             WorldViewProjection = Matrix4x4.Transpose(world * view * projection),
@@ -280,9 +338,14 @@ internal sealed class Preview3DRenderer : IDisposable
         var presentResult = _swapChain.Present(1, PresentFlags.None);
         if (presentResult.Failure)
         {
-            Initialize(_isWarp);
+            if (_isRecovering)
+                throw new InvalidOperationException("The graphics device could not recover. Select Simple 2D or retry software rendering.");
+            _isRecovering = true;
+            Initialize(forceWarp: true);
             return;
         }
+
+        _isRecovering = false;
 
         var elapsed = Stopwatch.GetElapsedTime(started);
         var allocated = Math.Max(
@@ -474,7 +537,12 @@ internal sealed class Preview3DRenderer : IDisposable
         _indexBuffer = null;
         _vertexBuffer?.Dispose();
         _vertexBuffer = null;
-        var geometry = Preview3DGeometry.Create(_scene);
+        var geometry = _geometry ?? Preview3DGeometry.Create(_scene);
+        if (geometry.Vertices.Length == 0 || geometry.Indices.Length == 0)
+        {
+            _indexCount = 0;
+            return;
+        }
         _vertexBuffer = _device.CreateBuffer(
             geometry.Vertices,
             BindFlags.VertexBuffer);
@@ -559,6 +627,8 @@ internal sealed class Preview3DRenderer : IDisposable
         }
 
         _isDisposed = true;
+        _renderTimer.Stop();
+        _renderTimer.Tick -= RenderTimer_Tick;
         DisposeDeviceResources(detachPanel: true);
     }
 
@@ -598,7 +668,9 @@ internal readonly record struct PreviewVertex(
 
 internal sealed record PreviewGeometry(
     PreviewVertex[] Vertices,
-    uint[] Indices);
+    uint[] Indices,
+    Vector3? InspectionTarget = null,
+    float InspectionDistance = 1f);
 
 internal static class Preview3DGeometry
 {

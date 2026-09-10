@@ -833,7 +833,7 @@
                         </local:ModuleWorkspaceShell.PreviewGuidanceContent>
 
                         <local:ModuleWorkspaceShell.PreviewContent>
-                            <local:DualLivePreview />
+                            <local:UnifiedLivePreview x:Name="DualUnifiedPreview" />
                         </local:ModuleWorkspaceShell.PreviewContent>
 
                         <local:ModuleWorkspaceShell.WorkspaceContent>
@@ -2627,7 +2627,7 @@
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
                                                 <NumberBox
-                                                    Header="Printed character height (mm)"
+                                                    Header="Requested / legacy character height (mm)"
                                                     IsEnabled="{Binding HasCorePrint}"
                                                     Minimum="0.01"
                                                     Value="{Binding CorePrintHeightMillimetres, Mode=TwoWay}" />
@@ -2639,22 +2639,49 @@
                                                     Value="{Binding CorePrintRepeatDistanceMillimetres, Mode=TwoWay}" />
                                                 <NumberBox
                                                     Grid.Row="1"
-                                                    Header="Horizontal dot spacing (mm)"
+                                                    Header="Horizontal dot pitch · centre-to-centre (mm)"
                                                     IsEnabled="{Binding HasCorePrint}"
                                                     Minimum="0.001"
                                                     Value="{Binding CorePrintDotPitchHorizontalMillimetres, Mode=TwoWay}" />
                                                 <NumberBox
                                                     Grid.Row="1"
                                                     Grid.Column="1"
-                                                    Header="Vertical dot spacing (mm)"
+                                                    Header="Vertical dot pitch · centre-to-centre (mm)"
                                                     IsEnabled="{Binding HasCorePrint}"
                                                     Minimum="0.001"
                                                     Value="{Binding CorePrintDotPitchVerticalMillimetres, Mode=TwoWay}" />
                                             </Grid>
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <NumberBox
+                                                    x:Name="PrintDotDiameterBox"
+                                                    Header="Ink dot diameter (mm)"
+                                                    IsEnabled="{Binding HasCorePrint}"
+                                                    Minimum="0.001"
+                                                    SmallChange="0.01"
+                                                    Value="{Binding CorePrintDotDiameterMillimetres, Mode=TwoWay}" />
+                                                <NumberBox
+                                                    x:Name="PrintDotsHighBox"
+                                                    Grid.Column="1"
+                                                    Header="Character height · dots high"
+                                                    IsEnabled="{Binding HasCorePrint}"
+                                                    Minimum="5"
+                                                    Maximum="64"
+                                                    SmallChange="1"
+                                                    LargeChange="1"
+                                                    Value="{Binding CorePrintDotsHigh, Mode=TwoWay}" />
+                                            </Grid>
+                                            <TextBlock
+                                                Text="{Binding PreviewPrintRasterHeightDisplay}"
+                                                TextWrapping="Wrap"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                             <InfoBar
                                                 IsClosable="False"
                                                 IsOpen="True"
-                                                Message="The preview scales print height against the selected finished OD and repeats the wording to make spacing intent visible. Dot pitch and repeat distance are saved exact production inputs; the on-screen cable length is illustrative."
+                                                Message="LIVE Preview wraps the ink dots onto the cable and displays two complete prints at the specified repeat distance. In 3D, use Inspect surface to read the dots or Fit cable to see both prints. Dot pitch means centre-to-centre spacing. The reference bitmap font is illustrative; verify the printer's own font during setup."
                                                 Severity="Informational"
                                                 Title="Preview and production intent" />
                                         </StackPanel>
@@ -3387,56 +3414,12 @@
                                 <Grid RowSpacing="12">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
-                                    <Border
-                                        x:Name="RadialWallGuidanceSection"
-                                        Padding="12"
-                                        Background="{Binding PreviewWallStatusColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                        CornerRadius="10">
-                                        <StackPanel Spacing="7">
-                                            <TextBlock
-                                                FontSize="17"
-                                                FontWeight="SemiBold"
-                                                Foreground="White"
-                                                Text="Radial wall guidance" />
-                                            <Grid ColumnSpacing="12">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel Spacing="2">
-                                                    <TextBlock FontSize="10" Foreground="#DFFFFFFF" Text="CALCULATED WALL" />
-                                                    <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="{Binding PreviewCalculatedRadialWallDisplay}" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                                <StackPanel Grid.Column="1" Spacing="2">
-                                                    <TextBlock FontSize="10" Foreground="#DFFFFFFF" Text="PUBLISHED COMPARATOR" />
-                                                    <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="White" Text="{Binding PreviewReferenceWallDisplay}" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                            </Grid>
-                                            <TextBlock
-                                                Foreground="White"
-                                                Text="{Binding PreviewWallAssessmentDisplay}"
-                                                TextWrapping="Wrap" />
-                                            <Button
-                                                HorizontalAlignment="Left"
-                                                Click="OpenWallReferenceSource_Click"
-                                                Style="{StaticResource AccentButtonStyle}">
-                                                <TextBlock
-                                                    MaxWidth="520"
-                                                    Text="{Binding PreviewWallSourceDisplay}"
-                                                    TextWrapping="Wrap" />
-                                            </Button>
-                                            <TextBlock
-                                                FontSize="10"
-                                                Foreground="#DFFFFFFF"
-                                                Text="Published flexible-core guidance only; the selected standard, voltage rating and customer specification still require engineering approval."
-                                                TextWrapping="Wrap" />
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Grid Grid.Row="1" ColumnSpacing="10">
+                                    <!-- Keep the switch and pop-out reachable in a
+                                         compact bottom dock; all supporting content
+                                         shares one scrollable remainder below. -->
+                                    <Grid ColumnSpacing="10">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
@@ -3446,19 +3429,21 @@
                                             <TextBlock
                                                 FontSize="18"
                                                 FontWeight="SemiBold"
-                                                Text="Live cable preview" />
+                                                Text="LIVE Preview"
+                                                TextTrimming="CharacterEllipsis" />
                                             <TextBlock
                                                 x:Name="PreviewDockModeText"
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="Resizable right-hand dock"
-                                                TextWrapping="Wrap" />
+                                                FontSize="11"
+                                                TextTrimming="CharacterEllipsis" />
                                         </StackPanel>
                                         <Button
                                             x:Name="SingleCorePreviewDetachButton"
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
                                             Click="SingleCorePreviewDetachButton_Click"
-                                            Content="Open in window"
+                                            Content="Pop out"
                                             ToolTipService.ToolTip="Move this shared preview to a resizable window on the same display." />
                                         <ToggleSwitch
                                             x:Name="SingleCorePreviewToggle"
@@ -3469,448 +3454,69 @@
                                             Toggled="SingleCorePreviewToggle_Toggled" />
                                     </Grid>
 
-                                    <TextBlock
-                                        x:Name="SingleCorePreviewOffHint"
-                                        Grid.Row="2"
-                                        Margin="0,20,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Top"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="Turn on the preview to inspect the scaled construction without moving it while the costing page scrolls."
-                                        TextAlignment="Center"
-                                        TextWrapping="Wrap" />
-
                                     <ScrollViewer
-                                        x:Name="SingleCorePreviewContent"
-                                        Grid.Row="2"
+                                        Grid.Row="1"
                                         HorizontalScrollBarVisibility="Disabled"
-                                        VerticalScrollBarVisibility="Auto"
-                                        Visibility="Collapsed">
-                                        <StackPanel
-                                            x:Name="SingleCorePreviewModeStack"
-                                            Spacing="14">
-                                            <Grid ColumnSpacing="10">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel Spacing="4">
-                                                    <TextBlock
-                                                        FontWeight="SemiBold"
-                                                        Text="Preview type" />
-                                                    <ComboBox
-                                                        x:Name="SingleCorePreviewModeComboBox"
-                                                        MinWidth="230"
-                                                        HorizontalAlignment="Stretch"
-                                                        SelectedIndex="0"
-                                                        SelectionChanged="SingleCorePreviewModeComboBox_SelectionChanged">
-                                                        <ComboBoxItem Content="Simple" Tag="Simple" />
-                                                        <ComboBoxItem Content="Detailed strands" Tag="Detailed" />
-                                                        <ComboBoxItem Content="Interactive 3D" Tag="Interactive3D" />
-                                                    </ComboBox>
-                                                </StackPanel>
-                                                <TextBlock
-                                                    Grid.Column="1"
-                                                    MaxWidth="250"
-                                                    VerticalAlignment="Bottom"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="3D: drag to orbit · Shift/right drag to pan · wheel to zoom"
-                                                    TextWrapping="Wrap" />
-                                            </Grid>
-                                            <ToggleSwitch
-                                                x:Name="SingleCoreDetailedPreviewToggle"
-                                                Header="Conductor rendering"
-                                                OffContent="Simplified envelope"
-                                                OnContent="Detailed strands"
-                                                Toggled="SingleCoreDetailedPreviewToggle_Toggled"
-                                                Visibility="Collapsed" />
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalScrollBarVisibility="Auto">
+                                        <StackPanel Spacing="14">
                                             <TextBlock
-                                                x:Name="SingleCorePreviewStrandDetailText"
-                                                FontSize="12"
+                                                x:Name="SingleCorePreviewOffHint"
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="{Binding PreviewStrandDetailDisplay}"
+                                                Text="Turn on the preview to inspect the scaled construction. Wall guidance remains available below while the preview is off."
                                                 TextWrapping="Wrap" />
-
-                                            <Border
-                                                x:Name="SingleCoreCrossSectionCard"
-                                                Padding="12"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                CornerRadius="12">
-                                                <StackPanel HorizontalAlignment="Center" Spacing="8">
-                                                    <TextBlock
-                                                        HorizontalAlignment="Center"
-                                                        FontWeight="SemiBold"
-                                                        Text="Cross-section" />
-                                                    <Viewbox
-                                                        MaxHeight="280"
-                                                        HorizontalAlignment="Stretch"
-                                                        Stretch="Uniform">
-                                                    <Grid Width="210" Height="210">
-                                                        <Ellipse
-                                                            Width="{Binding PreviewToleranceDiameterPixels}"
-                                                            Height="{Binding PreviewToleranceDiameterPixels}"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Fill="Transparent"
-                                                            Stroke="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            StrokeDashArray="4,3"
-                                                            StrokeThickness="1" />
-                                                        <Ellipse
-                                                            Width="176"
-                                                            Height="176"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Fill="{Binding PreviewInsulationColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                            Stroke="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                            StrokeThickness="2" />
-                                                        <Ellipse
-                                                            x:Name="SingleCoreSimpleConductorCircle"
-                                                            Width="{Binding PreviewConductorDiameterPixels}"
-                                                            Height="{Binding PreviewConductorDiameterPixels}"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Fill="{Binding PreviewConductorColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                            Stroke="#F2F2F2"
-                                                            StrokeThickness="1.5" />
-                                                        <Path
-                                                            x:Name="SingleCoreRopeGroupOutlinePath"
-                                                            HorizontalAlignment="Stretch"
-                                                            VerticalAlignment="Stretch"
-                                                            Fill="Transparent"
-                                                            Stroke="#CCFFFFFF"
-                                                            StrokeThickness="0.8"
-                                                            Visibility="Collapsed" />
-                                                        <Path
-                                                            x:Name="SingleCoreDetailedStrandPath"
-                                                            HorizontalAlignment="Stretch"
-                                                            VerticalAlignment="Stretch"
-                                                            Fill="{Binding PreviewConductorColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                            Stroke="#F2F2F2"
-                                                            StrokeThickness="0.45"
-                                                            Visibility="Collapsed" />
-                                                        <Line
-                                                            x:Name="SingleCoreWallDimensionLine"
-                                                            X1="149"
-                                                            X2="193"
-                                                            Y1="105"
-                                                            Y2="105"
-                                                            Stroke="White"
-                                                            StrokeDashArray="2,2"
-                                                            StrokeThickness="1" />
-                                                    </Grid>
-                                                    </Viewbox>
-                                                    <TextBlock
-                                                        FontSize="14"
-                                                        FontWeight="SemiBold"
-                                                        Text="{Binding PreviewDimensionsDisplay}"
-                                                        TextAlignment="Center"
-                                                        TextWrapping="Wrap" />
-                                                    <TextBlock
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="{Binding PreviewMaterialDisplay}"
-                                                        TextAlignment="Center"
-                                                        TextWrapping="Wrap" />
-                                                </StackPanel>
-                                            </Border>
-
-                                            <Border
-                                                x:Name="SingleCoreSideProfileCard"
-                                                Padding="12"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                CornerRadius="12">
-                                                <StackPanel Spacing="9">
-                                                    <TextBlock
-                                                        FontWeight="SemiBold"
-                                                        Text="Side profile" />
-                                                    <Viewbox
-                                                        MaxHeight="220"
-                                                        HorizontalAlignment="Stretch"
-                                                        Stretch="Uniform">
-                                                    <Grid
-                                                        Width="500"
-                                                        Height="150"
-                                                        HorizontalAlignment="Center">
-                                                        <Canvas
-                                                            Width="500"
-                                                            Height="150">
-                                                            <Border
-                                                                x:Name="SingleCoreSideConductorBody"
-                                                                Width="136"
-                                                                Height="{Binding PreviewSideConductorHeightPixels}"
-                                                                Canvas.Left="346"
-                                                                Canvas.Top="54"
-                                                                Canvas.ZIndex="10"
-                                                                Background="{Binding PreviewConductorColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                BorderBrush="#7F45240F"
-                                                                BorderThickness="1"
-                                                                CornerRadius="1" />
-                                                            <Border
-                                                                x:Name="SingleCoreSideConductorHighlight"
-                                                                Width="136"
-                                                                Height="{Binding PreviewSideConductorHeightPixels}"
-                                                                Canvas.Left="346"
-                                                                Canvas.Top="54"
-                                                                Canvas.ZIndex="10"
-                                                                CornerRadius="1">
-                                                                <Border.Background>
-                                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                        <GradientStop Offset="0" Color="#55FFFFFF" />
-                                                                        <GradientStop Offset="0.38" Color="#00FFFFFF" />
-                                                                        <GradientStop Offset="1" Color="#44000000" />
-                                                                    </LinearGradientBrush>
-                                                                </Border.Background>
-                                                            </Border>
-                                                            <Ellipse
-                                                                x:Name="SingleCoreSideConductorEndFace"
-                                                                Width="16"
-                                                                Height="{Binding PreviewSideConductorHeightPixels}"
-                                                                Canvas.Left="474"
-                                                                Canvas.Top="54"
-                                                                Canvas.ZIndex="10"
-                                                                Fill="{Binding PreviewConductorColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                Stroke="#7F45240F"
-                                                                StrokeThickness="1" />
-                                                            <Ellipse
-                                                                x:Name="SingleCoreSideConductorOpeningFace"
-                                                                Width="16"
-                                                                Height="{Binding PreviewSideConductorHeightPixels}"
-                                                                Canvas.Left="340"
-                                                                Canvas.Top="54"
-                                                                Canvas.ZIndex="10"
-                                                                Fill="{Binding PreviewConductorColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                Stroke="#7F45240F"
-                                                                StrokeThickness="1" />
-                                                            <Canvas
-                                                                x:Name="SingleCoreSideStrandCanvas"
-                                                                Width="500"
-                                                                Height="150"
-                                                                Canvas.ZIndex="11"
-                                                                IsHitTestVisible="False" />
-                                                            <Border
-                                                                Width="330"
-                                                                Height="90"
-                                                                Canvas.Left="18"
-                                                                Canvas.Top="30"
-                                                                Background="{Binding PreviewInsulationColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                BorderBrush="#BFFFFFFF"
-                                                                BorderThickness="1.5"
-                                                                CornerRadius="2" />
-                                                            <Border
-                                                                Width="330"
-                                                                Height="90"
-                                                                Canvas.Left="18"
-                                                                Canvas.Top="30"
-                                                                CornerRadius="2">
-                                                                <Border.Background>
-                                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                        <GradientStop Offset="0" Color="#60FFFFFF" />
-                                                                        <GradientStop Offset="0.42" Color="#08FFFFFF" />
-                                                                        <GradientStop Offset="1" Color="#50000000" />
-                                                                    </LinearGradientBrush>
-                                                                </Border.Background>
-                                                            </Border>
-                                                            <Ellipse
-                                                                Width="26"
-                                                                Height="90"
-                                                                Canvas.Left="5"
-                                                                Canvas.Top="30"
-                                                                Fill="{Binding PreviewInsulationColourHex, Converter={StaticResource HexColourBrushConverter}}" />
-                                                            <Ellipse
-                                                                Width="26"
-                                                                Height="90"
-                                                                Canvas.Left="5"
-                                                                Canvas.Top="30">
-                                                                <Ellipse.Fill>
-                                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                        <GradientStop Offset="0" Color="#60FFFFFF" />
-                                                                        <GradientStop Offset="0.42" Color="#08FFFFFF" />
-                                                                        <GradientStop Offset="1" Color="#50000000" />
-                                                                    </LinearGradientBrush>
-                                                                </Ellipse.Fill>
-                                                            </Ellipse>
-                                                            <Path
-                                                                Data="M 18,30 C 10.82,30 5,50.15 5,75 C 5,99.85 10.82,120 18,120"
-                                                                Fill="Transparent"
-                                                                Stroke="#BFFFFFFF"
-                                                                StrokeThickness="1.5" />
-                                                            <Path
-                                                                x:Name="SingleCoreSideInsulationRing"
-                                                                Canvas.ZIndex="12"
-                                                                Fill="{Binding PreviewInsulationColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                IsHitTestVisible="False" />
-                                                            <Path
-                                                                x:Name="SingleCoreSideInsulationRingHighlight"
-                                                                Canvas.ZIndex="12"
-                                                                IsHitTestVisible="False">
-                                                                <Path.Fill>
-                                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                        <GradientStop Offset="0" Color="#60FFFFFF" />
-                                                                        <GradientStop Offset="0.42" Color="#08FFFFFF" />
-                                                                        <GradientStop Offset="1" Color="#50000000" />
-                                                                    </LinearGradientBrush>
-                                                                </Path.Fill>
-                                                            </Path>
-                                                            <Ellipse
-                                                                Width="30"
-                                                                Height="90"
-                                                                Canvas.Left="333"
-                                                                Canvas.Top="30"
-                                                                Canvas.ZIndex="13"
-                                                                Fill="Transparent"
-                                                                Stroke="#DFFFFFFF"
-                                                                StrokeThickness="1.5" />
-                                                            <Ellipse
-                                                                x:Name="SingleCoreSideInsulationCutout"
-                                                                Width="12"
-                                                                Height="{Binding PreviewSideConductorHeightPixels}"
-                                                                Canvas.Left="342"
-                                                                Canvas.Top="54"
-                                                                Canvas.ZIndex="13"
-                                                                Fill="Transparent"
-                                                                Stroke="#BFFFFFFF"
-                                                                StrokeThickness="0.8" />
-                                                        </Canvas>
-                                                    </Grid>
-                                                    </Viewbox>
-                                                    <TextBlock
-                                                        FontSize="12"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="Straight cylinder edges keep the diameter readable. The narrow end faces represent a view about 20° off side-on; detailed mode keeps each strand or rope group as one continuous, gently twisting bundle from the insulation opening to its matching end face."
-                                                        TextWrapping="Wrap" />
-                                                    <StackPanel
-                                                        x:Name="SingleCorePrintPreviewBlock"
-                                                        Spacing="9"
-                                                        Visibility="Collapsed">
-                                                    <TextBlock
-                                                        Margin="0,6,0,0"
-                                                        FontSize="13"
-                                                        FontWeight="SemiBold"
-                                                        Text="Scaled print repeat" />
-                                                    <ScrollViewer
-                                                        HorizontalScrollBarVisibility="Auto"
-                                                        HorizontalScrollMode="Enabled"
-                                                        VerticalScrollBarVisibility="Disabled"
-                                                        VerticalScrollMode="Disabled">
-                                                        <Canvas
-                                                            Width="{Binding PreviewPrintCanvasWidthPixels}"
-                                                            Height="112">
-                                                            <Border
-                                                                Width="{Binding PreviewPrintCylinderWidthPixels}"
-                                                                Height="56"
-                                                                Canvas.Left="18"
-                                                                Canvas.Top="16"
-                                                                Background="{Binding PreviewInsulationColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                BorderBrush="#BFFFFFFF"
-                                                                BorderThickness="1"
-                                                                CornerRadius="1" />
-                                                            <Border
-                                                                Width="{Binding PreviewPrintCylinderWidthPixels}"
-                                                                Height="56"
-                                                                Canvas.Left="18"
-                                                                Canvas.Top="16"
-                                                                CornerRadius="1">
-                                                                <Border.Background>
-                                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                        <GradientStop Offset="0" Color="#55FFFFFF" />
-                                                                        <GradientStop Offset="0.42" Color="#08FFFFFF" />
-                                                                        <GradientStop Offset="1" Color="#50000000" />
-                                                                    </LinearGradientBrush>
-                                                                </Border.Background>
-                                                            </Border>
-                                                            <Ellipse
-                                                                Width="16"
-                                                                Height="56"
-                                                                Canvas.Left="10"
-                                                                Canvas.Top="16"
-                                                                Fill="{Binding PreviewInsulationColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                Stroke="#BFFFFFFF"
-                                                                StrokeThickness="1" />
-                                                            <Ellipse
-                                                                Width="16"
-                                                                Height="56"
-                                                                Canvas.Left="{Binding PreviewPrintRightFaceLeftPixels}"
-                                                                Canvas.Top="16"
-                                                                Fill="{Binding PreviewInsulationColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                Stroke="#BFFFFFFF"
-                                                                StrokeThickness="1" />
-                                                            <TextBlock
-                                                                MaxWidth="270"
-                                                                Canvas.Left="34"
-                                                                Canvas.Top="{Binding PreviewPrintTextTopPixels}"
-                                                                FontSize="{Binding PreviewPrintFontSizePixels}"
-                                                                FontWeight="SemiBold"
-                                                                Foreground="{Binding CorePrintColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                Opacity="{Binding PreviewPrintOpacity}"
-                                                                Text="{Binding PreviewPrintTextDisplay}"
-                                                                TextTrimming="CharacterEllipsis" />
-                                                            <TextBlock
-                                                                MaxWidth="270"
-                                                                Canvas.Left="{Binding PreviewPrintSecondTextLeftPixels}"
-                                                                Canvas.Top="{Binding PreviewPrintTextTopPixels}"
-                                                                FontSize="{Binding PreviewPrintFontSizePixels}"
-                                                                FontWeight="SemiBold"
-                                                                Foreground="{Binding CorePrintColourHex, Converter={StaticResource HexColourBrushConverter}}"
-                                                                Opacity="{Binding PreviewPrintOpacity}"
-                                                                Text="{Binding PreviewPrintTextDisplay}"
-                                                                TextTrimming="CharacterEllipsis" />
-                                                            <Line
-                                                                X1="34"
-                                                                X2="{Binding PreviewPrintDimensionEndPixels}"
-                                                                Y1="91"
-                                                                Y2="91"
-                                                                Opacity="{Binding PreviewPrintOpacity}"
-                                                                Stroke="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                StrokeThickness="1" />
-                                                            <Line
-                                                                X1="34"
-                                                                X2="34"
-                                                                Y1="84"
-                                                                Y2="98"
-                                                                Opacity="{Binding PreviewPrintOpacity}"
-                                                                Stroke="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                StrokeThickness="1" />
-                                                            <Line
-                                                                X1="{Binding PreviewPrintDimensionEndPixels}"
-                                                                X2="{Binding PreviewPrintDimensionEndPixels}"
-                                                                Y1="84"
-                                                                Y2="98"
-                                                                Opacity="{Binding PreviewPrintOpacity}"
-                                                                Stroke="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                StrokeThickness="1" />
-                                                        </Canvas>
-                                                    </ScrollViewer>
-                                                    <TextBlock
-                                                        FontSize="11"
-                                                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                        Text="{Binding PreviewPrintScaleDisplay}"
-                                                        TextWrapping="Wrap" />
-                                                    <TextBlock
-                                                        FontSize="12"
-                                                        Text="{Binding PreviewPrintSpecificationDisplay}"
-                                                        TextWrapping="Wrap" />
-                                                    </StackPanel>
-                                                </StackPanel>
-                                             </Border>
-
-                                            <Border
-                                                x:Name="SingleCoreInteractive3DCard"
-                                                MinHeight="360"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                CornerRadius="12"
+                                            <StackPanel
+                                                x:Name="SingleCorePreviewContent"
                                                 Visibility="Collapsed">
-                                                <Grid x:Name="SingleCoreInteractive3DHostContainer" />
+                                                <local:UnifiedLivePreview x:Name="SingleCoreUnifiedPreview" />
+                                            </StackPanel>
+                                            <Border
+                                                x:Name="RadialWallGuidanceSection"
+                                                Padding="12"
+                                                Background="{Binding PreviewWallStatusColourHex, Converter={StaticResource HexColourBrushConverter}}"
+                                                CornerRadius="10">
+                                                <StackPanel Spacing="7">
+                                                    <TextBlock
+                                                        FontSize="17"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="White"
+                                                        Text="Radial wall guidance" />
+                                                    <Grid ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Spacing="2">
+                                                            <TextBlock FontSize="10" Foreground="#DFFFFFFF" Text="CALCULATED WALL" />
+                                                            <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="{Binding PreviewCalculatedRadialWallDisplay}" TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Spacing="2">
+                                                            <TextBlock FontSize="10" Foreground="#DFFFFFFF" Text="PUBLISHED COMPARATOR" />
+                                                            <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="White" Text="{Binding PreviewReferenceWallDisplay}" TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                    <TextBlock
+                                                        Foreground="White"
+                                                        Text="{Binding PreviewWallAssessmentDisplay}"
+                                                        TextWrapping="Wrap" />
+                                                    <Button
+                                                        HorizontalAlignment="Left"
+                                                        Click="OpenWallReferenceSource_Click"
+                                                        Style="{StaticResource AccentButtonStyle}">
+                                                        <TextBlock
+                                                            MaxWidth="520"
+                                                            Text="{Binding PreviewWallSourceDisplay}"
+                                                            TextWrapping="Wrap" />
+                                                    </Button>
+                                                    <TextBlock
+                                                        FontSize="10"
+                                                        Foreground="#DFFFFFFF"
+                                                        Text="Published flexible-core guidance only; the selected standard, voltage rating and customer specification still require engineering approval."
+                                                        TextWrapping="Wrap" />
+                                                </StackPanel>
                                             </Border>
-
-                                            <InfoBar
-                                                x:Name="SingleCorePreviewDetachedInfoBar"
-                                                IsClosable="False"
-                                                IsOpen="False"
-                                                Message="The shared LIVE Preview is open in its own resizable window. Changes made here continue to update it."
-                                                Severity="Informational"
-                                                Title="Preview detached" />
-
-                                         </StackPanel>
-                                     </ScrollViewer>
+                                        </StackPanel>
+                                    </ScrollViewer>
                                 </Grid>
                             </Border>
                         </Grid>

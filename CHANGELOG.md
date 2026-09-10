@@ -1,5 +1,34 @@
 # Costing App release notes
 
+## 0.9.0 - 2026-09-10
+
+- Unifies LIVE Preview across single-core, Dual Insulation, Braid Coverage,
+  Buncher Lay and Coil, with Simple and Detailed cross-section/side views
+  plus hardware-accelerated orbital 3D and a software-rendering fallback.
+- Adds shared orbit, pan, zoom, Fit cable, Inspect surface and one owned
+  pop-out window, while keeping all costing formulas in their existing modules.
+- Integrates single-core dot-matrix print into the cable's side and 3D views.
+  Two complete impressions determine the sample length without changing the
+  quoted cable length or material quantities.
+- Adds saved ink-dot diameter and character dots-high settings alongside
+  horizontal/vertical centre pitches, text, colour and repeat distance, with
+  compatibility for existing saved costings and explicit print-height feedback.
+- Uses a labelled reference bitmap font and reports unsupported characters,
+  invalid print settings and rendering limits without altering saved text.
+- Reuses bounded geometry for cable-core lay, alternating braid crossings,
+  round/flat/D-shaped sections, coiling bars, tails and strip allowances;
+  missing optional layer dimensions are explained instead of guessed.
+- Prepares geometry away from the UI thread, coalesces input changes and
+  suspends inactive previews. Shared 2D vector images avoid a separate XAML
+  element for every strand or triangle.
+- Fixes preview transfer/shutdown handling, caps oversized 2D panels, smooths
+  circular cross-sections and keeps single-core compact-dock controls visible.
+- Retains the Buncher core-group selector. An inconsistent retained 26-core
+  lay-up is reported for correction rather than silently drawing the wrong count.
+- Leaves Dual Layer calculation completion and the Flat Cable costing module
+  for the next development update; existing calculation and shared-storage
+  policies are unchanged by this preview release.
+
 ## 0.8.0 - 2026-09-04
 
 - Moves retained central tables and the production-speed library to one shared

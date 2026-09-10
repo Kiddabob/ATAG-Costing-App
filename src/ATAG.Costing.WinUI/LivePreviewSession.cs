@@ -81,6 +81,38 @@ internal sealed class LivePreviewSession
 
     public event EventHandler? SceneChanged;
 
+    public event EventHandler? DriverChanged;
+
+    public PreviewGeometry? Geometry { get; private set; }
+
+    public string GeometryDescription { get; private set; } = string.Empty;
+
+    private bool _preferSoftware;
+
+    public bool PreferSoftware
+    {
+        get => _preferSoftware;
+        set
+        {
+            if (_preferSoftware == value) return;
+            _preferSoftware = value;
+            DriverChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public void SetGeometry(PreviewGeometry geometry, string description)
+    {
+        Geometry = geometry;
+        GeometryDescription = description;
+        SceneChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ClearGeometry()
+    {
+        Geometry = null;
+        GeometryDescription = string.Empty;
+    }
+
     public LivePreviewMode Mode
     {
         get => _mode;
@@ -110,7 +142,7 @@ internal sealed class LivePreviewSession
     public LivePreviewCameraState Camera { get; set; } =
         LivePreviewCameraState.Default;
 
-    public bool ForceWarp => string.Equals(
+    public bool ForceWarp => PreferSoftware || string.Equals(
         Environment.GetEnvironmentVariable("ATAG_COSTING_3D_FORCE_WARP"),
         "1",
         StringComparison.Ordinal);

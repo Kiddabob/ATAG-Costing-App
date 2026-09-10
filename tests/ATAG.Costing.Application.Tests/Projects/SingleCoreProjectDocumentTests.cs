@@ -37,6 +37,8 @@ public sealed class SingleCoreProjectDocumentTests
             CorePrintRepeatDistanceMillimetres = 300,
             CorePrintDotPitchHorizontalMillimetres = 0.2,
             CorePrintDotPitchVerticalMillimetres = 0.3,
+            CorePrintDotDiameterMillimetres = 0.12,
+            CorePrintDotsHigh = 9,
             ReviewNotes = "Review retained",
             AdditionalRisksAtAcceptance = true,
         };
@@ -67,8 +69,26 @@ public sealed class SingleCoreProjectDocumentTests
         Assert.Equal(300, restored.CorePrintRepeatDistanceMillimetres);
         Assert.Equal(0.2, restored.CorePrintDotPitchHorizontalMillimetres);
         Assert.Equal(0.3, restored.CorePrintDotPitchVerticalMillimetres);
+        Assert.Equal(0.12, restored.CorePrintDotDiameterMillimetres);
+        Assert.Equal(9, restored.CorePrintDotsHigh);
         Assert.Equal("Review retained", restored.ReviewNotes);
         Assert.True(restored.AdditionalRisksAtAcceptance);
+    }
+
+    [Fact]
+    public void LegacyPrintDocument_PreservesRequestedHeightAndPitchesWithoutInventingExplicitDotSettings()
+    {
+        const string json = """
+            {"HasCorePrint":true,"CorePrintText":"LEGACY 01","CorePrintHeightMillimetres":0.7,
+             "CorePrintDotPitchHorizontalMillimetres":0.2,"CorePrintDotPitchVerticalMillimetres":0.3}
+            """;
+        var restored = JsonSerializer.Deserialize<SingleCoreProjectDocument>(json);
+        Assert.NotNull(restored);
+        Assert.Equal(0.7, restored.CorePrintHeightMillimetres);
+        Assert.Equal(0.2, restored.CorePrintDotPitchHorizontalMillimetres);
+        Assert.Equal(0.3, restored.CorePrintDotPitchVerticalMillimetres);
+        Assert.Null(restored.CorePrintDotDiameterMillimetres);
+        Assert.Null(restored.CorePrintDotsHigh);
     }
 
     [Fact]

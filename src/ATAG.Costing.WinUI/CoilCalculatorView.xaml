@@ -28,9 +28,10 @@
     </UserControl.Resources>
 
     <local:ModuleWorkspaceShell
+        x:Name="WorkspaceShell"
         IsPreviewEnabled="False"
         PreviewOffMessage="Turn on LIVE Preview to inspect the bar, complete turns, cable section and parallel tails. The labelled geometry remains authoritative while it is off."
-        PreviewSubtitle="The visible dimensions and complete-turn result drive this bounded vector scene."
+        PreviewSubtitle="The visible dimensions and complete-turn result drive all shared preview modes."
         PreviewTitle="LIVE Coil Preview">
         <local:ModuleWorkspaceShell.HeaderContent>
             <Border Margin="32,8,32,6" Style="{StaticResource ModuleHeaderCardStyle}">
@@ -59,7 +60,7 @@
         </local:ModuleWorkspaceShell.PreviewGuidanceContent>
 
         <local:ModuleWorkspaceShell.PreviewContent>
-            <local:CoilLivePreview />
+            <local:UnifiedLivePreview x:Name="LivePreview" />
         </local:ModuleWorkspaceShell.PreviewContent>
 
         <local:ModuleWorkspaceShell.WorkspaceContent>

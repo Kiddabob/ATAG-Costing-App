@@ -1,11 +1,23 @@
 # Continue ATAG Costing development on another PC
 
-**Handoff updated:** 25 August 2026. Public `v0.7.0` remains the baseline. The
-current local `main` working tree contains an uncommitted durable NuGet
-restore/audit boundary and a one-hour central-data automatic refresh policy.
-The comprehensive automated/native UI baseline, confirmed defects and next
-modularity slice are in `docs/TEST-BASELINE-2026-08-25.md`; read that concise
-file first. Historical implementation context follows here only when needed.
+**Handoff updated:** 10 September 2026. The user reviewed and approved publishing
+the unified preview/dot-print update as `v0.9.0`. Release preparation is in
+progress on `feature/unified-live-preview`; the previous published/installed
+baseline is `v0.8.0` until the release evidence below is updated. Do not discard
+the working tree, recreate the solution, or assume publication has completed.
+
+After this release, the user's next priorities are **Dual Layer calculation
+completion, then Flat Cable costing**. They report that spreadsheet sheets for
+different core counts already exist, but further work may not have started.
+This is an unverified user report: inspect the existing workbook before the
+next implementation slice. The detailed scope is near the top of `docs/SCOPE.md`.
+
+Read `docs/UNIFIED-LIVE-PREVIEW-ACCEPTANCE-2026-09-10.md` first, then
+`docs/UNIFIED-LIVE-PREVIEW.md` for the small shared contract and code map.
+The previous release/storage evidence is in
+`docs/SHARED-STORAGE-AND-PREVIEW-ACCEPTANCE-2026-09-04.md`. Historical context
+below is superseded where those newer records differ. Local NuGet audit policy
+and the hourly central-data refresh remain unchanged.
 
 **Earlier handoff summary:** 9 August 2026, after the auditable missing-field derivation,
 per-table link-status, and compact conductor-preview follow-up. Central-data workflow windows now use the

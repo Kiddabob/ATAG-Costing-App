@@ -18,6 +18,7 @@ public sealed partial class ModuleWorkspaceShell : UserControl
     private const double MaximumPreviewWidth = 760d;
 
     private bool _isDockedRight = true;
+    private bool _isWorkspaceActive;
     private bool _isResizeActive;
     private uint _resizePointerId;
     private double _resizeStartX;
@@ -156,6 +157,40 @@ public sealed partial class ModuleWorkspaceShell : UserControl
         set => SetValue(IsPreviewAvailableProperty, value);
     }
 
+    /// <summary>Navigation calls this because collapsed WinUI pages stay loaded.</summary>
+    public void SetWorkspaceActive(bool active)
+    {
+        _isWorkspaceActive = active;
+        UpdatePreviewActivity();
+    }
+
+    private void UpdatePreviewActivity() =>
+        SetPreviewActivity(PreviewContent,
+            _isWorkspaceActive && IsPreviewEnabled && IsPreviewAvailable);
+
+    private static void SetPreviewActivity(UIElement? element, bool active)
+    {
+        if (element is UnifiedLivePreview preview)
+        {
+            preview.SetActive(active);
+        }
+        else if (element is Panel panel)
+        {
+            foreach (var child in panel.Children)
+            {
+                SetPreviewActivity(child, active);
+            }
+        }
+        else if (element is Border border)
+        {
+            SetPreviewActivity(border.Child, active);
+        }
+        else if (element is ContentControl content)
+        {
+            SetPreviewActivity(content.Content as UIElement, active);
+        }
+    }
+
     private static void OnIsPreviewEnabledChanged(
         DependencyObject dependencyObject,
         DependencyPropertyChangedEventArgs eventArgs)
@@ -204,6 +239,7 @@ public sealed partial class ModuleWorkspaceShell : UserControl
 
     private void UpdatePreviewVisibility()
     {
+        UpdatePreviewActivity();
         if (PreviewContentPresenter is null || PreviewOffInfoBar is null)
         {
             return;

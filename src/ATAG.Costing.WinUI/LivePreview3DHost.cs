@@ -25,6 +25,10 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
     private bool _isPanGesture;
     private bool _isDisposed;
     private bool _hasLoggedRendererReady;
+    private bool _softwareRecoveryAttempted;
+    private XamlRoot? _observedXamlRoot;
+    private double _rasterizationScale;
+    private long _surfaceLifecycleRevision;
 
     public LivePreview3DHost(LivePreviewSession session)
     {
@@ -34,6 +38,9 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
         MinHeight = 320;
         Content = BuildContent();
         _session.SceneChanged += Session_SceneChanged;
+        _session.DriverChanged += Session_DriverChanged;
+        IsTabStop = true;
+        KeyDown += Host_KeyDown;
         _surface.Loaded += Surface_Loaded;
         _surface.Unloaded += Surface_Unloaded;
         _surface.SizeChanged += Surface_SizeChanged;
@@ -72,20 +79,25 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
             Width = new GridLength(1, GridUnitType.Star),
         });
 
+        var cameraButtons = new StackPanel { Spacing = 6 };
         var resetButton = new Button
         {
-            Content = "Reset view",
+            Content = "Fit cable",
             VerticalAlignment = VerticalAlignment.Center,
         };
         resetButton.Click += (_, _) => _renderer?.ResetCamera();
-        footer.Children.Add(resetButton);
+        cameraButtons.Children.Add(resetButton);
+        var inspectButton = new Button { Content = "Inspect surface" };
+        inspectButton.Click += (_, _) => _renderer?.InspectSurface();
+        cameraButtons.Children.Add(inspectButton);
+        footer.Children.Add(cameraButtons);
 
         var status = new StackPanel
         {
             Spacing = 2,
             HorizontalAlignment = HorizontalAlignment.Right,
         };
-        _sceneText.Text = _session.Scene.Description;
+        _sceneText.Text = SceneDescription;
         _sceneText.HorizontalAlignment = HorizontalAlignment.Right;
         _sceneText.TextAlignment = TextAlignment.Right;
         _sceneText.TextWrapping = TextWrapping.Wrap;
@@ -104,11 +116,47 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
         return root;
     }
 
-    private void Surface_Loaded(object sender, RoutedEventArgs e) =>
-        RecreateRenderer();
+    private void Surface_Loaded(object sender, RoutedEventArgs e) => ScheduleSurfaceReconcile();
 
-    private void Surface_Unloaded(object sender, RoutedEventArgs e) =>
-        ReleaseRenderer();
+    private void Surface_Unloaded(object sender, RoutedEventArgs e) => ScheduleSurfaceReconcile();
+
+    private void ScheduleSurfaceReconcile()
+    {
+        var revision = ++_surfaceLifecycleRevision;
+        // Reparenting between XamlRoots can deliver the old Unloaded after the
+        // new Loaded. Reconcile the settled tree once, rather than allowing an
+        // obsolete event to dispose the newly attached renderer.
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            if (_isDisposed || revision != _surfaceLifecycleRevision) return;
+            var root = _surface.XamlRoot;
+            if (!_surface.IsLoaded || root is null)
+            {
+                ObserveXamlRoot(null);
+                ReleaseRenderer();
+                return;
+            }
+            var changedRoot = !ReferenceEquals(root, _observedXamlRoot);
+            ObserveXamlRoot(root);
+            if (_renderer is null || changedRoot) RecreateRenderer();
+        });
+    }
+
+    private void ObserveXamlRoot(XamlRoot? root)
+    {
+        if (_observedXamlRoot is not null) _observedXamlRoot.Changed -= XamlRoot_Changed;
+        _observedXamlRoot = root;
+        _rasterizationScale = root?.RasterizationScale ?? 1;
+        if (root is not null) root.Changed += XamlRoot_Changed;
+    }
+
+    private void XamlRoot_Changed(XamlRoot sender, XamlRootChangedEventArgs args)
+    {
+        if (Math.Abs(sender.RasterizationScale - _rasterizationScale) < 0.001) return;
+        _rasterizationScale = sender.RasterizationScale;
+        try { _renderer?.Resize(_surface.ActualWidth, _surface.ActualHeight, _rasterizationScale); }
+        catch (Exception exception) { HandleRenderFailure(exception.Message); }
+    }
 
     private void Surface_SizeChanged(object sender, SizeChangedEventArgs e)
     {
@@ -116,18 +164,28 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
         {
             Rect = new Rect(0, 0, e.NewSize.Width, e.NewSize.Height),
         };
-        _renderer?.Resize(
-            e.NewSize.Width,
-            e.NewSize.Height,
-            _surface.XamlRoot?.RasterizationScale ?? 1d);
+        try
+        {
+            _renderer?.Resize(
+                e.NewSize.Width,
+                e.NewSize.Height,
+                _surface.XamlRoot?.RasterizationScale ?? 1d);
+        }
+        catch (Exception exception)
+        {
+            HandleRenderFailure(exception.Message);
+        }
     }
 
     private void Session_SceneChanged(object? sender, EventArgs e)
     {
-        _sceneText.Text = _session.Scene.Description;
+        _sceneText.Text = SceneDescription;
         try
         {
-            _renderer?.UpdateScene(_session.Scene);
+            if (_session.Geometry is { } geometry)
+                _renderer?.UpdateGeometry(geometry);
+            else
+                _renderer?.UpdateScene(_session.Scene);
         }
         catch (Exception exception)
         {
@@ -136,7 +194,42 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
         }
     }
 
-    private void RecreateRenderer()
+    private string SceneDescription => _session.Geometry is null
+        ? _session.Scene.Description : _session.GeometryDescription;
+
+    private void Session_DriverChanged(object? sender, EventArgs e)
+    {
+        _softwareRecoveryAttempted = false;
+        RecreateRenderer();
+    }
+
+    private void Host_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        var pan = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
+            .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+        float dx = 0, dy = 0;
+        switch (e.Key)
+        {
+            case VirtualKey.Left: dx = -8; break;
+            case VirtualKey.Right: dx = 8; break;
+            case VirtualKey.Up: dy = -8; break;
+            case VirtualKey.Down: dy = 8; break;
+            case VirtualKey.Add:
+            case VirtualKey.PageUp: _renderer?.Zoom(120); break;
+            case VirtualKey.Subtract:
+            case VirtualKey.PageDown: _renderer?.Zoom(-120); break;
+            case VirtualKey.Home: _renderer?.ResetCamera(); break;
+            default: return;
+        }
+        if (dx != 0 || dy != 0)
+        {
+            if (pan) _renderer?.Pan(dx, dy);
+            else _renderer?.Orbit(dx, dy);
+        }
+        e.Handled = true;
+    }
+
+    private void RecreateRenderer(bool forceSoftware = false)
     {
         if (!_surface.IsLoaded || _isDisposed)
         {
@@ -146,19 +239,34 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
         try
         {
             ReleaseRenderer();
+            _hasLoggedRendererReady = false;
             _renderer = new Preview3DRenderer(
                 _surface,
                 UpdateStatistics,
                 _session.Scene,
-                _session.Camera);
-            _renderer.Initialize(_session.ForceWarp);
+                _session.Camera,
+                _session.Geometry,
+                HandleRenderFailure);
+            _renderer.Initialize(_session.ForceWarp || forceSoftware);
         }
         catch (Exception exception)
         {
             Program.Log($"LIVE Preview 3D renderer failed: {exception}");
             ReleaseRenderer();
-            _statusText.Text = $"3D unavailable: {exception.Message}";
+            HandleRenderFailure(exception.Message);
         }
+    }
+
+    private void HandleRenderFailure(string message)
+    {
+        if (!_isDisposed && !_session.ForceWarp && !_softwareRecoveryAttempted)
+        {
+            _softwareRecoveryAttempted = true;
+            RecreateRenderer(forceSoftware: true);
+            return;
+        }
+        ReleaseRenderer();
+        _statusText.Text = $"3D unavailable: {message} Select Simple 2D to continue.";
     }
 
     private void Surface_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -172,6 +280,7 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
         }
 
         _activePointerId = e.Pointer.PointerId;
+        Focus(FocusState.Pointer);
         _isPointerActive = _surface.CapturePointer(e.Pointer);
         _lastPointerPosition = point.Position;
         _isPanGesture = point.Properties.IsRightButtonPressed ||
@@ -254,8 +363,11 @@ internal sealed class LivePreview3DHost : UserControl, IDisposable
         }
 
         _isDisposed = true;
+        ObserveXamlRoot(null);
         ReleaseRenderer();
         _session.SceneChanged -= Session_SceneChanged;
+        _session.DriverChanged -= Session_DriverChanged;
+        KeyDown -= Host_KeyDown;
         _surface.Loaded -= Surface_Loaded;
         _surface.Unloaded -= Surface_Unloaded;
         _surface.SizeChanged -= Surface_SizeChanged;

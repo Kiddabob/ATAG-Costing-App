@@ -255,6 +255,8 @@ public partial class SingleCoreCostingViewModel : ObservableObject
         nameof(CorePrintRepeatDistanceMillimetres),
         nameof(CorePrintDotPitchHorizontalMillimetres),
         nameof(CorePrintDotPitchVerticalMillimetres),
+        nameof(CorePrintDotDiameterMillimetres),
+        nameof(CorePrintDotsHigh),
         nameof(UseManualLineSpeed),
         nameof(ManualLineSpeedMetresPerHour),
         nameof(ProductionSetupTimeHours),
@@ -644,6 +646,15 @@ public partial class SingleCoreCostingViewModel : ObservableObject
     [ObservableProperty]
     public partial double CorePrintDotPitchVerticalMillimetres { get; set; } =
         InitialWorkingValues.CorePrintDotPitch;
+
+    [ObservableProperty]
+    public partial double CorePrintDotDiameterMillimetres { get; set; } = 0.1;
+
+    [ObservableProperty]
+    public partial double CorePrintDotsHigh { get; set; } = 7;
+
+    [ObservableProperty]
+    public partial string PreviewPrintRasterHeightDisplay { get; set; } = "Enter valid dot settings.";
 
     [ObservableProperty]
     public partial string PreviewPrintTextDisplay { get; set; } = "CORE PRINT";
@@ -1399,6 +1410,8 @@ public partial class SingleCoreCostingViewModel : ObservableObject
                 CorePrintDotPitchHorizontalMillimetres,
             CorePrintDotPitchVerticalMillimetres =
                 CorePrintDotPitchVerticalMillimetres,
+            CorePrintDotDiameterMillimetres = CorePrintDotDiameterMillimetres,
+            CorePrintDotsHigh = CorePrintDotsHigh,
             UseManualLineSpeed = UseManualLineSpeed,
             ManualLineSpeedMetresPerHour = ManualLineSpeedMetresPerHour,
             ProductionSetupTimeHours = ProductionSetupTimeHours,
@@ -1611,6 +1624,8 @@ public partial class SingleCoreCostingViewModel : ObservableObject
                 document.CorePrintDotPitchVerticalMillimetres > 0
                     ? document.CorePrintDotPitchVerticalMillimetres
                     : 0.25;
+            CorePrintDotDiameterMillimetres = document.CorePrintDotDiameterMillimetres ?? 0.1;
+            CorePrintDotsHigh = document.CorePrintDotsHigh ?? 7;
             UseManualLineSpeed = document.UseManualLineSpeed;
             ManualLineSpeedMetresPerHour =
                 document.ManualLineSpeedMetresPerHour;
@@ -2245,6 +2260,12 @@ public partial class SingleCoreCostingViewModel : ObservableObject
     partial void OnCorePrintDotPitchVerticalMillimetresChanged(double value) =>
         UpdateSingleCorePreviewAppearance();
 
+    partial void OnCorePrintDotDiameterMillimetresChanged(double value) =>
+        UpdateSingleCorePreviewAppearance();
+
+    partial void OnCorePrintDotsHighChanged(double value) =>
+        UpdateSingleCorePreviewAppearance();
+
     partial void OnMasterbatchSupplierQuoteTotalChanged(double value)
     {
         UpdateSupplierUnitPriceDisplays();
@@ -2663,6 +2684,25 @@ public partial class SingleCoreCostingViewModel : ObservableObject
               $"{CorePrintDotPitchHorizontalMillimetres:N3} × " +
               $"{CorePrintDotPitchVerticalMillimetres:N3} mm dot pitch"
             : "Print disabled";
+        var hasValidRaster = double.IsFinite(CorePrintDotDiameterMillimetres) && CorePrintDotDiameterMillimetres > 0 &&
+            double.IsFinite(CorePrintDotPitchVerticalMillimetres) && CorePrintDotPitchVerticalMillimetres > 0 &&
+            double.IsFinite(CorePrintDotsHigh) && CorePrintDotsHigh >= 5 && CorePrintDotsHigh <= 64 &&
+            CorePrintDotsHigh == Math.Truncate(CorePrintDotsHigh);
+        if (hasValidRaster)
+        {
+            var rasterHeight = ((CorePrintDotsHigh - 1) * CorePrintDotPitchVerticalMillimetres) + CorePrintDotDiameterMillimetres;
+            PreviewPrintRasterHeightDisplay = $"Actual dot-matrix height: {rasterHeight:0.###} mm = " +
+                $"({CorePrintDotsHigh:0} − 1) × {CorePrintDotPitchVerticalMillimetres:0.###} + {CorePrintDotDiameterMillimetres:0.###} mm.";
+            if (double.IsFinite(CorePrintHeightMillimetres) && CorePrintHeightMillimetres > 0 &&
+                Math.Abs(rasterHeight - CorePrintHeightMillimetres) > 0.000001)
+            {
+                PreviewPrintRasterHeightDisplay += $" This differs from the retained requested / legacy height of {CorePrintHeightMillimetres:0.###} mm; the original height and pitches have been preserved.";
+            }
+        }
+        else
+        {
+            PreviewPrintRasterHeightDisplay = "Enter a positive dot diameter and vertical pitch, and a whole-number dot height from 5 to 64.";
+        }
     }
 
     private void ApplyCopperDefaults(CopperReference value)

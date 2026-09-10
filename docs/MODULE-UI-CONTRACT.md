@@ -98,6 +98,18 @@ Where one set of values feeds another, group the source values first, then show 
 
 ## First reference implementation
 
+September 2026 update: COR, Dual, Braid, Buncher and Coil now consume the same
+`UnifiedLivePreview` presentation and Application scene/geometry contract. Read
+`UNIFIED-LIVE-PREVIEW.md` before adding another preview. The former per-module
+drawings are no longer used by these pages. COR retains its existing costing
+shell; its preview implementation is shared without rewriting saved-costing or
+revision workflows. All three modes, software fallback and one owned pop-out
+are provided centrally. Pin/follow across pages and persisted multi-monitor
+placement are not yet provided by the new host.
+
+The following paragraphs describe the original shell migration, not the latest
+preview implementation.
+
 The Braid Coverage module is the first consumer of this shared shell. Its LIVE Preview is deliberately schematic and visually subordinate to the labelled workbook-derived pitch, coverage, strand-length and gear outputs.
 
 The accepted COR preview remains unchanged in this slice. Migrating COR and Dual Insulation to the shell is a separate, controlled refactor because their saved-costing, revision and detailed conductor-preview behaviour must remain identical.
