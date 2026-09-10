@@ -176,6 +176,30 @@ try {
         Move-Item -LiteralPath $setup.FullName -Destination $friendlySetup
     }
 
+    # Velopack records the original setup name before our friendly rename.
+    # Keep its public asset manifest consistent with the files we publish.
+    $assetManifestPath = Join-Path $releaseDir 'assets.win.json'
+    if (-not (Test-Path -LiteralPath $assetManifestPath -PathType Leaf)) {
+        throw 'Velopack did not create assets.win.json.'
+    }
+    $assetEntries = @(Get-Content -LiteralPath $assetManifestPath -Raw | ConvertFrom-Json)
+    $installerEntries = @($assetEntries | Where-Object { $_.Type -eq 'Installer' })
+    if ($installerEntries.Count -ne 1) {
+        throw 'The release asset manifest must contain exactly one installer.'
+    }
+    $installerEntries[0].RelativeFileName = [System.IO.Path]::GetFileName($friendlySetup)
+    foreach ($assetEntry in $assetEntries) {
+        $assetName = [string]$assetEntry.RelativeFileName
+        if ([string]::IsNullOrWhiteSpace($assetName) -or
+            $assetName -ne [System.IO.Path]::GetFileName($assetName) -or
+            -not (Test-Path -LiteralPath (Join-Path $releaseDir $assetName) -PathType Leaf)) {
+            throw "The release asset manifest references a missing or invalid file: $assetName"
+        }
+    }
+    Set-Content -LiteralPath $assetManifestPath `
+        -Value (ConvertTo-Json -InputObject $assetEntries -Depth 4 -Compress) `
+        -Encoding UTF8
+
     $checksumLines = Get-ChildItem -LiteralPath $releaseDir -File |
         Sort-Object Name |
         ForEach-Object {

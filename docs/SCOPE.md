@@ -10,6 +10,32 @@ modules over one shared calculation model rather than copies of a worksheet.
 The workbook remains the reference implementation until each migrated rule has
 been documented, tested against representative workbook cases, and accepted.
 
+## Next approved development order
+
+The user has approved publishing the current unified LIVE Preview and integrated
+dot-print update. Publication is pending the existing release gates; approval
+alone is not evidence that an update is already available.
+
+After that release, the next development priorities are, in order:
+
+1. **Dual Layer / Dual Insulation calculating end to end.** Inspect the existing
+   implementation, workbook rules and current input-to-result path first. Fix
+   or complete the calculation workflow, visible trace, validation and saved
+   result handling without replacing already-working Domain/Application rules.
+   Reuse the shared costing presentation and unified LIVE Preview; its existing
+   visual support does not establish calculation acceptance.
+2. **Flat Cable costing module.** The user reports that the workbook already
+   contains sheets for different numbers of cores and believes progress beyond
+   those sheets may not have started. This is an unverified user report, not a
+   completed workbook audit. Inspect the actual sheets, formulas, lookups and
+   partial work before choosing the first implementation slice. Reuse the
+   existing calculation, persistence, module-shell and preview contracts;
+   isolate only genuinely Flat-specific rules and inputs.
+
+For both priorities, preserve the existing solution and user data, use
+drive-independent paths, and require the calculation acceptance checks below.
+Neither module is being implemented as part of the current publication pass.
+
 ## Non-negotiable behaviour
 
 1. Calculations are auditable. A result can expose its source inputs, expression,
@@ -597,6 +623,29 @@ These items remain planned work and must not be implied by the current navigatio
 placeholders.
 
 ## Acceptance criteria for a migrated calculation
+
+### Unified preview development slice — 10 September 2026
+
+- One reusable immutable Application scene, bounded geometry engine and WinUI
+  presentation now serve COR, Dual Insulation, Braid Coverage, Buncher Lay and
+  Coil. Every connected page offers Simple/Detailed cross-section and side
+  views, plus orbital 3D with pan, zoom, hardware rendering and WARP fallback.
+- Core lay uses actual equal cable cores and retained lay-up groups. Coiling
+  uses the existing shape-aware geometry results, bar, parallel tails and
+  separately added strip lengths. Braid uses the chosen 16/24-carrier result.
+- Tape/foil ribbon geometry is reusable where a module supplies dimensions.
+  The existing Dual checkboxes do not supply thickness, width or pitch; selected
+  but undrawn layers are explained instead of inventing engineering values.
+- COR print is integrated into the common side/3D scene. The sample fits two
+  complete impressions, independent of quoted cable length. Visible settings
+  include dot diameter, 5–64 dots high, horizontal/vertical centre pitches,
+  text, colour and repeat distance. New settings round-trip in saved projects.
+- The bitmap font is a labelled reference, not a printer-firmware guarantee.
+  Actual machine-font/calibration acceptance remains required.
+- This is local development over public v0.8.0, not a released update. Read
+  `UNIFIED-LIVE-PREVIEW-ACCEPTANCE-2026-09-10.md` for evidence and limits.
+
+### Calculation acceptance
 
 A calculation family is complete only when:
 

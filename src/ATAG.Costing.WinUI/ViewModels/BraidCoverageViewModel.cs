@@ -8,6 +8,11 @@ namespace ATAG.Costing.WinUI.ViewModels;
 
 public partial class BraidCoverageViewModel : ObservableObject
 {
+    public IReadOnlyList<int> PreviewCarrierCounts { get; } = [16, 24];
+
+    [ObservableProperty]
+    public partial int SelectedPreviewCarrierCount { get; set; } = 16;
+
     public IReadOnlyList<BraidCoreLayout> CoreLayouts =>
         BraidReferenceTables.CoreLayouts;
 

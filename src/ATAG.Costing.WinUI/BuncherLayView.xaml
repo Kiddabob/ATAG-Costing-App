@@ -6,6 +6,7 @@
     xmlns:local="using:ATAG.Costing.WinUI">
 
     <local:ModuleWorkspaceShell
+        x:Name="WorkspaceShell"
         IsPreviewEnabled="False"
         PreviewOffMessage="Turn on LIVE Preview to inspect the retained equal-core group and selected lay repeat. The retained machine and gear result remains visible while it is off."
         PreviewSubtitle="The retained core group and selected workbook lay drive this visual-only construction."
@@ -37,7 +38,15 @@
         </local:ModuleWorkspaceShell.PreviewGuidanceContent>
 
         <local:ModuleWorkspaceShell.PreviewContent>
-            <local:BuncherLivePreview />
+            <StackPanel Spacing="12">
+                <ComboBox
+                    Header="Cable cores and lay-up to preview"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberPath="Display"
+                    ItemsSource="{Binding CoreLayouts}"
+                    SelectedItem="{Binding SelectedCoreLayout, Mode=TwoWay}" />
+                <local:UnifiedLivePreview x:Name="LivePreview" />
+            </StackPanel>
         </local:ModuleWorkspaceShell.PreviewContent>
 
         <local:ModuleWorkspaceShell.WorkspaceContent>

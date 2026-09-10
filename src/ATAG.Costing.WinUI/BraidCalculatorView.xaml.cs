@@ -17,6 +17,9 @@ public sealed partial class BraidCalculatorView : UserControl
         Unloaded += OnUnloaded;
     }
 
+    public void SetPreviewActive(bool active) =>
+        WorkspaceShell.SetWorkspaceActive(active);
+
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         ObserveViewModel(DataContext as BraidCoverageViewModel);
@@ -30,6 +33,10 @@ public sealed partial class BraidCalculatorView : UserControl
 
     private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
     {
+        if (args.NewValue is BraidCoverageViewModel viewModel)
+        {
+            LivePreview.BindSource(viewModel, () => PreviewSceneAdapters.CreateBraid(viewModel));
+        }
         ObserveViewModel(args.NewValue as BraidCoverageViewModel);
         UpdateRecommendationStyling();
     }

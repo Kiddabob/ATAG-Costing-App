@@ -63,6 +63,10 @@ public sealed record SingleCoreProjectDocument
     public double CorePrintRepeatDistanceMillimetres { get; init; } = 250;
     public double CorePrintDotPitchHorizontalMillimetres { get; init; } = 0.25;
     public double CorePrintDotPitchVerticalMillimetres { get; init; } = 0.25;
+    // Nullable distinguishes older documents from an explicitly saved dot matrix.
+    // Existing requested height and both pitches remain unchanged on upgrade.
+    public double? CorePrintDotDiameterMillimetres { get; init; }
+    public double? CorePrintDotsHigh { get; init; }
     public bool UseManualLineSpeed { get; init; }
     public double ManualLineSpeedMetresPerHour { get; init; }
     public double ProductionSetupTimeHours { get; init; }

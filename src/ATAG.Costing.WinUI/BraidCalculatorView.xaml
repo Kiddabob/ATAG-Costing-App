@@ -27,6 +27,7 @@
     </UserControl.Resources>
 
     <local:ModuleWorkspaceShell
+        x:Name="WorkspaceShell"
         IsPreviewEnabled="False"
         PreviewOffMessage="Turn on LIVE Preview to compare the 16- and 24-carrier braid paths. The labelled calculations remain available while it is off."
         PreviewSubtitle="Coverage and lay geometry update from the visible Braid inputs."
@@ -58,7 +59,14 @@
         </local:ModuleWorkspaceShell.PreviewGuidanceContent>
 
         <local:ModuleWorkspaceShell.PreviewContent>
-            <local:BraidLivePreview />
+            <StackPanel Spacing="12">
+                <ComboBox
+                    Header="Carrier count to preview"
+                    HorizontalAlignment="Stretch"
+                    ItemsSource="{Binding PreviewCarrierCounts}"
+                    SelectedItem="{Binding SelectedPreviewCarrierCount, Mode=TwoWay}" />
+                <local:UnifiedLivePreview x:Name="LivePreview" />
+            </StackPanel>
         </local:ModuleWorkspaceShell.PreviewContent>
 
         <local:ModuleWorkspaceShell.WorkspaceContent>
