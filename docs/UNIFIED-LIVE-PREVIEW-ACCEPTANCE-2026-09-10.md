@@ -2,13 +2,12 @@
 
 ## Start here
 
-Continue the existing `feature/unified-live-preview` branch. It was created
-from clean `main` at `569af728aa071ec272357884793238254fa12e49`. The current
-implementation was reviewed by the user and publication is now authorized.
-Version/changelog are prepared for v0.9.0; audited packaging and GitHub
-publication are in progress. Preserve all changed and new source files until
-the release evidence records their commit. The previous published/installed
-baseline is v0.8.0, as recorded in the September 4 release handover.
+Continue the existing `main` checkout. The user-reviewed implementation is
+commit `6861735f875c08cb3e66bbb7633bac1a01f2ca90`, merged through PR #5 as
+`25d3346a51423cb53c46e9563bbb4006395991be`. Local audited packaging passed for
+v0.9.0. Stable workflow run `34492385967` / #20 completed successfully and
+published v0.9.0. The installed app was not replaced in this pass; the ordinary
+Stable updater remains the installation route. Public evidence is below.
 
 Use relative paths from the checked-out repository; the USB drive letter is
 not part of the implementation. Read `UNIFIED-LIVE-PREVIEW.md` for the modular
@@ -172,9 +171,45 @@ dependency. Profile worst-case inputs on target laptop hardware next.
 6. The full compact/wide/theme/accessibility matrix and genuine low-end GPU/
    older-laptop acceptance remain outstanding. Hardware-failure simulation,
    long-duration stress and translucent materials were not validated here.
-7. Publication is now approved for v0.9.0. Run the online-audited Release/package
-   and public-data gates, verify packaged native views and follow the existing
-   reviewed GitHub workflow. Append verified public release/updater evidence.
+7. Publication completed for v0.9.0 through the reviewed PR and existing Stable
+   workflow. Local and GitHub online-audited Release/package/public-data gates
+   passed. Installed update/restart and visible installed-logo acceptance were
+   not performed in this publication-only pass.
 
 Shared ATAG storage, generic-user chooser and the one-hour relink policy were
 not changed. No source workbook, live database or saved costing was edited.
+
+## Public v0.9.0 release evidence
+
+- PR: [#5](https://github.com/Kiddabob/ATAG-Costing-App/pull/5), merged to main.
+- Merge/tag target: `25d3346a51423cb53c46e9563bbb4006395991be`.
+- [Stable Actions run #20](https://github.com/Kiddabob/ATAG-Costing-App/actions/runs/34492385967)
+  completed successfully, including audited build/test/package, publication
+  and retained installer evidence. Run timestamps: 14:56:43–15:01:03 UTC.
+- [Public v0.9.0](https://github.com/Kiddabob/ATAG-Costing-App/releases/tag/v0.9.0)
+  is latest Stable, not draft or prerelease, published 10 September 2026 at
+  15:00:47 UTC / 16:00:47 BST, with seven release assets.
+- Installer: 101,520,721 bytes; SHA-256
+  `2ef7bdf602815eec8063ee133127b4b3c1013fe7e1d4297c92ddad4402f5d412`.
+- `Costing.App-0.9.0-full.nupkg`: 96,927,569 bytes; SHA-256
+  `23864f23e6d56e1cb110540faa5a34aa9367cebc3205d312c75694f064135f01`.
+- Portable ZIP: 96,872,589 bytes; SHA-256
+  `0eff2d5eab1b2cb746f14c6aa1cfd393720a1df2b898f6bd714e76d40ddceb69`.
+- Four small metadata files were downloaded anonymously and their sizes/
+  SHA-256 checked against GitHub asset digests. All six checksum entries agree
+  with the public payload digests. The updater feed advertises 0.9.0 Full,
+  its exact filename/size/SHA-256; legacy RELEASES agrees on SHA-1 metadata.
+  `assets.win.json` now references the actual `Costing-App-Setup.exe`.
+  Binary payloads were not re-downloaded; this is metadata/digest verification,
+  not an installed update/restart test. CI rebuilt the payloads, so public
+  hashes above differ from local package hashes and are authoritative.
+
+Next development is Dual Layer calculating end to end, then Flat Cable. Inspect
+the existing workbook core-count sheets and partial work first; their progress
+is a user report, not a completed workbook audit. Reuse existing shared rules,
+storage, shell and preview contracts. No Dual/Flat implementation started here.
+
+The local publish-folder test process was left running/minimized after Windows
+App Control detected user interaction; it was not forcibly stopped. Before
+USB ejection, close any app launched from the USB and verify no such process
+remains. No installed application or saved costing was replaced during release.

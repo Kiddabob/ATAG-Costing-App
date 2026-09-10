@@ -12,9 +12,9 @@ been documented, tested against representative workbook cases, and accepted.
 
 ## Next approved development order
 
-The user has approved publishing the current unified LIVE Preview and integrated
-dot-print update. Publication is pending the existing release gates; approval
-alone is not evidence that an update is already available.
+The user-reviewed unified LIVE Preview and integrated dot-print update was
+published as Stable v0.9.0 through PR #5 and successful Actions run #20.
+See `UNIFIED-LIVE-PREVIEW-ACCEPTANCE-2026-09-10.md` for release evidence.
 
 After that release, the next development priorities are, in order:
 
@@ -642,7 +642,7 @@ placeholders.
   text, colour and repeat distance. New settings round-trip in saved projects.
 - The bitmap font is a labelled reference, not a printer-firmware guarantee.
   Actual machine-font/calibration acceptance remains required.
-- This is local development over public v0.8.0, not a released update. Read
+- This slice was published as Stable v0.9.0. Read
   `UNIFIED-LIVE-PREVIEW-ACCEPTANCE-2026-09-10.md` for evidence and limits.
 
 ### Calculation acceptance

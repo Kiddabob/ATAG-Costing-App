@@ -1,10 +1,11 @@
 # Continue ATAG Costing development on another PC
 
-**Handoff updated:** 10 September 2026. The user reviewed and approved publishing
-the unified preview/dot-print update as `v0.9.0`. Release preparation is in
-progress on `feature/unified-live-preview`; the previous published/installed
-baseline is `v0.8.0` until the release evidence below is updated. Do not discard
-the working tree, recreate the solution, or assume publication has completed.
+**Handoff updated:** 10 September 2026. The user-reviewed unified preview/dot-print
+update is published as Stable `v0.9.0`, from PR #5 / merge `25d3346`.
+Actions run `34492385967` / #20 completed successfully. The USB checkout is on
+`main`; publication evidence is in the concise acceptance document below.
+The installed app was not replaced during this publication pass: use its normal
+Stable updater to install the release. Do not recreate the solution.
 
 After this release, the user's next priorities are **Dual Layer calculation
 completion, then Flat Cable costing**. They report that spreadsheet sheets for
